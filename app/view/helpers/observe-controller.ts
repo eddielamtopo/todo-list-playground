@@ -1,23 +1,21 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Observable, Subscription } from 'rxjs';
 
-export class ObserveController<T> implements ReactiveController {
-    sub: Subscription | null = null;
+export default class ObserveController<T> implements ReactiveController {
+    protected subscription: Subscription | undefined;
 
-    constructor(private host: ReactiveControllerHost,
-                private source: Observable<T>,
-                public value?: T) {
+    constructor(private host: ReactiveControllerHost, private source: Observable<T>, public value?: T) {
         this.host.addController(this);
     }
 
     hostConnected() {
-        this.sub = this.source.subscribe(value => {
+        this.subscription = this.source.subscribe(value => {
             this.value = value;
-            this.host.requestUpdate()
-        })
+            this.host.requestUpdate();
+        });
     }
 
     hostDisconnected() {
-        this.sub?.unsubscribe();
+        this.subscription?.unsubscribe();
     }
 }
