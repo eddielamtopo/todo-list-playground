@@ -1,4 +1,4 @@
-# LitElement TypeScript starter
+# LitElement TypeScript Todo List Playground
 
 This project includes a sample component using LitElement with TypeScript.
 
