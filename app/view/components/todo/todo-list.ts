@@ -9,10 +9,6 @@ export type TodoListRemoveItemEvent = {
   readonly itemId: string;
 }
 
-export type TodoListRemoveItem2Event = {
-  readonly itemId: number;
-}
-
 const TodoListName = 'todo-list';
 @customElement(TodoListName)
 export class TodoList extends LitElement {
