@@ -6,6 +6,7 @@
     <title>My Todo List</title>
     <script src="./node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="./node_modules/lit/polyfill-support.js"></script>
+    <script type="module" src="./build/view/components/todo/todo-list-container.js"></script>
     <script type="module" src="./build/view/components/todo/todo-list.js"></script>
     <script type="module" src="./build/view/components/todo/todo-status.js"></script>
     <style>
@@ -16,7 +17,7 @@
     </style>
   </head>
   <body>
-    <todo-list></todo-list>
+    <todo-list-container></todo-list-container>
     <br/>
     <todo-status></todo-status>
   </body>
