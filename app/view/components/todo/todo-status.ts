@@ -8,8 +8,7 @@ import {observe} from '../../helpers/observe-directive';
 @customElement('todo-status')
 export class TodoStatus extends LitElement {
 
-  private readonly _todoService: TodoService = container.get(TodoService);
-  private readonly _todoCount$ = this._todoService.getEntityEvent().pipe(map(items => items.length));
+  private readonly _todoCount$ = container.get(TodoService).getEntityEvent().pipe(map(items => items.length));
 
   override render() {
     return html`
