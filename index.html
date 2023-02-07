@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>My Todo List</title>
+    <script src="./node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="./node_modules/lit/polyfill-support.js"></script>
+    <script
+      type="module"
+      src="./build/view/components/todo/todo-list-container.js"
+    ></script>
+    <script
+      type="module"
+      src="./build/view/components/todo/todo-list.js"
+    ></script>
+    <script
+      type="module"
+      src="./build/view/components/todo/todo-status.js"
+    ></script>
+    <script type="module" src="./build/view/components/form/form.js"></script>
+    <script
+      type="module"
+      src="./build/view/components/reactiveForm/reactiveForm.js"
+    ></script>
+    <style>
+      p {
+        border: solid 1px blue;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <todo-list-container></todo-list-container>
+    <br />
+    <todo-status></todo-status>
+    <hr />
+    <form-container></form-container>
+    <hr />
+    <reactive-form></reactive-form>
+  </body>
+</html>
