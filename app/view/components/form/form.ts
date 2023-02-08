@@ -1,4 +1,4 @@
-import {html, LitElement} from 'lit';
+import {css, html, LitElement, nothing} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 // custom directive
 import {FormModel} from './MyFormModel';
@@ -12,16 +12,37 @@ export class FormContainer extends LitElement {
     right: number;
     // FIXME: nested object won't get intellisence
     obj: {abc: string};
-    // FIXME: nested object won't get intellisence
-  }> = new FormModel(this, {left: '', right: ''});
+  }> = new FormModel(this, {left: '', right: ''}); // FIXME: second param doesn't get intellisence
 
-  _handleSubmit(e: Event) {
-    e.preventDefault();
-    console.log(this.formModel.model);
-  }
+  static override styles = css`
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+
+    label {
+      margin-bottom: 10px;
+    }
+
+    label sub {
+      vertical-align: text-top;
+      color: red;
+    }
+
+    .error-message {
+      color: red;
+    }
+  `;
 
   @property()
   renderCount = 0;
+
+  _handleSubmit(e: Event) {
+    e.preventDefault();
+    console.log(this.formModel.data);
+  }
 
   override render() {
     this.renderCount += 1;
@@ -31,16 +52,32 @@ export class FormContainer extends LitElement {
       <form @submit=${this._handleSubmit}>
         <h1>My form:</h1>
 
-        <label for="left">
-          Left:
-          <input ${this.formModel.registerField('left')} />
-        </label>
+        <div class="input-container">
+          <label for="left"> Left: <sub>*</sub></label>
+          <input
+            ${this.formModel.registerField('left', {
+              isValid: (value) => value.length > 0,
+              errorMessage: 'Left is required!',
+            })}
+          />
+          ${this.formModel.errors.left
+            ? html`<span class="error-message"
+                >${this.formModel.errors.left}</span
+              >`
+            : nothing}
+        </div>
 
-        <label for="right">
-          Right:
-          <!-- this.formModel.registerField('nonExistent') will show type error -->
-          <input ${this.formModel.registerField('right')} />
-        </label>
+        <div class="input-container">
+          <label for="right"> Right: <sub>*</sub></label>
+          <input
+            ${this.formModel.registerField('right', {
+              isValid: (value) => value.length > 0,
+            })}
+          />
+          ${this.formModel.errors.right
+            ? html`<span class="error-message">Right is required</span>`
+            : nothing}
+        </div>
 
         <input type="submit" />
       </form>
