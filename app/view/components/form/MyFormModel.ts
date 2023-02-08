@@ -35,7 +35,7 @@ type TFieldOptions = Partial<
 export class FieldDirective extends AsyncDirective {
   _subscriptions: Subscription[] = [];
 
-  render(path: string, model: FormModel, options?: TFieldOptions) {
+  render(_path: string, _model: FormModel, _options?: TFieldOptions) {
     return nothing;
   }
 
@@ -74,12 +74,12 @@ const field = directive(FieldDirective);
 export class FormModel<T = unknown> implements ReactiveController {
   private host: ReactiveControllerHost;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: {[Property in keyof T]: unknown} | {[key: string]: unknown};
-  errors: {[Property in keyof T]: unknown} | {[key: string]: unknown};
+  data: {[key: string]: unknown};
+  errors: {[key: string]: unknown};
 
   constructor(
     host: ReactiveControllerHost,
-    defaultValue: {[Property in keyof T]: unknown}
+    defaultValue: {[key: string]: unknown}
   ) {
     this.data = defaultValue;
     this.errors = Object.keys(defaultValue).reduce((defaultErrors, key) => {
