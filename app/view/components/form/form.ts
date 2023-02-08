@@ -1,21 +1,23 @@
 import {html, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 // custom directive
-import {MyFormController} from './MyFormModel';
+import {FormModel} from './MyFormModel';
 
 const FormContainerName = 'form-container';
+
 @customElement(FormContainerName)
 export class FormContainer extends LitElement {
-  formModel: MyFormController<{
+  formModel: FormModel<{
     left: string;
     right: number;
-    obj: {abc: string}; // FIXME: nested object won't get intellisence
-  }> = new MyFormController(this);
+    // FIXME: nested object won't get intellisence
+    obj: {abc: string};
+    // FIXME: nested object won't get intellisence
+  }> = new FormModel(this, {left: '', right: ''});
 
   _handleSubmit(e: Event) {
     e.preventDefault();
-    const formData = this.formModel.getFormData();
-    console.log(formData);
+    console.log(this.formModel.model);
   }
 
   @property()
@@ -31,20 +33,13 @@ export class FormContainer extends LitElement {
 
         <label for="left">
           Left:
-          <input
-            type="text"
-            name="left"
-            ${this.formModel.registerField('left')}
-          />
+          <input ${this.formModel.registerField('left')} />
         </label>
 
         <label for="right">
           Right:
-          <input
-            type="text"
-            name="right"
-            ${this.formModel.registerField('right')}
-          />
+          <!-- this.formModel.registerField('nonExistent') will show type error -->
+          <input ${this.formModel.registerField('right')} />
         </label>
 
         <input type="submit" />

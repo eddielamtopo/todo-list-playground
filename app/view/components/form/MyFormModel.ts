@@ -1,49 +1,85 @@
-import {ReactiveController, ReactiveControllerHost} from 'lit';
-import {DirectiveResult} from 'lit/async-directive';
-import {createRef, Ref, ref, RefDirective} from 'lit/directives/ref.js';
-import {fromEvent} from 'rxjs';
+import {
+  ElementPart,
+  nothing,
+  ReactiveController,
+  ReactiveControllerHost,
+} from 'lit';
+import {
+  AsyncDirective,
+  directive,
+  DirectiveResult,
+} from 'lit/async-directive.js';
+import {Ref} from 'lit/directives/ref.js';
+import {fromEvent, Subscription} from 'rxjs';
 
-abstract class AbstractFormController<T> implements ReactiveController {
+// an abstract class to enforce consistent api
+abstract class AbstractFormController<T = unknown>
+  implements ReactiveController
+{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
-
-  // private host: ReactiveControllerHost;
   constructor(host: ReactiveControllerHost) {
     this.host = host;
     host.addController(this);
   }
   hostConnected(): void {}
 
+  /**
+   * implement return custom field directive
+   * */
   abstract registerField<K extends keyof T>(
     field: K
-  ): DirectiveResult<typeof RefDirective>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abstract getFormData(): any;
+  ): DirectiveResult<typeof FieldDirective>;
 }
 
-// This model is for "my form" 's use only
-export class MyFormController<T> implements AbstractFormController<T> {
+// Custom field directive to bind form model to input value
+export class FieldDirective extends AsyncDirective {
+  _subscriptions: Subscription[] = [];
+
+  render(path: string, model: unknown) {
+    return nothing;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  override update(_part: ElementPart, props: [string, any]) {
+    const [path, model] = props;
+    const newSub = fromEvent(_part.element, 'input').subscribe((event) => {
+      // update model value
+      model[path] = (event.target as HTMLInputElement).value;
+    });
+    this._subscriptions = [...this._subscriptions, newSub];
+    return nothing;
+  }
+
+  override disconnected(): void {
+    this._subscriptions.forEach((sub) => {
+      sub.unsubscribe();
+    });
+  }
+}
+
+const field = directive(FieldDirective);
+
+// A form model that holds the form data
+export class FormModel<T = unknown> implements AbstractFormController<T> {
   private host: ReactiveControllerHost;
-  constructor(host: ReactiveControllerHost) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: {[Property in keyof T]: unknown} | {[key: string]: unknown};
+  errors: {[Property in keyof T]: boolean} | {[key: string]: boolean} = {};
+
+  constructor(
+    host: ReactiveControllerHost,
+    Model: {[Property in keyof T]: unknown}
+  ) {
+    this.model = Model;
     (this.host = host).addController(this);
   }
   hostConnected(): void {}
 
-  _formRefs: {[Property in keyof T]: Ref<Element>} | {} = {};
+  formRefs: {[key: string]: Ref<Element>} = {};
+  subscriptions: Subscription[] = [];
 
-  registerField<K extends keyof T>(field: K) {
-    const newRef = createRef();
-    this._formRefs = {...this._formRefs, [field]: newRef};
-    const _ref = ref(newRef);
-    return _ref;
-  }
-
-  getFormData() {
-    return Object.entries<Ref<Element>>(this._formRefs).reduce(
-      (prev, [key, ref]) => {
-        return {...prev, [key]: (ref.value as HTMLInputElement).value};
-      },
-      {}
-    );
+  registerField<K extends keyof T>(inputField: K) {
+    return field(inputField as string, this.model);
   }
 }
