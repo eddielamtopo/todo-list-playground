@@ -31,27 +31,6 @@ type TFieldOptions = Partial<
     }
 >;
 
-// an abstract class to enforce consistent api
-abstract class AbstractFormController<T = unknown>
-  implements ReactiveController
-{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-  constructor(host: ReactiveControllerHost) {
-    this.host = host;
-    host.addController(this);
-  }
-  hostConnected(): void {}
-
-  /**
-   * implement return custom field directive
-   * */
-  abstract registerField<K extends keyof T>(
-    field: K,
-    options?: TFieldOptions
-  ): DirectiveResult<typeof FieldDirective>;
-}
-
 // Custom field directive to bind form model to input value
 export class FieldDirective extends AsyncDirective {
   _subscriptions: Subscription[] = [];
@@ -92,7 +71,7 @@ export class FieldDirective extends AsyncDirective {
 const field = directive(FieldDirective);
 
 // A form model that holds the form data
-export class FormModel<T = unknown> implements AbstractFormController<T> {
+export class FormModel<T = unknown> implements ReactiveController {
   private host: ReactiveControllerHost;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: {[Property in keyof T]: unknown} | {[key: string]: unknown};
