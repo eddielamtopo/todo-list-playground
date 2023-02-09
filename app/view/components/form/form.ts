@@ -1,18 +1,13 @@
 import {css, html, LitElement, nothing} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 // custom directive
-import {FormModel} from './MyFormModel';
+import {FormModel, formField} from './MyFormModel';
 
 const FormContainerName = 'form-container';
 
 @customElement(FormContainerName)
 export class FormContainer extends LitElement {
-  formModel: FormModel<{
-    left: string;
-    right: number;
-    // FIXME: nested object won't get intellisence
-    obj: {abc: string};
-  }> = new FormModel(this, {left: '', right: ''}); // FIXME: second param doesn't get intellisence
+  formModel: FormModel = new FormModel(this, {left: '', right: ''});
 
   static override styles = css`
     .input-container {
@@ -55,7 +50,7 @@ export class FormContainer extends LitElement {
         <div class="input-container">
           <label for="left"> Left: <sub>*</sub></label>
           <input
-            ${this.formModel.registerField('left', {
+            ${formField(this.formModel, 'left', {
               isValid: (value) => value.length > 0,
               errorMessage: 'Left is required!',
             })}
@@ -70,7 +65,7 @@ export class FormContainer extends LitElement {
         <div class="input-container">
           <label for="right"> Right: <sub>*</sub></label>
           <input
-            ${this.formModel.registerField('right', {
+            ${formField(this.formModel, 'right', {
               isValid: (value) => value.length > 0,
             })}
           />
