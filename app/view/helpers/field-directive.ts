@@ -5,6 +5,9 @@ import {fromEvent} from 'rxjs';
 import {FormFieldDirective} from './form-field-directive';
 
 class FieldDirective extends FormFieldDirective {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _object!: Record<string, any>;
+
   override render(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _object: Record<string, any>,
@@ -13,17 +16,30 @@ class FieldDirective extends FormFieldDirective {
     return nothing;
   }
 
+  override ensureInputSubscribed(): void {
+    if (this._subscription === undefined) {
+      this._subscription = fromEvent(this._inputElement, 'input').subscribe(
+        (event) => {
+          const inputValue = (event.target as HTMLInputElement).value;
+          this._object[this._path] = inputValue; // FIXME: use setValue??
+        }
+      );
+    }
+  }
+
   override update(
     part: ElementPart,
     [object, path]: Parameters<this['render']>
   ) {
-    const newSub = fromEvent(part.element, 'input').subscribe((event) => {
-      const inputValue = (event.target as HTMLInputElement).value;
-      object[path] = inputValue; // FIXME: hmm
-    });
-    this._subscriptions = [...this._subscriptions, newSub];
-    // _subscriptions will be cleaned up in the superclass disconnected method
-    return nothing;
+    this._inputElement = part.element as HTMLInputElement;
+    this._object = object;
+    this._path = path;
+
+    if (this.isConnected) {
+      this.ensureInputSubscribed();
+    }
+
+    return this.render(object, path);
   }
 }
 
