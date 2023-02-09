@@ -11,21 +11,20 @@ export class ReactiveForm extends LitElement {
   formController: ReactiveFormController<{
     left: string;
     right: string;
-    nested: {mem: string};
   }> = new ReactiveFormController(this, {
     left: '',
     right: '',
-    nested: {
-      mem: '',
-    },
-    top: 123, // FIXME: not type safe; how to make generic constructor?
   });
 
   private _formState = this.formController.formState;
-
   handleChange<K extends keyof typeof this._formState>(e: Event, name: K) {
     const input = e.target as HTMLInputElement;
     this._formState = {...this._formState, [name]: input.value};
+  }
+
+  handleSubmit(event: Event) {
+    event.preventDefault();
+    console.log(this._formState);
   }
 
   override render() {
@@ -34,32 +33,25 @@ export class ReactiveForm extends LitElement {
     return html`
       <p>Render count: ${this.renderCount}</p>
 
-      <form>
+      <form @submit=${this.handleSubmit}>
         <h1>My Reactive form:</h1>
-        <input
-          .value=${this._formState.left}
-          @change=${(e: Event) =>
-            this.formController.setformState(
-              'left',
-              (e.target as HTMLInputElement).value
-            )}
-        />
-        <input
-          .value=${this._formState.right}
-          @change=${(e: Event) =>
-            this.formController.setformState(
-              'right',
-              (e.target as HTMLInputElement).value
-            )}
-        />
-        <input
-          .value=${this._formState.right}
-          @change=${(e: Event) =>
-            this.formController.setformState(
-              'nested',
-              (e.target as HTMLInputElement).value
-            )}
-        />
+        <div>
+          <label>Left:</label>
+          <input
+            .value=${this._formState.left}
+            @change=${(e: Event) => this.handleChange(e, 'left')}
+          />
+        </div>
+
+        <div>
+          <label>Right:</label>
+          <input
+            .value=${this._formState.right}
+            @change=${(e: Event) => this.handleChange(e, 'right')}
+          />
+        </div>
+
+        <input type="submit" />
       </form>
     `;
   }

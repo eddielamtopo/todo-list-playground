@@ -1,12 +1,13 @@
 import {css, html, LitElement, nothing} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-// custom directive
-import {FormModel, formField} from './MyFormModel';
+// form model and form field directive
+import {FormModel} from '../../helpers/form-model-controller';
+import {formField} from '../../helpers/form-field-directive';
 
-const FormContainerName = 'form-container';
+const FormWithValidationName = 'form-with-validation';
 
-@customElement(FormContainerName)
-export class FormContainer extends LitElement {
+@customElement(FormWithValidationName)
+export class FormWithValidation extends LitElement {
   formModel: FormModel = new FormModel(this, {left: '', right: ''});
 
   static override styles = css`
@@ -45,7 +46,7 @@ export class FormContainer extends LitElement {
     return html`
       <p>Render count: ${this.renderCount}</p>
       <form @submit=${this._handleSubmit}>
-        <h1>My form:</h1>
+        <h1>My Form With Validation:</h1>
 
         <div class="input-container">
           <label for="left"> Left: <sub>*</sub></label>
@@ -82,6 +83,6 @@ export class FormContainer extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [FormContainerName]: FormContainer;
+    [FormWithValidationName]: FormWithValidation;
   }
 }
