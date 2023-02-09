@@ -5,12 +5,14 @@
  *
  * Ref: https://www.webtips.dev/webtips/javascript/update-nested-property-by-string
  * */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TObject = Record<string, any>;
+
 export function deepUpdate(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  target: {[key: string]: any},
+  target: TObject,
   path: string,
   value: unknown
-): unknown {
+): TObject {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
     return [
@@ -28,35 +30,3 @@ export function deepUpdate(
       : value,
   };
 }
-
-// tests
-const nestedObject = {
-  layer1: {
-    layer2: {
-      layer3: {
-        array: [
-          {
-            value: '321',
-            array2: ['abc'],
-          },
-        ],
-        value: '123',
-      },
-    },
-  },
-};
-
-const test1 = deepUpdate(
-  nestedObject,
-  'layer1.layer2.layer3.array.0.value',
-  '456'
-);
-
-const test2 = deepUpdate(
-  nestedObject,
-  'layer1.layer2.layer3.array.0.array2.0',
-  'def'
-);
-
-console.log('updated:', test1);
-console.log('updated:', test2);

@@ -28,7 +28,7 @@
         "strict": true
       }
     ],
-    "types": ["reflect-metadata"]
+    "types": ["reflect-metadata", "jest"]
   },
   "include": ["app/**/*"],
   "exclude": []
