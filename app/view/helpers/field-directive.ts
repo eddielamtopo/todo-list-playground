@@ -1,16 +1,16 @@
 import {ElementPart, nothing} from 'lit';
 import {directive} from 'lit/async-directive.js';
 import {fromEvent} from 'rxjs';
-
+import {deepUpdate} from './deepUpdate';
 import {FormFieldDirective} from './form-field-directive';
 
-class FieldDirective extends FormFieldDirective {
+export class FieldDirective extends FormFieldDirective {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _object!: Record<string, any>;
+  _object!: any;
 
   override render(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _object: Record<string, any>,
+    _object: object,
     _path: string
   ) {
     return nothing;
@@ -21,7 +21,10 @@ class FieldDirective extends FormFieldDirective {
       this._subscription = fromEvent(this._inputElement, 'input').subscribe(
         (event) => {
           const inputValue = (event.target as HTMLInputElement).value;
-          this._object[this._path] = inputValue; // FIXME: use setValue??
+          const newObject = deepUpdate(this._object, this._path, inputValue);
+          Object.keys(this._object).forEach((key) => {
+            this._object[key] = newObject[key];
+          });
         }
       );
     }
@@ -43,4 +46,8 @@ class FieldDirective extends FormFieldDirective {
   }
 }
 
-export const field = directive(FieldDirective);
+const _field = directive(FieldDirective);
+// a wrapper function to provide type guard
+export const field = <T extends object>(obj: T, path: keyof T) => {
+  return _field(obj, path as string);
+};

@@ -1,10 +1,9 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, skip, Subject} from 'rxjs';
 
-// // eslint-disable-next-line @typescript-eslint/no-explicit-any
-// type FieldValues = Record<string, any>;
-
-export class FormModel implements ReactiveController {
+export class FormModel<T = {[key: string]: unknown}>
+  implements ReactiveController
+{
   private host: ReactiveControllerHost;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: {[key: string]: unknown};
@@ -12,7 +11,7 @@ export class FormModel implements ReactiveController {
 
   constructor(
     host: ReactiveControllerHost,
-    defaultValue: {[key: string]: unknown}
+    defaultValue: {[Property in keyof T]: unknown}
   ) {
     this.data = defaultValue;
     this.errors = Object.keys(defaultValue).reduce((defaultErrors, key) => {

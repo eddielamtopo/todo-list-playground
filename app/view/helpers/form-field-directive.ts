@@ -3,6 +3,7 @@ import {AsyncDirective, directive} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
 import type {ElementPart} from 'lit/directive.js';
+import {deepUpdate} from './deepUpdate';
 
 type TFieldOptions = Partial<
   | {
@@ -43,16 +44,15 @@ export class FormFieldDirective extends AsyncDirective {
           const errorValue = valid
             ? false
             : this._options?.errorMessage ?? !valid;
-          // FIXME: this cannot handle nested objects... write a function to update object with given path e.g. 'path.to.value'
-          this._model.updateErrors({
-            ...this._model.errors,
-            [this._path]: errorValue,
-          });
+          const newErrors = deepUpdate(
+            this._model.errors,
+            this._path,
+            errorValue
+          );
+          this._model.updateErrors(newErrors);
           // update data value
-          this._model.updateData({
-            ...this._model.data,
-            [this._path]: inputValue,
-          });
+          const newData = deepUpdate(this._model.data, this._path, inputValue);
+          this._model.updateData(newData);
         }
       );
     }
@@ -83,4 +83,12 @@ export class FormFieldDirective extends AsyncDirective {
   }
 }
 
-export const formField = directive(FormFieldDirective);
+const _formField = directive(FormFieldDirective);
+// wrapper function to provide type guard
+export const formField = <T>(
+  formModel: FormModel<T>,
+  path: keyof T,
+  options: TFieldOptions
+) => {
+  return _formField(formModel, path as string, options);
+};

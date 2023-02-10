@@ -8,7 +8,11 @@ const FormWithValidationName = 'form-with-validation';
 
 @customElement(FormWithValidationName)
 export class FormWithValidation extends LitElement {
-  formModel: FormModel = new FormModel(this, {left: '', right: ''});
+  formModel: FormModel<{
+    left: string;
+    right: string;
+  }> = new FormModel(this, {left: '', right: '', top: 123});
+  // FIXME: make this confirm to generic type; might need an 'activator function' instead of new
 
   static override styles = css`
     .input-container {
