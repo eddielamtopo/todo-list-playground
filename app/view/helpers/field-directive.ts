@@ -3,6 +3,7 @@ import {directive} from 'lit/async-directive.js';
 import {fromEvent} from 'rxjs';
 import {deepUpdate} from './deepUpdate';
 import {FormFieldDirective} from './form-field-directive';
+import {FieldPath, FieldValues} from './types';
 
 export class FieldDirective extends FormFieldDirective {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,7 +48,14 @@ export class FieldDirective extends FormFieldDirective {
 }
 
 const _field = directive(FieldDirective);
+
 // a wrapper function to provide type guard
-export const field = <T extends object>(obj: T, path: keyof T) => {
+export const field = <
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  obj: TFieldValues,
+  path: TFieldName
+) => {
   return _field(obj, path as string);
 };

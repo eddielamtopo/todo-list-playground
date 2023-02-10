@@ -4,6 +4,7 @@ import {fromEvent, Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
 import type {ElementPart} from 'lit/directive.js';
 import {deepUpdate} from './deepUpdate';
+import {FieldPath, FieldValues} from './types';
 
 type TFieldOptions = Partial<
   | {
@@ -85,9 +86,12 @@ export class FormFieldDirective extends AsyncDirective {
 
 const _formField = directive(FormFieldDirective);
 // wrapper function to provide type guard
-export const formField = <T>(
-  formModel: FormModel<T>,
-  path: keyof T,
+export const formField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  formModel: FormModel<TFieldValues>,
+  path: TFieldName,
   options: TFieldOptions
 ) => {
   return _formField(formModel, path as string, options);

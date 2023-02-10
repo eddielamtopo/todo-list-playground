@@ -14,6 +14,7 @@ export class FormModel<T = {[key: string]: unknown}>
     defaultValue: {[Property in keyof T]: unknown}
   ) {
     this.data = defaultValue;
+    // FIXME: deepUpdate all values to false
     this.errors = Object.keys(defaultValue).reduce((defaultErrors, key) => {
       return {...defaultErrors, [key]: false};
     }, this.data);

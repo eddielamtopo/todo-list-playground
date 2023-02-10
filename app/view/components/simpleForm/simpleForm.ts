@@ -6,7 +6,14 @@ import {field} from '../../helpers/field-directive';
 const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)
 export class SimpleForm extends LitElement {
-  formModel = {left: '', right: ''};
+  formModel = {
+    left: '',
+    right: '',
+    nested: {
+      a: '',
+      b: [''],
+    },
+  };
 
   static override styles = css`
     .input-container {
@@ -54,6 +61,16 @@ export class SimpleForm extends LitElement {
         <div class="input-container">
           <label for="right"> Right: <sub>*</sub></label>
           <input ${field(this.formModel, 'right')} />
+        </div>
+
+        <div class="input-container">
+          <label for="left"> Data nested.a: <sub>*</sub></label>
+          <input ${field(this.formModel, 'nested.a')} />
+        </div>
+
+        <div class="input-container">
+          <label for="left"> Data nested.b.0: <sub>*</sub></label>
+          <input ${field(this.formModel, 'nested.b.0')} />
         </div>
 
         <input type="submit" />

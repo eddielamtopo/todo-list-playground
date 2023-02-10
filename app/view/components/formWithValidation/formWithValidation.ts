@@ -11,7 +11,11 @@ export class FormWithValidation extends LitElement {
   formModel: FormModel<{
     left: string;
     right: string;
-  }> = new FormModel(this, {left: '', right: '', top: 123});
+    nested: {
+      a: '';
+      b: [''];
+    };
+  }> = new FormModel(this, {left: '', right: '', nested: {a: '', b: ['']}});
   // FIXME: make this confirm to generic type; might need an 'activator function' instead of new
 
   static override styles = css`
@@ -77,6 +81,24 @@ export class FormWithValidation extends LitElement {
           ${this.formModel.errors.right
             ? html`<span class="error-message">Right is required</span>`
             : nothing}
+        </div>
+
+        <div class="input-container">
+          <label for="nested.b.0"> Nested.a: <sub>*</sub></label>
+          <input
+            ${formField(this.formModel, 'nested.a', {
+              isValid: (value) => value.length > 0,
+            })}
+          />
+        </div>
+
+        <div class="input-container">
+          <label for="nested.b.0"> Nested.b.0: <sub>*</sub></label>
+          <input
+            ${formField(this.formModel, 'nested.b.0', {
+              isValid: (value) => value.length > 0,
+            })}
+          />
         </div>
 
         <input type="submit" />
