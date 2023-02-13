@@ -13,31 +13,21 @@ export class FormFieldDirective extends AbstractFieldDirective {
   _options!: TFieldOptions;
   _path!: string;
 
-  ensureInputSubscribed(): void {
-    if (this._subscription === undefined) {
-      this._subscription = fromEvent(this._fieldElement, 'input').subscribe(
-        (event) => {
-          const inputValue = (event.target as HTMLInputElement).value;
-          // validate validity on change
-          const validator = this._options?.isValid
-            ? this._options.isValid
-            : () => true;
-          const valid = validator(inputValue);
-          const errorValue = valid
-            ? false
-            : this._options?.errorMessage ?? !valid;
-          const newErrors = deepUpdate(
-            this._model.errors,
-            this._path,
-            errorValue
-          );
-          this._model.updateErrors(newErrors);
-          // update data value
-          const newData = deepUpdate(this._model.data, this._path, inputValue);
-          this._model.updateData(newData);
-        }
-      );
-    }
+  handleInputEvent(event: Event): void {
+    const inputValue = (event.target as HTMLInputElement).value;
+
+    // validate validity on change
+    const validator = this._options?.isValid
+      ? this._options.isValid
+      : () => true;
+    const valid = validator(inputValue);
+    const errorValue = valid ? false : this._options?.errorMessage ?? !valid;
+    const newErrors = deepUpdate(this._model.errors, this._path, errorValue);
+    this._model.updateErrors(newErrors);
+
+    // update data value
+    const newData = deepUpdate(this._model.data, this._path, inputValue);
+    this._model.updateData(newData);
   }
 }
 

@@ -1,11 +1,11 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
-import {distinctUntilChanged, Observable, skip, Subject} from 'rxjs';
+import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {deepSetDefault} from './deep/deep';
 
 export class FormModel<T = {[key: string]: unknown}>
   implements ReactiveController
 {
-  private host: ReactiveControllerHost;
+  host: ReactiveControllerHost;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: {[key: string]: unknown};
   errors: {[key: string]: unknown};
@@ -31,7 +31,7 @@ export class FormModel<T = {[key: string]: unknown}>
   private _errorSubject = new Subject<string>();
   private _errorSubject$ = this._errorSubject.asObservable();
   private _errorSubscription = this._errorSubject$
-    .pipe(distinctUntilChanged(), skip(1))
+    .pipe(distinctUntilChanged())
     .subscribe(() => {
       this.host.requestUpdate();
     });

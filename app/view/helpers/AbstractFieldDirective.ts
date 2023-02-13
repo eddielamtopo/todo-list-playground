@@ -1,6 +1,6 @@
 import {ElementPart, nothing} from 'lit';
 import {AsyncDirective} from 'lit/async-directive.js';
-import {Subscription} from 'rxjs';
+import {fromEvent, Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
 
 export type TFieldOptions = Partial<
@@ -33,7 +33,20 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     return nothing;
   }
 
-  abstract ensureInputSubscribed(): void;
+  /**
+   * Override to implement lower-level input event handling detail
+   * */
+  abstract handleInputEvent(event: Event): void;
+
+  protected ensureInputSubscribed() {
+    if (this._subscription === undefined) {
+      this._subscription = fromEvent(this._fieldElement, 'input').subscribe(
+        (event) => {
+          this.handleInputEvent(event);
+        }
+      );
+    }
+  }
 
   override update(
     part: ElementPart,

@@ -1,5 +1,5 @@
 import {directive} from 'lit/async-directive.js';
-import {fromEvent, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {AbstractFieldDirective, TFieldOptions} from './AbstractFieldDirective';
 import {deepUpdate} from './deep/deep';
 import {FieldPath, FieldValues} from './types';
@@ -11,18 +11,12 @@ export class FieldDirective extends AbstractFieldDirective {
   _options!: TFieldOptions;
   _path!: string;
 
-  ensureInputSubscribed() {
-    if (this._subscription === undefined) {
-      this._subscription = fromEvent(this._fieldElement, 'input').subscribe(
-        (event) => {
-          const inputValue = (event.target as HTMLInputElement).value;
-          const newObject = deepUpdate(this._model, this._path, inputValue);
-          Object.keys(this._model).forEach((key) => {
-            this._model[key] = newObject[key];
-          });
-        }
-      );
-    }
+  handleInputEvent(event: Event) {
+    const inputValue = (event.target as HTMLInputElement).value;
+    const newObject = deepUpdate(this._model, this._path, inputValue);
+    Object.keys(this._model).forEach((key) => {
+      this._model[key] = newObject[key];
+    });
   }
 }
 
@@ -34,7 +28,8 @@ export const field = <
   TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >(
   obj: TFieldValues,
-  path: TFieldName
+  path: TFieldName,
+  options?: TFieldOptions
 ) => {
-  return _field(obj, path as string);
+  return _field(obj, path as string, options);
 };
