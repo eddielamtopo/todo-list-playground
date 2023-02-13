@@ -99,7 +99,7 @@ export type ArrayKey = number;
 type PathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
   ? IsTuple<T> extends true
     ? {
-        [K in TupleKeys<T>]-?: PathImpl<K & string, T[K], TraversedTypes>;
+        [K in TupleKeys<T>]-?: PathImpl<ArrayKey, T[K], TraversedTypes>;
       }[TupleKeys<T>]
     : PathImpl<ArrayKey, V, TraversedTypes>
   : {

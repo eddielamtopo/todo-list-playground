@@ -48,6 +48,14 @@ export class FormWithValidation extends LitElement {
     console.log(this.formModel.data);
   }
 
+  @property()
+  additionalNestedB = 0;
+
+  _handleAddAdditional() {
+    this.additionalNestedB += 1;
+    this.formModel.data.nested.b[this.additionalNestedB] = '';
+  }
+
   override render() {
     this.renderCount += 1;
 
@@ -65,9 +73,9 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${this.formModel.errors.left
-            ? html`<span class="error-message"
-                >${this.formModel.errors.left}</span
-              >`
+              ? html`<span class="error-message"
+                  >${this.formModel.errors.left}</span
+                >`
             : nothing}
         </div>
 
@@ -79,7 +87,7 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${this.formModel.errors.right
-            ? html`<span class="error-message">Right is required</span>`
+              ? html`<span class="error-message">Right is required</span>`
             : nothing}
         </div>
 
@@ -93,12 +101,29 @@ export class FormWithValidation extends LitElement {
         </div>
 
         <div class="input-container">
-          <label for="nested.b.0"> Nested.b.0: <sub>*</sub></label>
+          <label for="nested.b.0"> Dynamic nested.b.0: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, 'nested.b.0', {
+            ${formField(this.formModel, `nested.b.0`, {
               isValid: (value) => value.length > 0,
             })}
           />
+          <button @click=${this._handleAddAdditional}>Add another</button>
+
+          ${Array(this.additionalNestedB)
+            .fill(0)
+            .map((_, i) => {
+              return html`
+                <label for="nested.b.${i + 1}">
+                  Dynamic nested.b.${i + 1}: <sub>*</sub></label
+                >
+                <input
+                  ${formField(this.formModel, `nested.b.${i + 1}`, {
+                    isValid: (value) => value.length > 0,
+                  })}
+                />
+              `;
+            })}
+          </div>
         </div>
 
         <input type="submit" />
