@@ -1,0 +1,61 @@
+import {ElementPart, nothing} from 'lit';
+import {AsyncDirective} from 'lit/async-directive.js';
+import {Subscription} from 'rxjs';
+import {FormModel} from './form-model-controller';
+
+export type TFieldOptions = Partial<
+  | {
+      isValid: (value: string) => boolean;
+      errorMessage: string;
+      pattern: never;
+    }
+  | {
+      isValid: never;
+      errorMessage: string;
+      pattern: string;
+    }
+>;
+
+type TFieldELement = HTMLInputElement | HTMLTextAreaElement;
+type TModel = FormModel | object;
+export abstract class AbstractFieldDirective extends AsyncDirective {
+  abstract _subscription: Subscription | undefined;
+  abstract _fieldElement: TFieldELement;
+  abstract _model: TModel;
+  abstract _path: string;
+  abstract _options: TFieldOptions | undefined;
+
+  override render(
+    _model: FormModel | object,
+    _path: string,
+    _options?: TFieldOptions
+  ) {
+    return nothing;
+  }
+
+  abstract ensureInputSubscribed(): void;
+
+  override update(
+    part: ElementPart,
+    [model, path, options]: Parameters<this['render']>
+  ) {
+    if (this.isConnected) {
+      this._fieldElement = part.element as TFieldELement;
+      this._model = model;
+      this._path = path;
+      this._options = options;
+      this.ensureInputSubscribed();
+    }
+
+    return this.render(model, path, options);
+  }
+
+  override disconnected(): void {
+    this._subscription?.unsubscribe();
+    this._subscription = undefined;
+  }
+
+  override reconnected(): void {
+    this.ensureInputSubscribed();
+  }
+}
