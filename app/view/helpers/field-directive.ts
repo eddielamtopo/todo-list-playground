@@ -1,8 +1,10 @@
-import {directive} from 'lit/async-directive.js';
 import {Subscription} from 'rxjs';
-import {AbstractFieldDirective, TFieldOptions} from './AbstractFieldDirective';
+import {
+  AbstractFieldDirective,
+  createFieldDirective,
+  TFieldOptions,
+} from './AbstractFieldDirective';
 import {deepUpdate} from './deep/deep';
-import {FieldPath, FieldValues} from './types';
 
 export class FieldDirective extends AbstractFieldDirective {
   _fieldElement!: HTMLInputElement | HTMLTextAreaElement;
@@ -20,16 +22,4 @@ export class FieldDirective extends AbstractFieldDirective {
   }
 }
 
-const _field = directive(FieldDirective);
-
-// a wrapper function to provide type guard
-export const field = <
-  TFieldValues extends FieldValues = FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->(
-  obj: TFieldValues,
-  path: TFieldName,
-  options?: TFieldOptions
-) => {
-  return _field(obj, path as string, options);
-};
+export const field = createFieldDirective(FieldDirective);

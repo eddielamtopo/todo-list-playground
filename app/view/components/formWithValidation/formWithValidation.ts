@@ -72,11 +72,13 @@ export class FormWithValidation extends LitElement {
               errorMessage: 'Left is required!',
             })}
           />
-          ${this.formModel.errors.left
+          ${
+            this.formModel.errors.left
               ? html`<span class="error-message"
                   >${this.formModel.errors.left}</span
                 >`
-            : nothing}
+              : nothing
+          }
         </div>
 
         <div class="input-container">
@@ -86,15 +88,17 @@ export class FormWithValidation extends LitElement {
               isValid: (value) => value.length > 0,
             })}
           />
-          ${this.formModel.errors.right
+          ${
+            this.formModel.errors.right
               ? html`<span class="error-message">Right is required</span>`
-            : nothing}
+              : nothing
+          }
         </div>
 
         <div class="input-container">
           <label for="nested.b.0"> Nested.a: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, 'nested.a', {
+            ${formField(this.formModel, 'nested.b', {
               isValid: (value) => value.length > 0,
             })}
           />
@@ -109,9 +113,8 @@ export class FormWithValidation extends LitElement {
           />
           <button @click=${this._handleAddAdditional}>Add another</button>
 
-          ${Array(this.additionalNestedB)
-            .fill(0)
-            .map((_, i) => {
+          ${Array.from(Array(this.additionalNestedB), (i) => i + 1).map(
+            (_, i) => {
               return html`
                 <label for="nested.b.${i + 1}">
                   Dynamic nested.b.${i + 1}: <sub>*</sub></label
@@ -122,7 +125,8 @@ export class FormWithValidation extends LitElement {
                   })}
                 />
               `;
-            })}
+            }
+          )}
           </div>
         </div>
 

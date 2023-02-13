@@ -1,7 +1,12 @@
 import {ElementPart, nothing} from 'lit';
-import {AsyncDirective} from 'lit/async-directive.js';
+import {
+  AsyncDirective,
+  directive,
+  DirectiveClass,
+} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
+import {FieldValues, FieldPath} from './types';
 
 export type TFieldOptions = Partial<
   | {
@@ -72,3 +77,18 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.ensureInputSubscribed();
   }
 }
+
+export const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
+  const _fieldDirective = directive(CustomDirectiveClass);
+
+  return <
+    TFieldValues extends FieldValues = FieldValues,
+    TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  >(
+    formModel: FormModel<TFieldValues> | TFieldValues,
+    path: TFieldName,
+    options?: TFieldOptions
+  ) => {
+    return _fieldDirective(formModel, path, options);
+  };
+};

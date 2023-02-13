@@ -1,9 +1,11 @@
-import {directive} from 'lit/async-directive.js';
-import {fromEvent, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
 import {deepUpdate} from './deep/deep';
-import {FieldPath, FieldValues} from './types';
-import {AbstractFieldDirective, TFieldOptions} from './AbstractFieldDirective';
+import {
+  AbstractFieldDirective,
+  createFieldDirective,
+  TFieldOptions,
+} from './AbstractFieldDirective';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
@@ -31,15 +33,4 @@ export class FormFieldDirective extends AbstractFieldDirective {
   }
 }
 
-const _formField = directive(FormFieldDirective);
-// wrapper function to provide type guard
-export const formField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->(
-  formModel: FormModel<TFieldValues>,
-  path: TFieldName,
-  options: TFieldOptions
-) => {
-  return _formField(formModel, path as string, options);
-};
+export const formField = createFieldDirective(FormFieldDirective);

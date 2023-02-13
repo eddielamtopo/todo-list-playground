@@ -2,12 +2,12 @@ import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {deepSetDefault} from './deep/deep';
 
-export class FormModel<T = {[key: string]: unknown}>
+export class FormModel<T extends object = object>
   implements ReactiveController
 {
   host: ReactiveControllerHost;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: {[key: string]: unknown};
+  data: {[key: string]: any};
   errors: {[key: string]: unknown};
 
   constructor(
