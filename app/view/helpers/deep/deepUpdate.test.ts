@@ -1,4 +1,4 @@
-import {deepUpdate} from './deepUpdate';
+import {deepUpdate} from './deep';
 
 describe('deepUpdate', () => {
   const nestedObject = {
@@ -40,7 +40,7 @@ describe('deepUpdate', () => {
       },
     };
 
-    expect(test1).toEqual(expectedTest1);
+    expect(test1).toStrictEqual(expectedTest1);
   });
 
   test('expect update nested array value to work', () => {
@@ -66,6 +66,29 @@ describe('deepUpdate', () => {
       },
     };
 
-    expect(test2).toEqual(expectedTest2);
+    expect(test2).toStrictEqual(expectedTest2);
+  });
+
+  test('expect update array of nested values to work', () => {
+    const target = [
+      {
+        layer1: {
+          layer2: {
+            value: 123,
+          },
+        },
+      },
+    ];
+
+    const result = deepUpdate(target, '0.layer1.layer2.value', 456);
+    expect(result).toStrictEqual([
+      {
+        layer1: {
+          layer2: {
+            value: 456,
+          },
+        },
+      },
+    ]);
   });
 });

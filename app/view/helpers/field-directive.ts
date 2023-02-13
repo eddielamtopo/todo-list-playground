@@ -1,7 +1,7 @@
 import {directive} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {AbstractFieldDirective, TFieldOptions} from './AbstractFieldDirective';
-import {deepUpdate} from './deepUpdate';
+import {deepUpdate} from './deep/deep';
 import {FieldPath, FieldValues} from './types';
 
 export class FieldDirective extends AbstractFieldDirective {

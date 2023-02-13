@@ -1,7 +1,7 @@
 import {directive} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
-import {deepUpdate} from './deepUpdate';
+import {deepUpdate} from './deep/deep';
 import {FieldPath, FieldValues} from './types';
 import {AbstractFieldDirective, TFieldOptions} from './AbstractFieldDirective';
 

@@ -5,8 +5,9 @@
  *
  * Ref: https://www.webtips.dev/webtips/javascript/update-nested-property-by-string
  * */
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TObject = Record<string, any>;
+type TObject = Record<string | number, any>;
 
 export function deepUpdate(
   target: TObject,
@@ -29,4 +30,30 @@ export function deepUpdate(
       ? deepUpdate(target[head], rest.join('.'), value)
       : value,
   };
+}
+
+export function deepSetDefault<T extends TObject>(
+  target: T,
+  defaultValue: unknown
+): TObject {
+  const keys = Object.keys(target);
+  const clone = Array.isArray(target) ? [...target] : {...target};
+  const isArray = Array.isArray(clone);
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const indexer = isArray ? i : key;
+    if (
+      Object.keys((clone as {[key: string | number]: object})[indexer]).length
+    ) {
+      (clone as {[key: string | number]: unknown})[indexer] = deepSetDefault(
+        (clone as TObject)[indexer],
+        defaultValue
+      );
+    } else {
+      (clone as TObject)[indexer] = defaultValue;
+    }
+  }
+
+  return clone;
 }

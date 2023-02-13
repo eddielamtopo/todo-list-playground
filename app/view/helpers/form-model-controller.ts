@@ -1,5 +1,6 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, skip, Subject} from 'rxjs';
+import {deepSetDefault} from './deep/deep';
 
 export class FormModel<T = {[key: string]: unknown}>
   implements ReactiveController
@@ -14,10 +15,7 @@ export class FormModel<T = {[key: string]: unknown}>
     defaultValue: {[Property in keyof T]: unknown}
   ) {
     this.data = defaultValue;
-    // FIXME: deepUpdate all values to false
-    this.errors = Object.keys(defaultValue).reduce((defaultErrors, key) => {
-      return {...defaultErrors, [key]: false};
-    }, this.data);
+    this.errors = deepSetDefault(defaultValue, false);
     this.host = host;
     this.host.addController(this);
   }
