@@ -7,11 +7,11 @@ const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)
 export class SimpleForm extends LitElement {
   formModel = {
-    left: '',
-    right: '',
-    nested: {
-      a: '',
-      b: [''],
+    firstName: '',
+    lastName: '',
+    phoneNumber: {
+      personal: '',
+      work: [''],
     },
   };
 
@@ -35,6 +35,14 @@ export class SimpleForm extends LitElement {
     .error-message {
       color: red;
     }
+
+    .additional-work-phone-container {
+      padding-bottom: 20px;
+    }
+
+    .additional-work-phone-container > *:not(:last-child) {
+      margin-bottom: 20px;
+    }
   `;
 
   @property()
@@ -43,6 +51,13 @@ export class SimpleForm extends LitElement {
   _handleSubmit(e: Event) {
     e.preventDefault();
     console.log(this.formModel);
+  }
+
+  @property()
+  additionalWorkPhoneNumbers = 0;
+  handleAddWorkPhone() {
+    this.additionalWorkPhoneNumbers += 1;
+    this.formModel.phoneNumber.work[this.additionalWorkPhoneNumbers] = '';
   }
 
   override render() {
@@ -54,23 +69,40 @@ export class SimpleForm extends LitElement {
         <h1>My Simple Form:</h1>
 
         <div class="input-container">
-          <label for="left"> Left: <sub>*</sub></label>
-          <input ${field(this.formModel, 'left')} />
+          <label> First name:</label>
+          <input ${field(this.formModel, 'firstName')} />
         </div>
 
         <div class="input-container">
-          <label for="right"> Right: <sub>*</sub></label>
-          <input ${field(this.formModel, 'right')} />
+          <label for="right"> Last name:</label>
+          <input ${field(this.formModel, 'lastName')} />
         </div>
 
         <div class="input-container">
-          <label for="left"> Data nested.a: <sub>*</sub></label>
-          <input ${field(this.formModel, 'nested.a')} />
+          <label> Phone number (personal):</label>
+          <input ${field(this.formModel, 'phoneNumber.personal')} />
         </div>
 
         <div class="input-container">
-          <label for="left"> Data nested.b.0: <sub>*</sub></label>
-          <input ${field(this.formModel, 'nested.b.0')} />
+          <label> Phone number (work):</label>
+          <input ${field(this.formModel, 'phoneNumber.work.0')} />
+        </div>
+
+        <div class="additional-work-phone-container">
+          <button @click=${this.handleAddWorkPhone}>
+            Add another work phone
+          </button>
+          ${Array.from(
+            Array(this.additionalWorkPhoneNumbers).fill(undefined),
+            (_, i) => i + 1
+          ).map((i) => {
+            return html`
+              <div class="input-container">
+                <label> Phone number (work additional ${i}):</label>
+                <input ${field(this.formModel, `phoneNumber.work.${i}`)} />
+              </div>
+            `;
+          })}
         </div>
 
         <input type="submit" />

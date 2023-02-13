@@ -9,11 +9,11 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TObject = Record<string | number, any>;
 
-export function deepUpdate(
-  target: TObject,
+export function deepUpdate<T extends object>(
+  target: T | object,
   path: string,
   value: unknown
-): TObject {
+): T {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
     return [
@@ -22,20 +22,25 @@ export function deepUpdate(
         ? deepUpdate(target[Number(head)], rest.join('.'), value)
         : value,
       ...target.slice(Number(head) + 1),
-    ];
+    ] as T;
   }
   return {
     ...target,
     [head]: rest.length
-      ? deepUpdate(target[head], rest.join('.'), value)
+      ? deepUpdate(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (target as Record<string, any>)[head],
+          rest.join('.'),
+          value
+        )
       : value,
-  };
+  } as T;
 }
 
-export function deepSetDefault<T extends TObject>(
+export function deepSetDefault<T extends object>(
   target: T,
   defaultValue: unknown
-): TObject {
+): T {
   const keys = Object.keys(target);
   const clone = Array.isArray(target) ? [...target] : {...target};
   const isArray = Array.isArray(clone);
@@ -55,5 +60,5 @@ export function deepSetDefault<T extends TObject>(
     }
   }
 
-  return clone;
+  return clone as T;
 }

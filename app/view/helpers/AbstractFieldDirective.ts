@@ -17,7 +17,7 @@ export type TFieldOptions = Partial<
   | {
       isValid: never;
       errorMessage: string;
-      pattern: string;
+      pattern: RegExp;
     }
 >;
 

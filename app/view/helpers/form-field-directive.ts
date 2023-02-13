@@ -21,6 +21,8 @@ export class FormFieldDirective extends AbstractFieldDirective {
     // validate validity on change
     const validator = this._options?.isValid
       ? this._options.isValid
+      : this._options?.pattern
+      ? (value: typeof inputValue) => this._options.pattern!.test(value)
       : () => true;
     const valid = validator(inputValue);
     const errorValue = valid ? false : this._options?.errorMessage ?? !valid;

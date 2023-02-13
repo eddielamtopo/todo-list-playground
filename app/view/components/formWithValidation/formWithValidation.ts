@@ -9,13 +9,17 @@ const FormWithValidationName = 'form-with-validation';
 @customElement(FormWithValidationName)
 export class FormWithValidation extends LitElement {
   formModel: FormModel<{
-    left: string;
-    right: string;
-    nested: {
-      a: '';
-      b: [''];
+    firstName: string;
+    lastName: string;
+    phoneNumber: {
+      personal: '';
+      work: [''];
     };
-  }> = new FormModel(this, {left: '', right: '', nested: {a: '', b: ['']}});
+  }> = new FormModel(this, {
+    firstName: '',
+    lastName: '',
+    phoneNumber: {personal: '', work: ['']},
+  });
   // FIXME: make this confirm to generic type; might need an 'activator function' instead of new
 
   static override styles = css`
@@ -38,6 +42,14 @@ export class FormWithValidation extends LitElement {
     .error-message {
       color: red;
     }
+
+    .additional-work-phone-container {
+      padding-bottom: 20px;
+    }
+
+    .additional-work-phone-container > *:not(:last-child) {
+      margin-bottom: 20px;
+    }
   `;
 
   @property()
@@ -49,11 +61,11 @@ export class FormWithValidation extends LitElement {
   }
 
   @property()
-  additionalNestedB = 0;
+  additionalWorkNumberCount = 0;
 
   _handleAddAdditional() {
-    this.additionalNestedB += 1;
-    this.formModel.data.nested.b[this.additionalNestedB] = '';
+    this.additionalWorkNumberCount += 1;
+    this.formModel.data.phoneNumber.work[this.additionalWorkNumberCount] = '';
   }
 
   override render() {
@@ -65,69 +77,81 @@ export class FormWithValidation extends LitElement {
         <h1>My Form With Validation:</h1>
 
         <div class="input-container">
-          <label for="left"> Left: <sub>*</sub></label>
+          <label> First name: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, 'left', {
+            placeholder="This is required!"
+            ${formField(this.formModel, 'firstName', {
               isValid: (value) => value.length > 0,
               errorMessage: 'Left is required!',
             })}
           />
-          ${
-            this.formModel.errors.left
-              ? html`<span class="error-message"
-                  >${this.formModel.errors.left}</span
-                >`
-              : nothing
-          }
+          ${this.formModel.errors.firstName
+            ? html`<span class="error-message"
+                >${this.formModel.errors.firstName}</span
+              >`
+            : nothing}
         </div>
 
         <div class="input-container">
-          <label for="right"> Right: <sub>*</sub></label>
+          <label> Last name: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, 'right', {
+            placeholder="This is required!"
+            ${formField(this.formModel, 'lastName', {
               isValid: (value) => value.length > 0,
             })}
           />
-          ${
-            this.formModel.errors.right
-              ? html`<span class="error-message">Right is required</span>`
-              : nothing
-          }
+          ${this.formModel.errors.lastName
+            ? html`<span class="error-message">Right is required</span>`
+            : nothing}
         </div>
 
         <div class="input-container">
-          <label for="nested.b.0"> Nested.a: <sub>*</sub></label>
+          <label> Phone number: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, 'nested.b', {
-              isValid: (value) => value.length > 0,
+            placeholder="Enter 8 digits"
+            ${formField(this.formModel, 'phoneNumber.personal', {
+              pattern: /^\d{8}$/,
+              errorMessage: 'Enter 8 digit',
             })}
           />
+          ${this.formModel.errors.phoneNumber.personal
+            ? html`<span class="error-message"
+                >${this.formModel.errors.phoneNumber.personal}</span
+              >`
+            : nothing}
         </div>
 
         <div class="input-container">
-          <label for="nested.b.0"> Dynamic nested.b.0: <sub>*</sub></label>
+          <label> Work phone number: <sub>*</sub></label>
           <input
-            ${formField(this.formModel, `nested.b.0`, {
-              isValid: (value) => value.length > 0,
+            placeholder="Match pattern /^d{8}$/"
+            ${formField(this.formModel, `phoneNumber.work.0`, {
+              pattern: /^\d{8}$/,
+              errorMessage: 'Enter 8 digit',
             })}
           />
+          ${this.formModel.errors.phoneNumber.work[0]
+            ? html`<span class="error-message">
+                ${this.formModel.errors.phoneNumber.work[0]}</span
+              >`
+            : nothing}
+        </div>
+
+        <div class="additional-work-phone-container">
           <button @click=${this._handleAddAdditional}>Add another</button>
-
-          ${Array.from(Array(this.additionalNestedB), (i) => i + 1).map(
-            (_, i) => {
-              return html`
-                <label for="nested.b.${i + 1}">
-                  Dynamic nested.b.${i + 1}: <sub>*</sub></label
+          ${Array.from(
+            Array(this.additionalWorkNumberCount),
+            (_, i) => i + 1
+          ).map((i) => {
+            return html`
+              <div class="input-container">
+                <label for="nested.b.${i}">
+                  Additional work phone (${i}):</label
                 >
-                <input
-                  ${formField(this.formModel, `nested.b.${i + 1}`, {
-                    isValid: (value) => value.length > 0,
-                  })}
-                />
-              `;
-            }
-          )}
-          </div>
+                <input ${formField(this.formModel, `phoneNumber.work.${i}`)} />
+              </div>
+            `;
+          })}
         </div>
 
         <input type="submit" />

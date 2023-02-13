@@ -6,16 +6,12 @@ export class FormModel<T extends object = object>
   implements ReactiveController
 {
   host: ReactiveControllerHost;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: {[key: string]: any};
-  errors: {[key: string]: unknown};
+  data: T;
+  errors: T;
 
-  constructor(
-    host: ReactiveControllerHost,
-    defaultValue: {[Property in keyof T]: unknown}
-  ) {
+  constructor(host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
-    this.errors = deepSetDefault(defaultValue, false);
+    this.errors = deepSetDefault<T>(defaultValue, false);
     this.host = host;
     this.host.addController(this);
   }
@@ -23,7 +19,7 @@ export class FormModel<T extends object = object>
   errorsObservable: Observable<{[key: string]: unknown}> | null = null;
   hostConnected(): void {}
 
-  updateData(data: {[key: string]: unknown}) {
+  updateData(data: T) {
     this.data = data;
   }
 
@@ -38,7 +34,7 @@ export class FormModel<T extends object = object>
   private _updateErrorSubject(newErrors: string) {
     this._errorSubject.next(newErrors);
   }
-  updateErrors(errors: {[key: string]: unknown}) {
+  updateErrors(errors: T) {
     this.errors = errors;
     this._updateErrorSubject(JSON.stringify(errors));
   }
