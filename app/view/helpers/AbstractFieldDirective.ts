@@ -26,12 +26,14 @@ export type TFieldOptions = Partial<
     }
 >;
 
-type TFieldELement = HTMLInputElement | HTMLTextAreaElement;
+type TFieldELement = HTMLElement & {
+  [FormBindingEventsPropertyName]?: TFormBindingEvents;
+};
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
-  // some of these can probably be private
   _subscription: Subscription | undefined;
   _customEventSubscriptions: Subscription[] = [];
+  _customFormBindingEvents: TFormBindingEvents | undefined;
   abstract _fieldElement: TFieldELement;
   abstract _model: TModel;
   abstract _path: string;
@@ -60,8 +62,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
-  protected ensureCustomEventSubscribed(formBindingEvents: TFormBindingEvents) {
-    formBindingEvents.forEach((event) => {
+  protected ensureCustomEventSubscribed() {
+    this._customFormBindingEvents!.forEach((event) => {
       const newSub = fromEvent(this._fieldElement, event.name).subscribe(
         (e) => {
           const value = event.getValue(e);
@@ -74,7 +76,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   override update(
-    part: ElementPart,
+    part: ElementPart & {[FormBindingEventsPropertyName]?: TFormBindingEvents},
     [model, path, options]: Parameters<this['render']>
   ) {
     if (this.isConnected) {
@@ -83,11 +85,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._path = path;
       this._options = options;
       if (FormBindingEventsPropertyName in this._fieldElement) {
-        this.ensureCustomEventSubscribed(
-          this._fieldElement[
-            FormBindingEventsPropertyName
-          ] as TFormBindingEvents
-        );
+        this.ensureCustomEventSubscribed();
       } else {
         this.ensureInputSubscribed();
       }
@@ -107,6 +105,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   override reconnected(): void {
     this.ensureInputSubscribed();
+    this.ensureCustomEventSubscribed();
   }
 }
 
