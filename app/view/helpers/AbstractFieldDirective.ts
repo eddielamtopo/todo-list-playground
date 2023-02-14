@@ -76,7 +76,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   override update(
-    part: ElementPart & {[FormBindingEventsPropertyName]?: TFormBindingEvents},
+    part: ElementPart,
     [model, path, options]: Parameters<this['render']>
   ) {
     if (this.isConnected) {
