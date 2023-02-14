@@ -1,4 +1,3 @@
-import {Subscription} from 'rxjs';
 import {FormModel} from './form-model-controller';
 import {deepUpdate} from './deep/deep';
 import {
@@ -10,7 +9,6 @@ import {
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
   _fieldElement!: HTMLInputElement | HTMLTextAreaElement;
-  _subscription: Subscription | undefined;
   _model!: FormModel;
   _options!: TFieldOptions;
   _path!: string;

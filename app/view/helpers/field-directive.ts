@@ -1,4 +1,3 @@
-import {Subscription} from 'rxjs';
 import {
   AbstractFieldDirective,
   createFieldDirective,
@@ -8,7 +7,6 @@ import {deepUpdate} from './deep/deep';
 
 export class FieldDirective extends AbstractFieldDirective {
   _fieldElement!: HTMLInputElement | HTMLTextAreaElement;
-  _subscription: Subscription | undefined;
   _model!: {[key: string]: unknown};
   _options!: TFieldOptions;
   _path!: string;

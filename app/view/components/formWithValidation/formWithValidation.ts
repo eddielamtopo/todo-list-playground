@@ -82,7 +82,7 @@ export class FormWithValidation extends LitElement {
             placeholder="This is required!"
             ${formField(this.formModel, 'firstName', {
               isValid: (value) => value.length > 0,
-              errorMessage: 'Left is required!',
+              errorMessage: 'First name is required!',
             })}
           />
           ${this.formModel.errors.firstName
@@ -101,7 +101,7 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${this.formModel.errors.lastName
-            ? html`<span class="error-message">Right is required</span>`
+            ? html`<span class="error-message">Last name is required</span>`
             : nothing}
         </div>
 

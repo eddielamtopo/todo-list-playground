@@ -5,6 +5,11 @@ import {
   DirectiveClass,
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
+import {
+  TFormBindingEvents,
+  FormBindingEventsPropertyName,
+} from './decorators/FormBindingEvent';
+import {deepUpdate} from './deep';
 import {FormModel} from './form-model-controller';
 import {FieldValues, FieldPath} from './types';
 
@@ -24,14 +29,16 @@ export type TFieldOptions = Partial<
 type TFieldELement = HTMLInputElement | HTMLTextAreaElement;
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
-  abstract _subscription: Subscription | undefined;
+  // some of these can probably be private
+  _subscription: Subscription | undefined;
+  _customEventSubscriptions: Subscription[] = [];
   abstract _fieldElement: TFieldELement;
   abstract _model: TModel;
   abstract _path: string;
   abstract _options: TFieldOptions | undefined;
 
   override render(
-    _model: FormModel | object,
+    _model: object | FormModel,
     _path: string,
     _options?: TFieldOptions
   ) {
@@ -53,6 +60,19 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
+  protected ensureCustomEventSubscribed(formBindingEvents: TFormBindingEvents) {
+    formBindingEvents.forEach((event) => {
+      const newSub = fromEvent(this._fieldElement, event.name).subscribe(
+        (e) => {
+          const value = event.getValue(e);
+          const newValue = deepUpdate(this._model, this._path, value);
+          Object.assign(this._model, newValue);
+        }
+      );
+      this._customEventSubscriptions?.push(newSub);
+    });
+  }
+
   override update(
     part: ElementPart,
     [model, path, options]: Parameters<this['render']>
@@ -62,7 +82,15 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._model = model;
       this._path = path;
       this._options = options;
-      this.ensureInputSubscribed();
+      if (FormBindingEventsPropertyName in this._fieldElement) {
+        this.ensureCustomEventSubscribed(
+          this._fieldElement[
+            FormBindingEventsPropertyName
+          ] as TFormBindingEvents
+        );
+      } else {
+        this.ensureInputSubscribed();
+      }
     }
 
     return this.render(model, path, options);
@@ -71,6 +99,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   override disconnected(): void {
     this._subscription?.unsubscribe();
     this._subscription = undefined;
+    this._customEventSubscriptions.forEach((sub) => {
+      sub.unsubscribe();
+    });
+    this._customEventSubscriptions = [];
   }
 
   override reconnected(): void {

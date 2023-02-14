@@ -21,8 +21,14 @@ export class VaadinForm extends LitElement {
     console.log(this.form.data);
   }
 
+  @property()
+  _renderCount = 0;
+
   override render() {
+    this._renderCount += 1;
     return html`
+      <p>Render count: ${this._renderCount}</p>
+
       <form @submit=${this.handleSubmit}>
         <h1>My Vaadin Form</h1>
         <vaadin-text-field

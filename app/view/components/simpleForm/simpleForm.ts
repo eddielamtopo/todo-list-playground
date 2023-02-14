@@ -1,6 +1,6 @@
 import {css, html, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-// field directive
+import '../myChecklist/myChecklist';
 import {field} from '../../helpers/field-directive';
 
 const SimpleFormName = 'simple-form';
@@ -13,6 +13,13 @@ export class SimpleForm extends LitElement {
       personal: '',
       work: [''],
     },
+    checkList: [
+      {
+        id: '1',
+        name: 'Drink water',
+        crossedOff: false,
+      },
+    ],
   };
 
   static override styles = css`
@@ -104,6 +111,11 @@ export class SimpleForm extends LitElement {
             `;
           })}
         </div>
+
+        <my-checklist
+          .items=${this.formModel.checkList}
+          ${field(this.formModel, 'checkList')}
+        ></my-checklist>
 
         <input type="submit" />
       </form>
