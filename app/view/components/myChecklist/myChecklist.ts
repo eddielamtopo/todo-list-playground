@@ -1,16 +1,21 @@
 import {html, css, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-import {FormBindingEvent} from '../../helpers/decorators/FormBindingEvent';
+import {FormBindingEventPayload} from '../../helpers/decorators/FormBindingEventPayload';
 import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
+import {createRef, Ref, ref} from 'lit/directives/ref.js';
 
-type TCheckListItems = {
+type TCheckListItem = {
   id: string;
   name: string;
   crossedOff: boolean;
-}[];
+};
+type TCheckListItems = TCheckListItem[];
+
+// events
 export const ItemCrossedOffEvent = 'item-clicked';
-export type TodoListItemClickEvent = {
+export const AddItemEvent = 'add-item';
+export type TUnifiedCheckListFormBindingEventPayload = {
   readonly items: TCheckListItems;
 };
 
@@ -27,8 +32,15 @@ class MyCheckList extends LitElement {
   @property()
   items: TCheckListItems = [];
 
-  @FormBindingEvent(ItemCrossedOffEvent)
-  getValue(e: CustomEvent<TodoListItemClickEvent>) {
+  @FormBindingEventPayload(ItemCrossedOffEvent)
+  getValue(e: CustomEvent<TUnifiedCheckListFormBindingEventPayload>) {
+    return e.detail.items;
+  }
+
+  @FormBindingEventPayload(AddItemEvent)
+  getAnotherEventValue(
+    e: CustomEvent<TUnifiedCheckListFormBindingEventPayload>
+  ) {
     return e.detail.items;
   }
 
@@ -46,10 +58,46 @@ class MyCheckList extends LitElement {
         detail: {items: this.items},
       })
     );
+    this.requestUpdate();
+  }
+
+  inputRef: Ref<HTMLInputElement> = createRef();
+
+  handleAddItemClicked() {
+    if (this.inputRef.value) {
+      const item = this.inputRef.value.value;
+      const newItem = {
+        id: Math.random().toString(16).slice(2),
+        name: item,
+        crossedOff: false,
+      };
+
+      const items = [...this.items, newItem];
+      this.items = items;
+      this.dispatchEvent(
+        strictCustomEvent(AddItemEvent, {
+          bubbles: true,
+          detail: {
+            items,
+          },
+        })
+      );
+
+      this.inputRef.value.value = '';
+      this.requestUpdate();
+    }
   }
 
   override render() {
     return html`
+      <div>
+        <input
+          name="newCheckListItem"
+          placeholder="Add new checklist item"
+          ${ref(this.inputRef)}
+        />
+        <button @click=${this.handleAddItemClicked}>Add item</button>
+      </div>
       <ul>
         ${this.items.map((item) => {
           return html`<li
@@ -71,6 +119,7 @@ declare global {
     [MyCheckListName]: MyCheckList;
   }
   interface HTMLElementEventMap {
-    [ItemCrossedOffEvent]: CustomEvent<TodoListItemClickEvent>;
+    [ItemCrossedOffEvent]: CustomEvent<TUnifiedCheckListFormBindingEventPayload>;
+    [AddItemEvent]: CustomEvent<TUnifiedCheckListFormBindingEventPayload>;
   }
 }

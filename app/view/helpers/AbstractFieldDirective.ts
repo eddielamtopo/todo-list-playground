@@ -8,7 +8,7 @@ import {fromEvent, Subscription} from 'rxjs';
 import {
   TFormBindingEvents,
   FormBindingEventsPropertyName,
-} from './decorators/FormBindingEvent';
+} from './decorators/FormBindingEventPayload';
 import {deepUpdate} from './deep';
 import {FormModel} from './form-model-controller';
 import {FieldValues, FieldPath} from './types';
@@ -85,6 +85,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._path = path;
       this._options = options;
       if (FormBindingEventsPropertyName in this._fieldElement) {
+        this._customFormBindingEvents =
+          this._fieldElement[FormBindingEventsPropertyName];
         this.ensureCustomEventSubscribed();
       } else {
         this.ensureInputSubscribed();

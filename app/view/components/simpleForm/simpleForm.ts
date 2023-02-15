@@ -6,22 +6,6 @@ import {field} from '../../helpers/field-directive';
 const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)
 export class SimpleForm extends LitElement {
-  formModel = {
-    firstName: '',
-    lastName: '',
-    phoneNumber: {
-      personal: '',
-      work: [''],
-    },
-    checkList: [
-      {
-        id: '1',
-        name: 'Drink water',
-        crossedOff: false,
-      },
-    ],
-  };
-
   static override styles = css`
     .input-container {
       display: flex;
@@ -51,6 +35,22 @@ export class SimpleForm extends LitElement {
       margin-bottom: 20px;
     }
   `;
+
+  formModel = {
+    firstName: '',
+    lastName: '',
+    phoneNumber: {
+      personal: '',
+      work: [''],
+    },
+    checkList: [
+      {
+        id: '1',
+        name: 'Drink water',
+        crossedOff: false,
+      },
+    ],
+  };
 
   @property()
   renderCount = 0;

@@ -27,12 +27,7 @@ export function deepUpdate<T extends object>(
   return {
     ...target,
     [head]: rest.length
-      ? deepUpdate(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (target as Record<string, any>)[head],
-          rest.join('.'),
-          value
-        )
+      ? deepUpdate((target as TObject)[head], rest.join('.'), value)
       : value,
   } as T;
 }
@@ -48,10 +43,8 @@ export function deepSetDefault<T extends object>(
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const indexer = isArray ? i : key;
-    if (
-      Object.keys((clone as {[key: string | number]: object})[indexer]).length
-    ) {
-      (clone as {[key: string | number]: unknown})[indexer] = deepSetDefault(
+    if (Object.keys((clone as TObject)[indexer]).length) {
+      (clone as TObject)[indexer] = deepSetDefault(
         (clone as TObject)[indexer],
         defaultValue
       );

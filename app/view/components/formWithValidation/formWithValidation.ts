@@ -8,8 +8,8 @@ type TMyForm = {
   firstName: string;
   lastName: string;
   phoneNumber: {
-    personal: '';
-    work: [''];
+    personal: string;
+    work: string[];
   };
 };
 const FormWithValidationName = 'form-with-validation';
