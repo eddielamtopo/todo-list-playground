@@ -4,23 +4,22 @@ import {customElement, property} from 'lit/decorators.js';
 import {FormModel} from '../../helpers/form-model-controller';
 import {formField} from '../../helpers/form-field-directive';
 
+type TMyForm = {
+  firstName: string;
+  lastName: string;
+  phoneNumber: {
+    personal: '';
+    work: [''];
+  };
+};
 const FormWithValidationName = 'form-with-validation';
-
 @customElement(FormWithValidationName)
 export class FormWithValidation extends LitElement {
-  formModel: FormModel<{
-    firstName: string;
-    lastName: string;
-    phoneNumber: {
-      personal: '';
-      work: [''];
-    };
-  }> = new FormModel(this, {
+  formModel = new FormModel<TMyForm>(this, {
     firstName: '',
     lastName: '',
     phoneNumber: {personal: '', work: ['']},
   });
-  // FIXME: make this confirm to generic type; might need an 'activator function' instead of new
 
   static override styles = css`
     .input-container {

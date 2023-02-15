@@ -1,8 +1,9 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {deepSetDefault} from './deep/deep';
+import {FieldValues} from './types';
 
-export class FormModel<T extends object = object>
+export class FormModel<T extends FieldValues = FieldValues>
   implements ReactiveController
 {
   host: ReactiveControllerHost;
