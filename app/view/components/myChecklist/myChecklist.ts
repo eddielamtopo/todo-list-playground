@@ -5,7 +5,7 @@ import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
 
-type TCheckListItem = {
+export type TCheckListItem = {
   id: string;
   name: string;
   crossedOff: boolean;

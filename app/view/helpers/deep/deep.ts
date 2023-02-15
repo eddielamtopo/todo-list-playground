@@ -38,16 +38,22 @@ export function deepSetDefault<T extends object>(
 ): T {
   const keys = Object.keys(target);
   const clone = Array.isArray(target) ? [...target] : {...target};
-  const isArray = Array.isArray(clone);
+  const isArray = Array.isArray(clone) && typeof target !== 'string';
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const indexer = isArray ? i : key;
+
     if (Object.keys((clone as TObject)[indexer]).length) {
-      (clone as TObject)[indexer] = deepSetDefault(
-        (clone as TObject)[indexer],
-        defaultValue
-      );
+      // TODO: refactor to make it cleaner
+      if (typeof (clone as TObject)[indexer] === 'string') {
+        (clone as TObject)[indexer] = defaultValue;
+      } else {
+        (clone as TObject)[indexer] = deepSetDefault(
+          (clone as TObject)[indexer],
+          defaultValue
+        );
+      }
     } else {
       (clone as TObject)[indexer] = defaultValue;
     }

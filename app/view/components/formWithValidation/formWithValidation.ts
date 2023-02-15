@@ -3,6 +3,8 @@ import {customElement, property} from 'lit/decorators.js';
 // form model and form field directive
 import {FormModel} from '../../helpers/form-model-controller';
 import {formField} from '../../helpers/form-field-directive';
+import {TCheckListItem} from '../myChecklist/myChecklist';
+import '../myChecklist/myChecklist';
 
 type TMyForm = {
   firstName: string;
@@ -11,6 +13,7 @@ type TMyForm = {
     personal: string;
     work: string[];
   };
+  checkList: TCheckListItem[];
 };
 const FormWithValidationName = 'form-with-validation';
 @customElement(FormWithValidationName)
@@ -19,6 +22,13 @@ export class FormWithValidation extends LitElement {
     firstName: '',
     lastName: '',
     phoneNumber: {personal: '', work: ['']},
+    checkList: [
+      {
+        id: '1',
+        name: 'Drink coffee',
+        crossedOff: true,
+      },
+    ],
   });
 
   static override styles = css`
@@ -152,6 +162,11 @@ export class FormWithValidation extends LitElement {
             `;
           })}
         </div>
+
+        <my-checklist
+          .items=${this.formModel.data.checkList}
+          ${formField(this.formModel, 'checkList')}
+        ></my-checklist>
 
         <input type="submit" />
       </form>

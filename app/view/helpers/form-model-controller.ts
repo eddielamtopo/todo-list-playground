@@ -12,7 +12,7 @@ export class FormModel<T extends FieldValues = FieldValues>
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
-    this.errors = deepSetDefault<T>(defaultValue, false);
+    this.errors = deepSetDefault(defaultValue, false);
     this.host = host;
     this.host.addController(this);
   }
@@ -21,7 +21,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   hostConnected(): void {}
 
   updateData(data: T) {
-    this.data = data;
+    Object.assign(this.data, data);
   }
 
   // error handling
