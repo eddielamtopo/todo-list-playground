@@ -56,4 +56,12 @@ describe('test deepSetDefault', () => {
       {a: {b: defaultValue, c: [defaultValue]}},
     ]);
   });
+
+  it('can update string value', () => {
+    const target = [{a: {b: 'abc'}}];
+    const newValue = '123';
+    const expected = [{a: {b: newValue}}];
+    const newTaget = deepSetDefault(target, newValue);
+    expect(newTaget).toStrictEqual(expected);
+  });
 });

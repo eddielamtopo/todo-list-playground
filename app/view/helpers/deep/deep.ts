@@ -10,7 +10,7 @@
 type TObject = Record<string | number, any>;
 
 export function deepUpdate<T extends object>(
-  target: T | object,
+  target: T,
   path: string,
   value: unknown
 ): T {
@@ -32,31 +32,52 @@ export function deepUpdate<T extends object>(
   } as T;
 }
 
-export function deepSetDefault<T extends object>(
-  target: T,
+export function deepSetDefault<T extends TObject>(
+  target: TObject,
   defaultValue: unknown
 ): T {
-  const keys = Object.keys(target);
-  const clone = Array.isArray(target) ? [...target] : {...target};
-  const isArray = Array.isArray(clone) && typeof target !== 'string';
+  if (
+    typeof target === 'string' ||
+    typeof target === 'number' ||
+    typeof target === 'bigint'
+  ) {
+    return defaultValue as T;
+  }
 
+  const keys = typeof target === 'string' ? [] : Object.keys(target);
+  const clone = Array.isArray(target) ? [...target] : {...target};
+  const isArray = Array.isArray(clone);
+
+  // iterate and update each value in the object / array to 'defaultValue'...
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const indexer = isArray ? i : key;
 
+    // if the value to be updated is string ...
+    if (!Array.isArray(clone) && typeof clone[indexer] === 'string') {
+      clone[indexer] = defaultValue;
+      continue;
+    }
+
+    // else if the value is has nested values -- i.e. is array or object ...
     if (Object.keys((clone as TObject)[indexer]).length) {
-      // TODO: refactor to make it cleaner
-      if (typeof (clone as TObject)[indexer] === 'string') {
-        (clone as TObject)[indexer] = defaultValue;
-      } else {
-        (clone as TObject)[indexer] = deepSetDefault(
+      // if we are sure it is an object ...
+      if (!Array.isArray(clone)) {
+        clone[indexer] = deepSetDefault(
           (clone as TObject)[indexer],
           defaultValue
         );
+        continue;
       }
-    } else {
-      (clone as TObject)[indexer] = defaultValue;
+      // if we are sure it is an array ...
+      if (typeof indexer === 'number') {
+        clone[indexer] = deepSetDefault(clone[indexer], defaultValue);
+        continue;
+      }
+      // is array but indexer is not number ...
     }
+
+    (clone as Record<string | number, unknown>)[indexer] = defaultValue;
   }
 
   return clone as T;
