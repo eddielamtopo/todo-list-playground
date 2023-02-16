@@ -6,10 +6,9 @@ import {
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {
-  TFormBindingEvents,
-  FormBindingEventsPropertyName,
-} from './decorators/FormBindingEventPayload';
-import {deepUpdate} from './deep';
+  formBindingCustomEventsName,
+  getFormBindingEventsPayloadFnName,
+} from './decorators/withFormBindingEvents';
 import {FormModel} from './form-model-controller';
 import {FieldValues, FieldPath} from './types';
 
@@ -27,13 +26,14 @@ export type TFieldOptions = Partial<
 >;
 
 type TFieldELement = HTMLElement & {
-  [FormBindingEventsPropertyName]?: TFormBindingEvents;
+  [getFormBindingEventsPayloadFnName]?: (type: string, event: Event) => unknown;
+  [formBindingCustomEventsName]?: string[];
 };
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   _subscription: Subscription | undefined;
   _customEventSubscriptions: Subscription[] = [];
-  _customFormBindingEvents: TFormBindingEvents | undefined;
+
   abstract _fieldElement: TFieldELement;
   abstract _model: TModel;
   abstract _path: string;
@@ -51,6 +51,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
    * Override to implement lower-level input event handling detail
    * */
   abstract handleInputEvent(event: Event): void;
+  /**
+   * Override to implement lower-level custom event handling detail
+   * */
+  abstract handleCustomEvent(eventPayload: unknown): void;
 
   protected ensureInputSubscribed() {
     if (this._subscription === undefined) {
@@ -63,15 +67,16 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   protected ensureCustomEventSubscribed() {
-    this._customFormBindingEvents!.forEach((event) => {
-      const newSub = fromEvent(this._fieldElement, event.name).subscribe(
-        (e) => {
-          const value = event.getValue(e);
-          const newValue = deepUpdate(this._model, this._path, value);
-          Object.assign(this._model, newValue);
-        }
-      );
-      this._customEventSubscriptions?.push(newSub);
+    const getValue = this._fieldElement[getFormBindingEventsPayloadFnName]!;
+    const customEvents = this._fieldElement[formBindingCustomEventsName]!;
+
+    customEvents.forEach((eventName) => {
+      const newSub = fromEvent(this._fieldElement, eventName).subscribe((e) => {
+        const value = getValue(eventName, e);
+        this.handleCustomEvent(value);
+      });
+
+      this._customEventSubscriptions.push(newSub);
     });
   }
 
@@ -84,9 +89,11 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._model = model;
       this._path = path;
       this._options = options;
-      if (FormBindingEventsPropertyName in this._fieldElement) {
-        this._customFormBindingEvents =
-          this._fieldElement[FormBindingEventsPropertyName];
+
+      if (
+        formBindingCustomEventsName in this._fieldElement &&
+        getFormBindingEventsPayloadFnName in this._fieldElement
+      ) {
         this.ensureCustomEventSubscribed();
       } else {
         this.ensureInputSubscribed();

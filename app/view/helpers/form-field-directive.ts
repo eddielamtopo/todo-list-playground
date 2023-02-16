@@ -13,6 +13,15 @@ export class FormFieldDirective extends AbstractFieldDirective {
   _options!: TFieldOptions;
   _path!: string;
 
+  private _updateModelData(value: unknown) {
+    const newData = deepUpdate(this._model.data, this._path, value);
+    this._model.updateData(newData);
+  }
+
+  handleCustomEvent(data: unknown) {
+    this._updateModelData(data);
+  }
+
   handleInputEvent(event: Event): void {
     const inputValue = (event.target as HTMLInputElement).value;
 
@@ -28,8 +37,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
     this._model.updateErrors(newErrors);
 
     // update data value
-    const newData = deepUpdate(this._model.data, this._path, inputValue);
-    this._model.updateData(newData);
+    this._updateModelData(inputValue);
   }
 }
 

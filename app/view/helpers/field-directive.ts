@@ -11,12 +11,18 @@ export class FieldDirective extends AbstractFieldDirective {
   _options!: TFieldOptions;
   _path!: string;
 
+  private _updateModelData(value: unknown) {
+    const newObject = deepUpdate(this._model, this._path, value);
+    Object.assign(this._model, newObject);
+  }
+
+  handleCustomEvent(newData: {[key: string]: unknown}) {
+    this._updateModelData(newData);
+  }
+
   handleInputEvent(event: Event) {
     const inputValue = (event.target as HTMLInputElement).value;
-    const newObject = deepUpdate(this._model, this._path, inputValue);
-    Object.keys(this._model).forEach((key) => {
-      this._model[key] = newObject[key];
-    });
+    this._updateModelData(inputValue);
   }
 }
 

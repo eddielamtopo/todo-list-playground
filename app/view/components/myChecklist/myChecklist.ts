@@ -1,9 +1,10 @@
 import {html, css, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-import {FormBindingEventPayload} from '../../helpers/decorators/FormBindingEventPayload';
+// import {FormBindingEventPayload} from '../../helpers/decorators/FormBindingEventPayload';
 import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
+import {withFormBindingEvents} from '../../helpers/decorators/withFormBindingEvents';
 
 export type TCheckListItem = {
   id: string;
@@ -22,7 +23,25 @@ export type TFormBindingEventType = {
 };
 
 const MyCheckListName = 'my-checklist';
+
 @customElement(MyCheckListName)
+@withFormBindingEvents<
+  CHECKLIST_EVENTS,
+  TFormBindingEventType,
+  TCheckListItems
+>({
+  formBindingEvents: Object.values(CHECKLIST_EVENTS),
+  getFormBindingEventsPayload: (type, event) => {
+    if (type === CHECKLIST_EVENTS.ITEM_ADDED) {
+      event.detail.items;
+      return event.detail.items;
+    }
+    if (type === CHECKLIST_EVENTS.ITEM_CROSSED_OFF) {
+      return event.detail.items;
+    }
+    return [];
+  },
+})
 class MyCheckList extends LitElement {
   static override styles = css`
     .crossed-off {
@@ -74,22 +93,10 @@ class MyCheckList extends LitElement {
           },
         })
       );
+      this.requestUpdate();
 
       this.inputRef.value.value = '';
     }
-  }
-
-  @FormBindingEventPayload(Object.values(CHECKLIST_EVENTS))
-  getValue(
-    e: CustomEvent<TFormBindingEventType> & {type: CHECKLIST_EVENTS}
-  ): TCheckListItems {
-    if (e.type === CHECKLIST_EVENTS.ITEM_ADDED) {
-      return e.detail.items;
-    }
-    if (e.type === CHECKLIST_EVENTS.ITEM_CROSSED_OFF) {
-      return e.detail.items;
-    }
-    return [];
   }
 
   override render() {
