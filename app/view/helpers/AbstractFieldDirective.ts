@@ -12,18 +12,18 @@ import {
 import {FormModel} from './form-model-controller';
 import {FieldValues, FieldPath} from './types';
 
-export type TFieldOptions = Partial<
-  | {
-      isValid: (value: string) => boolean;
+export type TFieldOptions =
+  | Partial<{
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      isValid: <T>(value: T) => boolean;
       errorMessage: string;
-      pattern: never;
-    }
-  | {
+      pattern: RegExp;
+    }>
+  | Partial<{
       isValid: never;
       errorMessage: string;
       pattern: RegExp;
-    }
->;
+    }>;
 
 type TFieldELement = HTMLElement & {
   [customEventHandlerName]?: (event: Event) => unknown;
@@ -31,8 +31,13 @@ type TFieldELement = HTMLElement & {
 };
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
-  _subscription: Subscription | undefined;
-  _customEventSubscriptions: Subscription[] = [];
+  static errorStylingAttributeNames = {
+    invalid: 'invalid',
+  };
+
+  private _subscription: Subscription | undefined;
+  private _customEventSubscriptions: Subscription[] = [];
+  protected validator: (value: unknown) => boolean = () => true;
 
   abstract _fieldElement: TFieldELement;
   abstract _model: TModel;
@@ -61,6 +66,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._subscription = fromEvent(this._fieldElement, 'input').subscribe(
         (event) => {
           this.handleInputEvent(event);
+          this._appendErrorStyleAttributes(
+            (this._fieldElement as HTMLInputElement).value
+          );
         }
       );
     }
@@ -74,10 +82,43 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       const newSub = fromEvent(this._fieldElement, eventName).subscribe((e) => {
         const value = getValue(e);
         this.handleCustomEvent(value);
+        this._appendErrorStyleAttributes(value);
       });
 
       this._customEventSubscriptions.push(newSub);
     });
+  }
+
+  private _configureValidator(options?: TFieldOptions) {
+    if (options) {
+      if (options.pattern) {
+        this.validator = (value) => {
+          if (typeof value === 'string') {
+            return options.pattern!.test(value);
+          } else {
+            return true;
+          }
+        };
+      }
+
+      if (options.isValid) {
+        this.validator = options.isValid;
+      }
+    }
+  }
+
+  private _appendErrorStyleAttributes(value: unknown) {
+    const valid = this.validator(value);
+    if (!valid) {
+      this._fieldElement.setAttribute(
+        AbstractFieldDirective.errorStylingAttributeNames.invalid,
+        'true'
+      );
+    } else {
+      this._fieldElement.removeAttribute(
+        AbstractFieldDirective.errorStylingAttributeNames.invalid
+      );
+    }
   }
 
   override update(
@@ -89,6 +130,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._model = model;
       this._path = path;
       this._options = options;
+      this._configureValidator(options);
 
       if (
         customEventNames in this._fieldElement &&

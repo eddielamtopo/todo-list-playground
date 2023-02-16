@@ -90,7 +90,7 @@ export class FormWithValidation extends LitElement {
           <input
             placeholder="This is required!"
             ${formField(this.formModel, 'firstName', {
-              isValid: (value) => value.length > 0,
+              isValid: (value) => (value as string).length > 0,
               errorMessage: 'First name is required!',
             })}
           />
@@ -106,7 +106,7 @@ export class FormWithValidation extends LitElement {
           <input
             placeholder="This is required!"
             ${formField(this.formModel, 'lastName', {
-              isValid: (value) => value.length > 0,
+              isValid: (value) => (value as string).length > 0,
             })}
           />
           ${this.formModel.errors.lastName

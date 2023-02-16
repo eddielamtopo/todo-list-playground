@@ -25,15 +25,8 @@ export class FormFieldDirective extends AbstractFieldDirective {
   handleInputEvent(event: Event): void {
     const inputValue = (event.target as HTMLInputElement).value;
 
-    // TODO: extract this out so it can also handle custom event validation
     // validate validity on change
-    const validator = this._options?.isValid
-      ? this._options.isValid
-      : this._options?.pattern && typeof inputValue === 'string'
-      ? (value: string) => this._options.pattern!.test(value)
-      : () => true;
-
-    const valid = validator(inputValue);
+    const valid = this.validator(inputValue);
     const errorValue = valid ? false : this._options?.errorMessage ?? !valid;
     const newErrors = deepUpdate(this._model.errors, this._path, errorValue);
     this._model.updateErrors(newErrors);

@@ -34,6 +34,10 @@ export class SimpleForm extends LitElement {
     .additional-work-phone-container > *:not(:last-child) {
       margin-bottom: 20px;
     }
+
+    *[invalid='true'] {
+      border: 2px solid red;
+    }
   `;
 
   formModel = {
@@ -76,8 +80,14 @@ export class SimpleForm extends LitElement {
         <h1>My Simple Form:</h1>
 
         <div class="input-container">
-          <label> First name:</label>
-          <input ${field(this.formModel, 'firstName')} />
+          <label> First name:<sub>*</sub></label>
+          <input
+            placeholder="Required"
+            ${field(this.formModel, 'firstName', {
+              isValid: (value) => (value as string).length > 0,
+              errorMessage: 'First name is required!',
+            })}
+          />
         </div>
 
         <div class="input-container">
