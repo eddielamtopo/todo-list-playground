@@ -33,43 +33,44 @@ export const FormBindingEventsPropertyName = 'formBindingEvents';
  * ```
  * */
 
-export function FormBindingEventPayload(eventName: string) {
-  // parent class, name of function,
+export function FormBindingEventPayload(eventNames: string[]) {
   return function (
     target: LitElement & {formBindingEvents?: TFormBindingEvent[]},
     _key: string | symbol,
     descriptor: PropertyDescriptor
   ) {
-    const formBindingEvent = {
-      name: eventName,
-      getValue: descriptor.value,
-    };
+    eventNames.forEach((eventName) => {
+      const formBindingEvent = {
+        name: eventName,
+        getValue: descriptor.value,
+      };
 
-    let baseValue: TFormBindingEvent[] = target.formBindingEvents ?? [];
-    if (!target[FormBindingEventsPropertyName]) {
-      Object.defineProperty(target, FormBindingEventsPropertyName, {
-        enumerable: true,
-        get() {
-          return baseValue;
-        },
-        set(newValue: TFormBindingEvent[]) {
-          baseValue = newValue;
-        },
-      });
-    }
+      let baseValue: TFormBindingEvent[] = target.formBindingEvents ?? [];
+      if (!target[FormBindingEventsPropertyName]) {
+        Object.defineProperty(target, FormBindingEventsPropertyName, {
+          enumerable: true,
+          get() {
+            return baseValue;
+          },
+          set(newValue: TFormBindingEvent[]) {
+            baseValue = newValue;
+          },
+        });
+      }
 
-    target[FormBindingEventsPropertyName] =
-      (function updateFormBindingEvents() {
-        const foundExisting = baseValue?.find((e) => e.name === eventName)
-          ? true
-          : false;
+      target[FormBindingEventsPropertyName] =
+        (function updateFormBindingEvents() {
+          const foundExisting = baseValue?.find((e) => e.name === eventName)
+            ? true
+            : false;
 
-        if (foundExisting) {
-          return baseValue;
-        }
+          if (foundExisting) {
+            return baseValue;
+          }
 
-        return [...baseValue, formBindingEvent];
-      })();
+          return [...baseValue, formBindingEvent];
+        })();
+    });
 
     return descriptor;
   };
