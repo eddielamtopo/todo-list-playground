@@ -6,9 +6,9 @@ import {
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {
-  formBindingCustomEventsName,
-  getFormBindingEventsPayloadFnName,
-} from './decorators/withFormBindingEvents';
+  customEventNames,
+  customEventHandlerName,
+} from './decorators/supportsFormBinding';
 import {FormModel} from './form-model-controller';
 import {FieldValues, FieldPath} from './types';
 
@@ -26,8 +26,8 @@ export type TFieldOptions = Partial<
 >;
 
 type TFieldELement = HTMLElement & {
-  [getFormBindingEventsPayloadFnName]?: (type: string, event: Event) => unknown;
-  [formBindingCustomEventsName]?: string[];
+  [customEventHandlerName]?: (event: Event) => unknown;
+  [customEventNames]?: string[];
 };
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
@@ -67,12 +67,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   protected ensureCustomEventSubscribed() {
-    const getValue = this._fieldElement[getFormBindingEventsPayloadFnName]!;
-    const customEvents = this._fieldElement[formBindingCustomEventsName]!;
+    const getValue = this._fieldElement[customEventHandlerName]!;
+    const customEvents = this._fieldElement[customEventNames]!;
 
     customEvents.forEach((eventName) => {
       const newSub = fromEvent(this._fieldElement, eventName).subscribe((e) => {
-        const value = getValue(eventName, e);
+        const value = getValue(e);
         this.handleCustomEvent(value);
       });
 
@@ -91,8 +91,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._options = options;
 
       if (
-        formBindingCustomEventsName in this._fieldElement &&
-        getFormBindingEventsPayloadFnName in this._fieldElement
+        customEventNames in this._fieldElement &&
+        customEventHandlerName in this._fieldElement
       ) {
         this.ensureCustomEventSubscribed();
       } else {
@@ -118,6 +118,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 }
 
+// helper function to create type safe field directive
 export const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
   const _fieldDirective = directive(CustomDirectiveClass);
 

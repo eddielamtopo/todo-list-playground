@@ -4,7 +4,10 @@ import {customElement, property} from 'lit/decorators.js';
 import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
-import {withFormBindingEvents} from '../../helpers/decorators/withFormBindingEvents';
+import {
+  FormBindingEvent,
+  supportsFormBinding,
+} from '../../helpers/decorators/supportsFormBinding';
 
 export type TCheckListItem = {
   id: string;
@@ -14,30 +17,44 @@ export type TCheckListItem = {
 type TCheckListItems = TCheckListItem[];
 
 // events
-export enum CHECKLIST_EVENTS {
-  ITEM_CROSSED_OFF = 'item-clicked',
-  ITEM_ADDED = 'item-added',
-}
-export type TFormBindingEventType = {
+const ItemCrossedOffEventName = 'item-clicked';
+const ItemAddEventName = 'item-added';
+const eventNames = [ItemCrossedOffEventName, ItemAddEventName];
+
+export type TAddItemToCheckListEventPayload = {
   readonly items: TCheckListItems;
+  readonly newItem: TCheckListItem;
+};
+export type TCrossOffItemFromCheckListEventPayload = {
+  readonly items: TCheckListItems;
+  readonly removedItemId: string;
 };
 
+type TCustomEventPayloadMap = [
+  FormBindingEvent<
+    typeof ItemCrossedOffEventName,
+    {
+      readonly items: TCheckListItems;
+      readonly newItem: TCheckListItem;
+    }
+  >,
+  FormBindingEvent<
+    typeof ItemAddEventName,
+    TCrossOffItemFromCheckListEventPayload
+  >
+];
 const MyCheckListName = 'my-checklist';
-
 @customElement(MyCheckListName)
-@withFormBindingEvents<
-  CHECKLIST_EVENTS,
-  TFormBindingEventType,
-  TCheckListItems
->({
-  formBindingEvents: Object.values(CHECKLIST_EVENTS),
-  getFormBindingEventsPayload: (type, event) => {
-    if (type === CHECKLIST_EVENTS.ITEM_ADDED) {
-      event.detail.items;
+@supportsFormBinding<TCustomEventPayloadMap, typeof eventNames>({
+  eventNames,
+  getFieldValue: (event) => {
+    if (event.type === 'item-clicked') {
       return event.detail.items;
     }
-    if (type === CHECKLIST_EVENTS.ITEM_CROSSED_OFF) {
-      return event.detail.items;
+    if (event.type === 'item-added') {
+      return event.detail.items.filter(
+        (e) => e.id !== event.detail.removedItemId
+      );
     }
     return [];
   },
@@ -64,9 +81,9 @@ class MyCheckList extends LitElement {
     this.items = result;
 
     this.dispatchEvent(
-      strictCustomEvent(CHECKLIST_EVENTS.ITEM_CROSSED_OFF, {
+      strictCustomEvent(ItemCrossedOffEventName, {
         bubbles: true,
-        detail: {items: this.items},
+        detail: {items: this.items, removedItemId: id},
       })
     );
   }
@@ -86,10 +103,11 @@ class MyCheckList extends LitElement {
       this.items = items;
 
       this.dispatchEvent(
-        strictCustomEvent(CHECKLIST_EVENTS.ITEM_ADDED, {
+        strictCustomEvent(ItemAddEventName, {
           bubbles: true,
           detail: {
             items,
+            newItem,
           },
         })
       );
@@ -130,7 +148,7 @@ declare global {
     [MyCheckListName]: MyCheckList;
   }
   interface HTMLElementEventMap {
-    [CHECKLIST_EVENTS.ITEM_ADDED]: CustomEvent<TFormBindingEventType>;
-    [CHECKLIST_EVENTS.ITEM_CROSSED_OFF]: CustomEvent<TFormBindingEventType>;
+    [ItemAddEventName]: CustomEvent<TAddItemToCheckListEventPayload>;
+    [ItemCrossedOffEventName]: CustomEvent<TCrossOffItemFromCheckListEventPayload>;
   }
 }
