@@ -11,7 +11,6 @@ type TMyForm = {
   lastName: string;
   phoneNumber: {
     personal: string;
-    age: number;
     work: string[];
   };
   checkList: TCheckListItem[];
@@ -22,7 +21,7 @@ export class FormWithValidation extends LitElement {
   formModel = new FormModel<TMyForm>(this, {
     firstName: '',
     lastName: '',
-    phoneNumber: {personal: '', age: 18, work: ['']},
+    phoneNumber: {personal: '', work: ['']},
     checkList: [
       {
         id: '1',
