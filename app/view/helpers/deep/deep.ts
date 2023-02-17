@@ -104,6 +104,7 @@ export function deepCheckAny(
   value: unknown,
   _previousResult = false
 ) {
+  if (typeof target !== 'object') return target === value;
   // iterate through the target
   const indexers = Object.keys(target);
   let currentResult = _previousResult;

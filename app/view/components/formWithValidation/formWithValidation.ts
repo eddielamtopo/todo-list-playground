@@ -1,10 +1,12 @@
 import {css, html, LitElement, nothing} from 'lit';
+import {classMap} from 'lit/directives/class-map.js';
 import {customElement, property} from 'lit/decorators.js';
 // form model and form field directive
 import {FormModel} from '../../helpers/form-model-controller';
 import {formField} from '../../helpers/form-field-directive';
 import {TCheckListItem} from '../myChecklist/myChecklist';
 import '../myChecklist/myChecklist';
+import {deepCheckAny} from '../../helpers/deep/index';
 
 type TMyForm = {
   firstName: string;
@@ -59,6 +61,14 @@ export class FormWithValidation extends LitElement {
     .additional-work-phone-container > *:not(:last-child) {
       margin-bottom: 20px;
     }
+
+    .check-list-invalid-message {
+      opacity: 0;
+    }
+
+    .check-list-invalid-message.has-error {
+      opacity: 1;
+    }
   `;
 
   @property()
@@ -98,11 +108,13 @@ export class FormWithValidation extends LitElement {
               errorMessage: 'First name is required!',
             })}
           />
-          ${this.formModel.errors.firstName
-            ? html`<span class="error-message"
-                >${this.formModel.errors.firstName}</span
-              >`
-            : nothing}
+          ${
+            this.formModel.errors.firstName
+              ? html`<span class="error-message"
+                  >${this.formModel.errors.firstName}</span
+                >`
+              : nothing
+          }
         </div>
 
         <div class="input-container">
@@ -113,9 +125,11 @@ export class FormWithValidation extends LitElement {
               isValid: (value) => (value as string).length > 0,
             })}
           />
-          ${this.formModel.errors.lastName
-            ? html`<span class="error-message">Last name is required</span>`
-            : nothing}
+          ${
+            this.formModel.errors.lastName
+              ? html`<span class="error-message">Last name is required</span>`
+              : nothing
+          }
         </div>
 
         <div class="input-container">
@@ -127,11 +141,13 @@ export class FormWithValidation extends LitElement {
               errorMessage: 'Enter 8 digit',
             })}
           />
-          ${this.formModel.errors.phoneNumber.personal
-            ? html`<span class="error-message"
-                >${this.formModel.errors.phoneNumber.personal}</span
-              >`
-            : nothing}
+          ${
+            this.formModel.errors.phoneNumber.personal
+              ? html`<span class="error-message"
+                  >${this.formModel.errors.phoneNumber.personal}</span
+                >`
+              : nothing
+          }
         </div>
 
         <div class="input-container">
@@ -143,11 +159,13 @@ export class FormWithValidation extends LitElement {
               errorMessage: 'Enter 8 digit',
             })}
           />
-          ${this.formModel.errors.phoneNumber.work[0]
-            ? html`<span class="error-message">
-                ${this.formModel.errors.phoneNumber.work[0]}</span
-              >`
-            : nothing}
+          ${
+            this.formModel.errors.phoneNumber.work[0]
+              ? html`<span class="error-message">
+                  ${this.formModel.errors.phoneNumber.work[0]}</span
+                >`
+              : nothing
+          }
         </div>
 
         <div class="additional-work-phone-container">
@@ -167,6 +185,13 @@ export class FormWithValidation extends LitElement {
           })}
         </div>
 
+        <div class=${classMap({
+          'check-list-invalid-message': true,
+          'has-error': deepCheckAny(this.formModel.errors.checkList, true),
+        })}>
+          ⚠️ Not everything on the list is crossed-off!
+        </div>
+        </div>
         <my-checklist
           .items=${this.formModel.data.checkList}
           ${formField(this.formModel, 'checkList', {

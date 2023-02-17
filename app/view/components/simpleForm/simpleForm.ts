@@ -35,7 +35,7 @@ export class SimpleForm extends LitElement {
       margin-bottom: 20px;
     }
 
-    *[invalid='true']:not(my-checklist) {
+    *[invalid]:not(my-checklist) {
       border: 2px solid red;
     }
   `;
