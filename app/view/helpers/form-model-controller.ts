@@ -24,7 +24,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   /**
    * 'valid' check if every binded field is valid without updating the host
    * */
-  get valid() {
+  get dataValid() {
     return this._bindedFields.every((field) => field.isValid);
   }
 
