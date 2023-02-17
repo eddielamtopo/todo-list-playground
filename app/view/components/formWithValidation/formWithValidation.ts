@@ -66,7 +66,11 @@ export class FormWithValidation extends LitElement {
 
   _handleSubmit(e: Event) {
     e.preventDefault();
+    console.log('trigger submit');
     console.log(this.formModel.data);
+    console.log(this.formModel.errors);
+    this.formModel.validateAllFields();
+    console.log(`Form is valid: ${this.formModel.valid}`);
   }
 
   @property()
@@ -165,7 +169,13 @@ export class FormWithValidation extends LitElement {
 
         <my-checklist
           .items=${this.formModel.data.checkList}
-          ${formField(this.formModel, 'checkList')}
+          ${formField(this.formModel, 'checkList', {
+            isValid: (items) => {
+              return (items as TCheckListItem[]).every((item) => {
+                return item.crossedOff;
+              });
+            },
+          })}
         ></my-checklist>
 
         <input type="submit" />

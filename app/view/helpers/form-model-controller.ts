@@ -1,6 +1,7 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
-import {deepSetDefault} from './deep/deep';
+import {deepSetDefault} from './deep/index';
+import {FormFieldDirective} from './form-field-directive';
 import {FieldValues} from './types';
 
 export class FormModel<T extends FieldValues = FieldValues>
@@ -15,6 +16,27 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.errors = deepSetDefault(defaultValue, false);
     this.host = host;
     this.host.addController(this);
+  }
+
+  // _bindedFields contain all the fields that is binded to this model
+  public _bindedFields: FormFieldDirective[] = [];
+
+  /**
+   * 'valid' check if every binded field is valid without updating the host
+   * */
+  get valid() {
+    return this._bindedFields.every((field) => field.isValid);
+  }
+
+  /**
+   * 'validateAllFields' will trigger validation on all the binded fields
+   * and update the host to display error message for invalid fields
+   * */
+  validateAllFields() {
+    this._bindedFields.forEach((field) => {
+      field.validateFieldValue();
+    });
+    this.host.requestUpdate();
   }
 
   errorsObservable: Observable<{[key: string]: unknown}> | null = null;
@@ -35,6 +57,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   private _updateErrorSubject(newErrors: string) {
     this._errorSubject.next(newErrors);
   }
+
   updateErrors(errors: T) {
     this.errors = errors;
     this._updateErrorSubject(JSON.stringify(errors));

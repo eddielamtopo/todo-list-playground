@@ -5,6 +5,7 @@ import {
   DirectiveClass,
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
+import {deepGetValue} from './deep/index';
 import {FormModel} from './form-model-controller';
 import {
   FormFieldBindingMethodName,
@@ -44,10 +45,19 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _customEventSubscriptions: Subscription[] = [];
   protected validator: (value: unknown) => boolean = () => true;
 
-  abstract _fieldElement: TFieldELement;
-  abstract _model: TModel;
-  abstract _path: string;
-  abstract _options: TFieldOptions | undefined;
+  abstract fieldElement: TFieldELement;
+  abstract model: TModel;
+  abstract path: string;
+  abstract options: TFieldOptions | undefined;
+
+  get fieldValue() {
+    // TODO: will the model be either FormModel or object in the long term?
+    // if not this is not good for maintenance
+    if (this.model instanceof FormModel) {
+      return deepGetValue(this.model.data, this.path);
+    }
+    return deepGetValue(this.model, this.path);
+  }
 
   override render(
     _model: object | FormModel,

@@ -3,7 +3,7 @@ import {
   createFieldDirective,
   TFieldOptions,
 } from './AbstractFieldDirective';
-import {deepUpdate} from './deep/deep';
+import {deepUpdate} from './deep/index';
 
 export class FieldDirective extends AbstractFieldDirective {
   fieldElement!: HTMLInputElement | HTMLTextAreaElement;
