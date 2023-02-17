@@ -6,14 +6,14 @@ import {
 import {deepUpdate} from './deep/deep';
 
 export class FieldDirective extends AbstractFieldDirective {
-  _fieldElement!: HTMLInputElement | HTMLTextAreaElement;
-  _model!: {[key: string]: unknown};
-  _options!: TFieldOptions;
-  _path!: string;
+  fieldElement!: HTMLInputElement | HTMLTextAreaElement;
+  model!: {[key: string]: unknown};
+  options!: TFieldOptions;
+  path!: string;
 
   private _updateModelData(value: unknown) {
-    const newObject = deepUpdate(this._model, this._path, value);
-    Object.assign(this._model, newObject);
+    const newObject = deepUpdate(this.model, this.path, value);
+    Object.assign(this.model, newObject);
   }
 
   handleCustomEvent(newData: {[key: string]: unknown}) {

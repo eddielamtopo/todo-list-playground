@@ -68,11 +68,11 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   protected ensureInputSubscribed() {
     if (this._subscription === undefined) {
-      this._subscription = fromEvent(this._fieldElement, 'input').subscribe(
+      this._subscription = fromEvent(this.fieldElement, 'input').subscribe(
         (event) => {
           this.handleInputEvent(event);
           this._appendErrorStyleAttributes(
-            (this._fieldElement as HTMLInputElement).value
+            (this.fieldElement as HTMLInputElement).value
           );
         }
       );
@@ -81,9 +81,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   protected ensureCustomEventSubscribed() {
     const formBindingEventDetails =
-      this._fieldElement[FormFieldBindingMethodName]!();
+      this.fieldElement[FormFieldBindingMethodName]!();
     formBindingEventDetails.forEach(({name, getValue}) => {
-      const newSub = fromEvent(this._fieldElement, name).subscribe((e) => {
+      const newSub = fromEvent(this.fieldElement, name).subscribe((e) => {
         const value = getValue(e as CustomEvent);
         this.handleCustomEvent(value);
         this._appendErrorStyleAttributes(value);
@@ -93,6 +93,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     });
   }
 
+  /**
+   * This method hook up the field directive with a validator function
+   * The validator will be the 'isValid' function if provided,
+   * if isValid was not provided, 'pattern' will be used to test the string value,
+   * if pattern was provided, the validator will validate string value with the pattern regex,
+   * (** note if value is not string, then the validator will simply have no effect)
+   * */
   private _configureValidator(options?: TFieldOptions) {
     if (options) {
       if (options.pattern) {
@@ -114,12 +121,11 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _appendErrorStyleAttributes(value: unknown) {
     const valid = this.validator(value);
     if (!valid) {
-      this._fieldElement.setAttribute(
-        AbstractFieldDirective.errorStylingAttributeNames.invalid,
-        'true'
+      this.fieldElement.toggleAttribute(
+        AbstractFieldDirective.errorStylingAttributeNames.invalid
       );
     } else {
-      this._fieldElement.removeAttribute(
+      this.fieldElement.toggleAttribute(
         AbstractFieldDirective.errorStylingAttributeNames.invalid
       );
     }
@@ -130,13 +136,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     [model, path, options]: Parameters<this['render']>
   ) {
     if (this.isConnected) {
-      this._fieldElement = part.element as TFieldELement;
-      this._model = model;
-      this._path = path;
-      this._options = options;
+      this.fieldElement = part.element as TFieldELement;
+      this.model = model;
+      this.path = path;
+      this.options = options;
       this._configureValidator(options);
 
-      if (FormFieldBindingMethodName in this._fieldElement) {
+      if (FormFieldBindingMethodName in this.fieldElement) {
         this.ensureCustomEventSubscribed();
       } else {
         this.ensureInputSubscribed();

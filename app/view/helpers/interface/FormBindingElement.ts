@@ -15,6 +15,20 @@ export interface IFormBindingElement<
   TFieldValue,
   TEvent extends CustomEvent = CustomEvent
 > {
+  /**
+   * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
+   * @example
+   * ```
+   * [FormFieldBindingMethodName]() {
+   *   return [
+   *     {
+   *       [FormFieldBindingEventNamePropertyName]: 'my-custom-event',
+   *       [FormFieldBindingEventGetValueMethodName]: (event: CustomEvent<TMyCustomEventPayload>) => event.detail.foo
+   *     }
+   *   ]
+   * }
+   * ```
+   * */
   [FormFieldBindingMethodName](): TFormBindingEventDetail<
     TFieldValue,
     TEvent
