@@ -14,17 +14,13 @@ export class FormFieldDirective extends AbstractFieldDirective {
   options!: TFieldOptions;
   path!: string;
 
-  get isValid() {
-    return this.validator(this.fieldValue);
-  }
-
   override update(
     part: ElementPart,
     params: Parameters<this['render']>
   ): symbol {
     const returnValue = super.update(part, params);
-    // create binding between the model its fields
-    // so we can control the field from the model
+    // create binding between the model and its fields
+    // so we can access binded fields' properties and methods
     if (this.isConnected) {
       this.model._bindedFields.push(new Proxy(this, {}));
     }
@@ -38,6 +34,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
   handleCustomEvent(data: unknown) {
     this._updateModelData(data);
+    this.validateFieldValue();
   }
 
   handleInputEvent(event: Event): void {
