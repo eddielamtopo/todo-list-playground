@@ -59,6 +59,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     return deepGetValue(this.model, this.path);
   }
 
+  get isValid() {
+    return this.validator(this.fieldValue);
+  }
+
   override render(
     _model: object | FormModel,
     _path: string,
