@@ -15,7 +15,7 @@ import {FieldValues, FieldPath} from './types';
 export type TFieldOptions =
   | Partial<{
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      isValid: <T>(value: T) => boolean;
+      isValid: (value: unknown) => boolean;
       errorMessage: string;
       pattern: RegExp;
     }>

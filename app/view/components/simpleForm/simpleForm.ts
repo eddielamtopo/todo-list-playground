@@ -1,6 +1,6 @@
 import {css, html, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-import '../myChecklist/myChecklist';
+import {TCheckListItem} from '../myChecklist/myChecklist';
 import {field} from '../../helpers/field-directive';
 
 const SimpleFormName = 'simple-form';
@@ -35,7 +35,7 @@ export class SimpleForm extends LitElement {
       margin-bottom: 20px;
     }
 
-    *[invalid='true'] {
+    *[invalid='true']:not(my-checklist) {
       border: 2px solid red;
     }
   `;
@@ -124,7 +124,13 @@ export class SimpleForm extends LitElement {
 
         <my-checklist
           .items=${this.formModel.checkList}
-          ${field(this.formModel, 'checkList')}
+          ${field(this.formModel, 'checkList', {
+            isValid: (items) => {
+              return (items as TCheckListItem[]).every((item) => {
+                return item.crossedOff;
+              });
+            },
+          })}
         ></my-checklist>
 
         <input type="submit" />
