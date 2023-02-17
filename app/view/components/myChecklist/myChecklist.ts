@@ -1,13 +1,12 @@
 import {html, css, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-// import {FormBindingEventPayload} from '../../helpers/decorators/FormBindingEventPayload';
 import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
 import {
-  FormBindingEvent,
-  supportsFormBinding,
-} from '../../helpers/decorators/supportsFormBinding';
+  FormFieldBindingMethodName,
+  IFormBindingElement,
+} from '../../helpers/interface/FormBindingElement';
 
 export type TCheckListItem = {
   id: string;
@@ -19,7 +18,6 @@ type TCheckListItems = TCheckListItem[];
 // events
 const ItemCrossedOffEventName = 'item-clicked';
 const ItemAddEventName = 'item-added';
-const eventNames = [ItemCrossedOffEventName, ItemAddEventName];
 
 export type TAddItemToCheckListEventPayload = {
   readonly items: TCheckListItems;
@@ -30,42 +28,37 @@ export type TCrossOffItemFromCheckListEventPayload = {
   readonly removedItemId: string;
 };
 
-type TCustomEventPayloadMap = [
-  FormBindingEvent<
-    typeof ItemCrossedOffEventName,
-    {
-      readonly items: TCheckListItems;
-      readonly newItem: TCheckListItem;
-    }
-  >,
-  FormBindingEvent<
-    typeof ItemAddEventName,
-    TCrossOffItemFromCheckListEventPayload
-  >
-];
 const MyCheckListName = 'my-checklist';
 @customElement(MyCheckListName)
-@supportsFormBinding<TCustomEventPayloadMap, typeof eventNames>({
-  eventNames,
-  getFieldValue: (event) => {
-    if (event.type === 'item-clicked') {
-      return event.detail.items;
-    }
-    if (event.type === 'item-added') {
-      return event.detail.items.filter(
-        (e) => e.id !== event.detail.removedItemId
-      );
-    }
-    return [];
-  },
-})
-class MyCheckList extends LitElement {
+class MyCheckList
+  extends LitElement
+  implements IFormBindingElement<TCheckListItems>
+{
   static override styles = css`
     .crossed-off {
       color: lightgray;
       text-decoration: line-through;
     }
   `;
+
+  [FormFieldBindingMethodName]() {
+    return [
+      {
+        name: ItemAddEventName,
+        getValue: (event: CustomEvent<TAddItemToCheckListEventPayload>) => {
+          return event.detail.items;
+        },
+      },
+      {
+        name: ItemCrossedOffEventName,
+        getValue: (
+          event: CustomEvent<TCrossOffItemFromCheckListEventPayload>
+        ) => {
+          return event.detail.items;
+        },
+      },
+    ];
+  }
 
   @property()
   items: TCheckListItems = [];

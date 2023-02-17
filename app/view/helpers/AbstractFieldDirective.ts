@@ -5,11 +5,11 @@ import {
   DirectiveClass,
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
-import {
-  customEventNames,
-  customEventHandlerName,
-} from './decorators/supportsFormBinding';
 import {FormModel} from './form-model-controller';
+import {
+  FormFieldBindingMethodName,
+  IFormBindingElement,
+} from './interface/FormBindingElement';
 import {FieldValues, FieldPath} from './types';
 
 export type TFieldOptions =
@@ -26,8 +26,13 @@ export type TFieldOptions =
     }>;
 
 type TFieldELement = HTMLElement & {
-  [customEventHandlerName]?: (event: Event) => unknown;
-  [customEventNames]?: string[];
+  [FormFieldBindingMethodName]?: (
+    ...args: Parameters<
+      IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
+    >
+  ) => ReturnType<
+    IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
+  >;
 };
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
@@ -75,12 +80,11 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   protected ensureCustomEventSubscribed() {
-    const getValue = this._fieldElement[customEventHandlerName]!;
-    const customEvents = this._fieldElement[customEventNames]!;
-
-    customEvents.forEach((eventName) => {
-      const newSub = fromEvent(this._fieldElement, eventName).subscribe((e) => {
-        const value = getValue(e);
+    const formBindingEventDetails =
+      this._fieldElement[FormFieldBindingMethodName]!();
+    formBindingEventDetails.forEach(({name, getValue}) => {
+      const newSub = fromEvent(this._fieldElement, name).subscribe((e) => {
+        const value = getValue(e as CustomEvent);
         this.handleCustomEvent(value);
         this._appendErrorStyleAttributes(value);
       });
@@ -132,10 +136,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._options = options;
       this._configureValidator(options);
 
-      if (
-        customEventNames in this._fieldElement &&
-        customEventHandlerName in this._fieldElement
-      ) {
+      if (FormFieldBindingMethodName in this._fieldElement) {
         this.ensureCustomEventSubscribed();
       } else {
         this.ensureInputSubscribed();
