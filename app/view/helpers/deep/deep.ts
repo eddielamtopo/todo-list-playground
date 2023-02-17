@@ -32,6 +32,22 @@ export function deepUpdate<T extends object>(
   } as T;
 }
 
+export function deepGetValue<T extends TObject>(
+  target: T,
+  path: string
+): unknown {
+  const [head, ...rest] = path.split('.');
+  const targetValue = target[head];
+  // if there are more to go
+  if (rest.length) {
+    return deepGetValue(targetValue, rest.join('.'));
+  }
+  // if we have reached the end
+  else {
+    return targetValue;
+  }
+}
+
 export function deepSetDefault<T extends TObject>(
   target: TObject,
   defaultValue: unknown
@@ -81,4 +97,32 @@ export function deepSetDefault<T extends TObject>(
   }
 
   return clone as T;
+}
+
+export function deepCheckAny(
+  target: TObject,
+  value: unknown,
+  _previousResult = false
+) {
+  // iterate through the target
+  const indexers = Object.keys(target);
+  let currentResult = _previousResult;
+
+  for (let i = 0; i < indexers.length; i++) {
+    const indexedValue = target[indexers[i]];
+    // not iterable
+    if (typeof indexedValue !== 'object') {
+      currentResult = indexedValue === value;
+    } else {
+      // iterable
+      currentResult = deepCheckAny(indexedValue, value, currentResult);
+    }
+
+    // if there's a match already, return true
+    if (currentResult === true) {
+      return true;
+    }
+  }
+
+  return Boolean(currentResult);
 }
