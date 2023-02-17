@@ -135,7 +135,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         AbstractFieldDirective.errorStylingAttributeNames.invalid
       );
     } else {
-      this.fieldElement.toggleAttribute(
+      this.fieldElement.removeAttribute(
         AbstractFieldDirective.errorStylingAttributeNames.invalid
       );
     }
