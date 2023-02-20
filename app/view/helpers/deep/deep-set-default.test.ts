@@ -1,6 +1,6 @@
-import {deepSetDefault} from './deep';
+import {deepSetAll} from './deep';
 
-describe('test deepSetDefault', () => {
+describe('test deepSetAll', () => {
   it('should set default value for nested object', () => {
     const target = {
       a: {
@@ -11,7 +11,7 @@ describe('test deepSetDefault', () => {
       },
     };
     const defaultValue = 'default 123';
-    const newTarget = deepSetDefault(target, defaultValue);
+    const newTarget = deepSetAll(target, defaultValue);
 
     expect(newTarget).toStrictEqual({
       a: {
@@ -34,7 +34,7 @@ describe('test deepSetDefault', () => {
     };
 
     const defaultValue = 'default 123';
-    const newTarget = deepSetDefault(target, defaultValue);
+    const newTarget = deepSetAll(target, defaultValue);
 
     expect(newTarget).toStrictEqual({
       a: {
@@ -49,7 +49,7 @@ describe('test deepSetDefault', () => {
   it('should work on array of values', () => {
     const target = ['', '', {a: {b: '', c: ['']}}];
     const defaultValue = 'default 123';
-    const newTaget = deepSetDefault(target, defaultValue);
+    const newTaget = deepSetAll(target, defaultValue);
     expect(newTaget).toStrictEqual([
       defaultValue,
       defaultValue,
@@ -61,7 +61,7 @@ describe('test deepSetDefault', () => {
     const target = [{a: {b: 'abc'}}];
     const newValue = '123';
     const expected = [{a: {b: newValue}}];
-    const newTaget = deepSetDefault(target, newValue);
+    const newTaget = deepSetAll(target, newValue);
     expect(newTaget).toStrictEqual(expected);
   });
 });

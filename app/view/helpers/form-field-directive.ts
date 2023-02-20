@@ -35,7 +35,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
     this._updateModelData(data);
   }
 
-  handleInputEvent(event: Event): void {
+  handleChangeEvent(event: Event): void {
     // update data value
     this._updateModelData((event.target as HTMLInputElement).value);
   }

@@ -15,10 +15,9 @@ import {FieldValues, FieldPath} from './types';
 
 export type TFieldOptions =
   | Partial<{
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       isValid: (value: unknown) => boolean;
       errorMessage: string;
-      pattern: RegExp;
+      pattern: never;
     }>
   | Partial<{
       isValid: never;
@@ -71,17 +70,17 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   /**
    * Override to implement lower-level input event handling detail
    * */
-  abstract handleInputEvent(event: Event): void;
+  abstract handleChangeEvent(event: Event): void;
   /**
    * Override to implement lower-level custom event handling detail
    * */
   abstract handleCustomEvent(eventPayload: unknown): void;
 
-  protected ensureInputSubscribed() {
+  protected ensureChangeEventSubscribed() {
     if (this._subscription === undefined) {
       this._subscription = fromEvent(this.fieldElement, 'change').subscribe(
         (event) => {
-          this.handleInputEvent(event);
+          this.handleChangeEvent(event);
           this._appendErrorStyleAttributes(
             (this.fieldElement as HTMLInputElement).value
           );
@@ -171,7 +170,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (FormFieldBindingMethodName in this.fieldElement) {
         this.ensureCustomEventSubscribed();
       } else {
-        this.ensureInputSubscribed();
+        this.ensureChangeEventSubscribed();
       }
     }
 
@@ -188,7 +187,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   override reconnected(): void {
-    this.ensureInputSubscribed();
+    this.ensureChangeEventSubscribed();
     this.ensureCustomEventSubscribed();
   }
 }

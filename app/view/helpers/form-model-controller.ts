@@ -1,7 +1,7 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {TDirectiveValidator} from './abstract-field-directive';
-import {deepGetValue, deepSetDefault, deepUpdate} from './deep/index';
+import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldValues} from './types';
 
 export class FormModel<T extends FieldValues = FieldValues>
@@ -17,7 +17,7 @@ export class FormModel<T extends FieldValues = FieldValues>
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
-    this.errors = deepSetDefault(defaultValue, false);
+    this.errors = deepSetAll(defaultValue, false);
     this.host = host;
     this.host.addController(this);
   }
@@ -80,20 +80,20 @@ export class FormModel<T extends FieldValues = FieldValues>
     }
   }
 
-  private _errorSubject = new Subject<string>();
+  private _errorSubject = new Subject<T>();
   private _errorSubject$ = this._errorSubject.asObservable();
   private _errorSubscription = this._errorSubject$
     .pipe(distinctUntilChanged())
     .subscribe(() => {
       this.host.requestUpdate();
     });
-  private _updateErrorSubject(newErrors: string) {
+  private _updateErrorSubject(newErrors: T) {
     this._errorSubject.next(newErrors);
   }
 
   updateErrors(errors: T) {
     this.errors = errors;
-    this._updateErrorSubject(JSON.stringify(errors));
+    this._updateErrorSubject(errors);
   }
 
   hostDisconnected() {

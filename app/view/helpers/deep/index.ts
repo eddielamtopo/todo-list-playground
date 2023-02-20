@@ -1,1 +1,1 @@
-export {deepUpdate, deepSetDefault, deepCheckAny, deepGetValue} from './deep';
+export {deepUpdate, deepSetAll, deepCheckAny, deepGetValue} from './deep';

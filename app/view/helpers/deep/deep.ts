@@ -1,11 +1,3 @@
-/**
- * A pure function that recursively update nested array or object
- *
- * JS Fiddle: https://jsfiddle.net/yztmwn9j/1/
- *
- * Ref: https://www.webtips.dev/webtips/javascript/update-nested-property-by-string
- * */
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TObject = Record<string | number, any>;
 
@@ -48,7 +40,7 @@ export function deepGetValue<T extends TObject>(
   }
 }
 
-export function deepSetDefault<T extends TObject>(
+export function deepSetAll<T extends TObject>(
   target: TObject,
   defaultValue: unknown
 ): T {
@@ -79,21 +71,18 @@ export function deepSetDefault<T extends TObject>(
     if (Object.keys((clone as TObject)[indexer]).length) {
       // if we are sure it is an object ...
       if (!Array.isArray(clone)) {
-        clone[indexer] = deepSetDefault(
-          (clone as TObject)[indexer],
-          defaultValue
-        );
+        clone[indexer] = deepSetAll((clone as TObject)[indexer], defaultValue);
         continue;
       }
       // if we are sure it is an array ...
       if (typeof indexer === 'number') {
-        clone[indexer] = deepSetDefault(clone[indexer], defaultValue);
+        clone[indexer] = deepSetAll(clone[indexer], defaultValue);
         continue;
       }
       // is array but indexer is not number ...
     }
 
-    (clone as Record<string | number, unknown>)[indexer] = defaultValue;
+    (clone as TObject)[indexer] = defaultValue;
   }
 
   return clone as T;

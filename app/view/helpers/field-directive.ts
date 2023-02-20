@@ -21,7 +21,7 @@ export class FieldDirective extends AbstractFieldDirective {
     this._updateModelData(newData);
   }
 
-  handleInputEvent(event: Event) {
+  handleChangeEvent(event: Event) {
     const inputValue = (event.target as HTMLInputElement).value;
     this._updateModelData(inputValue);
   }
