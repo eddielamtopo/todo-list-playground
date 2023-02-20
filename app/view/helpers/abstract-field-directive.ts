@@ -34,6 +34,7 @@ type TBasicFormFieldElements =
 
 export type TFieldELement = TBasicFormFieldElements;
 type TModel = FormModel | object;
+export type TDirectiveValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
@@ -41,7 +42,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   private _subscription: Subscription | undefined;
   private _customEventSubscriptions: Subscription[] = [];
-  protected validator: (value: unknown) => boolean = () => true;
+  protected validator: TDirectiveValidator = () => true;
 
   abstract fieldElement: TFieldELement;
   abstract model: TModel;
@@ -116,7 +117,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (options.pattern) {
         this.validator = (value) => {
           if (typeof value === 'string') {
-            return options.pattern!.test(value);
+            if (!options.pattern!.test(value)) {
+              return options.errorMessage ?? options.pattern!.test(value);
+            }
+            return true;
           } else {
             return true;
           }
@@ -124,7 +128,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       }
 
       if (options.isValid) {
-        this.validator = options.isValid;
+        this.validator = (value: unknown) => {
+          const valid = options.isValid!(value);
+          if (!valid) {
+            return options.errorMessage ?? valid;
+          }
+          return true;
+        };
       }
     }
   }
