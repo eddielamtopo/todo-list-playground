@@ -148,7 +148,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     if (invalid) {
       this.fieldElement.setAttribute(
         AbstractFieldDirective.errorStylingAttributeNames.invalid,
-        'true'
+        ''
       );
     } else {
       this.fieldElement.removeAttribute(
