@@ -51,8 +51,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   abstract options: TFieldOptions | undefined;
 
   get fieldValue() {
-    // TODO: will the model be either FormModel or object in the long term?
-    // if not this is not good for maintenance
     if (this.model instanceof FormModel) {
       return deepGetValue(this.model.data, this.path);
     }
@@ -135,8 +133,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _appendErrorStyleAttributes(value: unknown) {
     const valid = this.validator(value);
     if (!valid) {
-      this.fieldElement.toggleAttribute(
-        AbstractFieldDirective.errorStylingAttributeNames.invalid
+      this.fieldElement.setAttribute(
+        AbstractFieldDirective.errorStylingAttributeNames.invalid,
+        'true'
       );
     } else {
       this.fieldElement.removeAttribute(
