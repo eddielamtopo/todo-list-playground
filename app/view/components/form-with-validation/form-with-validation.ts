@@ -80,7 +80,7 @@ export class FormWithValidation extends LitElement {
     console.log(this.formModel.data);
     console.log(this.formModel.errors);
     this.formModel.validateAllFields();
-    console.log(`Form is valid: ${this.formModel.dataValid}`);
+    console.log(`Form is valid: ${this.formModel.isDataValid}`);
   }
 
   @property()

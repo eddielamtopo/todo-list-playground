@@ -1,7 +1,7 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
-import {deepSetDefault} from './deep/index';
-import {FormFieldDirective} from './form-field-directive';
+import {TDirectiveValidator} from './abstract-field-directive';
+import {deepGetValue, deepSetDefault, deepUpdate} from './deep/index';
 import {FieldValues} from './types';
 
 export class FormModel<T extends FieldValues = FieldValues>
@@ -10,6 +10,10 @@ export class FormModel<T extends FieldValues = FieldValues>
   host: ReactiveControllerHost;
   data: T;
   errors: T;
+  validations: {
+    path: string;
+    validator: TDirectiveValidator;
+  }[] = [];
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
@@ -18,14 +22,20 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.host.addController(this);
   }
 
-  // _bindedFields contain all the fields that is binded to this model
-  public _bindedFields: FormFieldDirective[] = [];
-
   /**
    * 'valid' check if every binded field is valid without updating the host
    * */
-  get dataValid() {
-    return this._bindedFields.every((field) => field.isValid);
+  get isDataValid() {
+    let allValid = true;
+    for (let i = 0; i < this.validations.length; i++) {
+      const {path, validator} = this.validations[i];
+      const valid = validator(deepGetValue(this.data, path));
+      if (!valid) {
+        allValid = false;
+        break;
+      }
+    }
+    return allValid;
   }
 
   /**
@@ -33,8 +43,15 @@ export class FormModel<T extends FieldValues = FieldValues>
    * and update the host to display error message for invalid fields
    * */
   validateAllFields() {
-    this._bindedFields.forEach((field) => {
-      field.validateFieldValue();
+    this.validations.forEach((validation) => {
+      const data = deepGetValue(this.data, validation.path);
+
+      const errorValue =
+        typeof validation.validator(data) === 'string'
+          ? validation.validator(data)
+          : !validation.validator(data);
+
+      this.errors = deepUpdate(this.errors, validation.path, errorValue);
     });
     this.host.requestUpdate();
   }
@@ -42,11 +59,27 @@ export class FormModel<T extends FieldValues = FieldValues>
   errorsObservable: Observable<{[key: string]: unknown}> | null = null;
   hostConnected(): void {}
 
-  updateData(data: T) {
-    Object.assign(this.data, data);
+  updateData(path: string, value: unknown) {
+    this.data = deepUpdate(this.data, path, value);
+    // trigger validation on the path
+    this.triggerValidationOnPath(path, value);
   }
 
-  // error handling
+  /* error handling */
+  triggerValidationOnPath(path: string, value: unknown) {
+    const {path: foundPath, validator} =
+      this.validations.find((validation) => validation.path === path) ?? {};
+
+    if (foundPath && validator) {
+      const errorValue =
+        typeof validator(value) === 'string'
+          ? validator(value)
+          : !validator(value);
+
+      this.updateErrors(deepUpdate(this.errors, foundPath, errorValue));
+    }
+  }
+
   private _errorSubject = new Subject<string>();
   private _errorSubject$ = this._errorSubject.asObservable();
   private _errorSubscription = this._errorSubject$
