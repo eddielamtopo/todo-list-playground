@@ -3,13 +3,14 @@ import {deepUpdate} from './deep/index';
 import {
   AbstractFieldDirective,
   createFieldDirective,
+  TFieldELement,
   TFieldOptions,
 } from './AbstractFieldDirective';
 import {ElementPart} from 'lit';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
-  fieldElement!: HTMLInputElement | HTMLTextAreaElement;
+  fieldElement!: TFieldELement;
   model!: FormModel;
   options!: TFieldOptions;
   path!: string;

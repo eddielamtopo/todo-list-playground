@@ -8,8 +8,8 @@ import {fromEvent, Subscription} from 'rxjs';
 import {deepGetValue} from './deep/index';
 import {FormModel} from './form-model-controller';
 import {
+  FormBindingElement,
   FormFieldBindingMethodName,
-  IFormBindingElement,
 } from './interface/FormBindingElement';
 import {FieldValues, FieldPath} from './types';
 
@@ -26,15 +26,13 @@ export type TFieldOptions =
       pattern: RegExp;
     }>;
 
-type TFieldELement = HTMLElement & {
-  [FormFieldBindingMethodName]?: (
-    ...args: Parameters<
-      IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
-    >
-  ) => ReturnType<
-    IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
-  >;
-};
+type TBasicFormFieldElements =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | HTMLSelectElement
+  | FormBindingElement;
+
+export type TFieldELement = TBasicFormFieldElements;
 type TModel = FormModel | object;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
@@ -80,7 +78,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   protected ensureInputSubscribed() {
     if (this._subscription === undefined) {
-      this._subscription = fromEvent(this.fieldElement, 'input').subscribe(
+      this._subscription = fromEvent(this.fieldElement, 'change').subscribe(
         (event) => {
           this.handleInputEvent(event);
           this._appendErrorStyleAttributes(
@@ -93,7 +91,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   protected ensureCustomEventSubscribed() {
     const formBindingEventDetails =
-      this.fieldElement[FormFieldBindingMethodName]!();
+      // '!' assertion is fine here; method name has to exists in order to come in here
+      (this.fieldElement as FormBindingElement)[FormFieldBindingMethodName]!();
     formBindingEventDetails.forEach(({name, getValue}) => {
       const newSub = fromEvent(this.fieldElement, name).subscribe((e) => {
         const value = getValue(e as CustomEvent);

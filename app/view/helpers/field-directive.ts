@@ -1,12 +1,13 @@
 import {
   AbstractFieldDirective,
   createFieldDirective,
+  TFieldELement,
   TFieldOptions,
 } from './AbstractFieldDirective';
 import {deepUpdate} from './deep/index';
 
 export class FieldDirective extends AbstractFieldDirective {
-  fieldElement!: HTMLInputElement | HTMLTextAreaElement;
+  fieldElement!: TFieldELement;
   model!: {[key: string]: unknown};
   options!: TFieldOptions;
   path!: string;

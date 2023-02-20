@@ -34,3 +34,13 @@ export interface IFormBindingElement<
     TEvent
   >[];
 }
+
+export interface FormBindingElement extends HTMLElement {
+  [FormFieldBindingMethodName]?: (
+    ...args: Parameters<
+      IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
+    >
+  ) => ReturnType<
+    IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
+  >;
+}
