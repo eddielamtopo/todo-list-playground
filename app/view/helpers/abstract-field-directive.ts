@@ -117,6 +117,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (options.pattern) {
         this.validator = (value) => {
           if (typeof value === 'string') {
+            // this ! assertion is fine; we already checked above
             if (!options.pattern!.test(value)) {
               return options.errorMessage ?? options.pattern!.test(value);
             }
@@ -129,6 +130,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
       if (options.isValid) {
         this.validator = (value: unknown) => {
+          // this assertion is fine; we performed the check above
           const valid = options.isValid!(value);
           if (!valid) {
             return options.errorMessage ?? valid;
