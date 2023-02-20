@@ -140,8 +140,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   private _appendErrorStyleAttributes(value: unknown) {
-    const valid = this.validator(value);
-    if (!valid) {
+    const validationResult = this.validator(value);
+    const invalid =
+      typeof validationResult === 'string' || validationResult === false;
+    if (invalid) {
       this.fieldElement.setAttribute(
         AbstractFieldDirective.errorStylingAttributeNames.invalid,
         'true'
