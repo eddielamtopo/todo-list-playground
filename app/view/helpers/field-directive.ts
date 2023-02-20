@@ -3,7 +3,7 @@ import {
   createFieldDirective,
   TFieldELement,
   TFieldOptions,
-} from './AbstractFieldDirective';
+} from './abstract-field-directive';
 import {deepUpdate} from './deep/index';
 
 export class FieldDirective extends AbstractFieldDirective {

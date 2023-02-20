@@ -5,7 +5,7 @@ import {
   createFieldDirective,
   TFieldELement,
   TFieldOptions,
-} from './AbstractFieldDirective';
+} from './abstract-field-directive';
 import {ElementPart} from 'lit';
 
 // Custom field directive to bind form model to input value

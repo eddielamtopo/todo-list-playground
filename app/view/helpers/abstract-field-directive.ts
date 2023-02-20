@@ -10,7 +10,7 @@ import {FormModel} from './form-model-controller';
 import {
   FormBindingElement,
   FormFieldBindingMethodName,
-} from './interface/FormBindingElement';
+} from './interface/form-binding-element';
 import {FieldValues, FieldPath} from './types';
 
 export type TFieldOptions =

@@ -1,6 +1,6 @@
 import {css, html, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
-import {TCheckListItem} from '../myChecklist/myChecklist';
+import {TCheckListItem} from '../my-checklist/my-checklist';
 import {field} from '../../helpers/field-directive';
 
 const SimpleFormName = 'simple-form';

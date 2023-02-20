@@ -6,7 +6,7 @@ import {createRef, Ref, ref} from 'lit/directives/ref.js';
 import {
   FormFieldBindingMethodName,
   IFormBindingElement,
-} from '../../helpers/interface/FormBindingElement';
+} from '../../helpers/interface/form-binding-element';
 
 export type TCheckListItem = {
   id: string;

@@ -4,8 +4,8 @@ import {customElement, property} from 'lit/decorators.js';
 // form model and form field directive
 import {FormModel} from '../../helpers/form-model-controller';
 import {formField} from '../../helpers/form-field-directive';
-import {TCheckListItem} from '../myChecklist/myChecklist';
-import '../myChecklist/myChecklist';
+import {TCheckListItem} from '../my-checklist/my-checklist';
+import '../my-checklist/my-checklist';
 import {deepCheckAny} from '../../helpers/deep/index';
 
 type TMyForm = {
