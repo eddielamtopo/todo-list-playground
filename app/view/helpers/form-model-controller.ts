@@ -83,7 +83,13 @@ export class FormModel<T extends FieldValues = FieldValues>
   private _errorSubject = new Subject<T>();
   private _errorSubject$ = this._errorSubject.asObservable();
   private _errorSubscription = this._errorSubject$
-    .pipe(distinctUntilChanged())
+    .pipe(
+      distinctUntilChanged(
+        (a, b) =>
+          JSON.stringify(a).split('').sort().join('') ===
+          JSON.stringify(b).split('').sort().join('')
+      )
+    )
     .subscribe(() => {
       this.host.requestUpdate();
     });
