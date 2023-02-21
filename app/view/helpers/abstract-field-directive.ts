@@ -154,6 +154,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
+  private _defaultSet = false;
+
   override update(
     part: ElementPart,
     [model, path, options]: Parameters<this['render']>
@@ -166,16 +168,19 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._configureValidator(options);
 
       // setting default value for standard html elements
-      if (model instanceof FormModel) {
-        const defaultValue = deepGetValue(model.data, path);
-        if ('value' in this.fieldElement) {
-          this.fieldElement.value = defaultValue as string;
+      if (!this._defaultSet) {
+        if (model instanceof FormModel) {
+          const defaultValue = deepGetValue(model.data, path);
+          if ('value' in this.fieldElement) {
+            this.fieldElement.value = defaultValue as string;
+          }
+        } else {
+          const defaultValue = deepGetValue(model, path);
+          if ('value' in this.fieldElement) {
+            this.fieldElement.value = defaultValue as string;
+          }
         }
-      } else {
-        const defaultValue = deepGetValue(model, path);
-        if ('value' in this.fieldElement) {
-          this.fieldElement.value = defaultValue as string;
-        }
+        this._defaultSet = true;
       }
 
       if (FormFieldBindingMethodName in this.fieldElement) {

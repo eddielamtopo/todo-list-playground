@@ -1,6 +1,7 @@
-import {css, html, LitElement, nothing} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
+import {css, html, LitElement} from 'lit';
+import {customElement, state} from 'lit/decorators.js';
 import {when} from 'lit/directives/when.js';
+import {map} from 'lit/directives/map.js';
 import {TCheckListItem} from '../my-checklist/my-checklist';
 import {field} from '../../helpers/field-directive';
 
@@ -41,15 +42,18 @@ export class SimpleForm extends LitElement {
     }
   `;
 
-  @property()
+  @state()
+  numberOfChildrenOptions = ['', '0 - 2', '3 - 5 or more'];
+
+  @state()
   formModel = {
     firstName: '',
     lastName: '',
     age: 0,
-    profileImg: null,
+    profileImg: '',
     annualIncome: 200000,
     maritalStatus: '',
-    numberOfChildren: '',
+    numberOfChildren: '-1',
     phoneNumber: {
       personal: '',
       work: [''],
@@ -63,7 +67,7 @@ export class SimpleForm extends LitElement {
     ],
   };
 
-  @property()
+  @state()
   renderCount = 0;
 
   _handleSubmit(e: Event) {
@@ -71,7 +75,7 @@ export class SimpleForm extends LitElement {
     console.log(this.formModel);
   }
 
-  @property()
+  @state()
   additionalWorkPhoneNumbers = 0;
   handleAddWorkPhone() {
     this.additionalWorkPhoneNumbers += 1;
@@ -141,7 +145,13 @@ export class SimpleForm extends LitElement {
           <label>Marital status:</label>
           <select
             ${field(this.formModel, 'maritalStatus')}
-            @change=${() => this.requestUpdate()}
+            @change=${() => {
+              if (this.formModel.maritalStatus !== 'married') {
+                // reset number of children checkbox value
+                this.formModel.numberOfChildren = '-1';
+              }
+              this.requestUpdate();
+            }}
           >
             <option value="">-- Select one --</option>
             <option value="single">Single</option>
@@ -151,57 +161,29 @@ export class SimpleForm extends LitElement {
           </select>
         </div>
 
-        <!-- DEMO: reconnection to the dom works -->
-        ${when(
-          this.formModel.maritalStatus === 'married',
-          () => html`
-            <div>
-              <p>Number of kids:</p>
-              <!-- DEMO: checkbox -->
-              <label
-                ><input
-                  type="checkbox"
-                  value="0-2"
-                  ${field(this.formModel, 'numberOfChildren')}
-                  @change=${() => {
-                    this.formModel.numberOfChildren = '0-2';
-                    this.requestUpdate();
-                  }}
-                  .checked=${this.formModel.numberOfChildren === '0-2'}
-                />
-                Has less than or equal to 2 kids
-              </label>
-              <label
-                ><input
-                  type="checkbox"
-                  value=">2 & <5"
-                  ${field(this.formModel, 'numberOfChildren')}
-                  @change=${() => {
-                    this.formModel.numberOfChildren = '>2 & <5';
-                    this.requestUpdate();
-                  }}
-                  .checked=${this.formModel.numberOfChildren === '>2 & <5'}
-                />
-                Has between 2 to 5 kids</label
-              >
-
-              <label
-                ><input
-                  type="checkbox"
-                  value=">5"
-                  ${field(this.formModel, 'numberOfChildren')}
-                  @change=${() => {
-                    this.formModel.numberOfChildren = '>5';
-                    this.requestUpdate();
-                  }}
-                  .checked=${this.formModel.numberOfChildren === '>5'}
-                />
-                Has more than 5 kids</label
-              >
-            </div>
-          `,
-          () => nothing
-        )}
+        <!-- DEMO: checkbox that only allow 1 checked checkbox -->
+        <!-- for something that needs this level of control, make it a controlled component instead of field -->
+        <div>
+          ${when(this.formModel.maritalStatus === 'married', () =>
+            map(this.numberOfChildrenOptions, (value) => {
+              return html`
+                <label
+                  ><input
+                    type="checkbox"
+                    .value=${value}
+                    @change=${() => {
+                      this.formModel.numberOfChildren = value;
+                      // update view to re-render checked checkbox
+                      this.requestUpdate();
+                    }}
+                    .checked=${this.formModel.numberOfChildren === value}
+                  />
+                  ${value ? `Has ${value} kids` : 'No kids'}
+                </label>
+              `;
+            })
+          )}
+        </div>
 
         <!-- DEMO: input:date -->
         <div>
@@ -211,10 +193,11 @@ export class SimpleForm extends LitElement {
             placeholder="Required"
             ${field(this.formModel, 'firstName', {
               isValid: (value) => {
-                console.log('date:', value);
-                return Boolean(value);
+                return Boolean(
+                  new Date(value as string).getTime() < new Date().getTime()
+                );
               },
-              errorMessage: 'Age validation!',
+              errorMessage: 'Age must be older than today!',
             })}
           />
         </div>

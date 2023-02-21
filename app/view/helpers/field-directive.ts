@@ -14,7 +14,6 @@ export class FieldDirective extends AbstractFieldDirective {
 
   private _updateModelData(value: unknown) {
     const newModel = deepUpdate(this.model, this.path, value);
-    //FIXME: this.model refers to the model stored inside the directive class
     Object.assign(this.model, newModel);
   }
 
