@@ -1,4 +1,4 @@
-import {ElementPart, nothing} from 'lit';
+import {ElementPart, noChange, nothing} from 'lit';
 import {
   AsyncDirective,
   directive,
@@ -116,8 +116,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (options.pattern) {
         this.validator = (value) => {
           if (typeof value === 'string') {
-            // this ! assertion is fine; we already checked above
-            if (!options.pattern!.test(value)) {
+            if (options.pattern && !options.pattern.test(value)) {
               return options.errorMessage ?? options.pattern!.test(value);
             }
             return true;
@@ -129,8 +128,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
       if (options.isValid) {
         this.validator = (value: unknown) => {
-          // this assertion is fine; we performed the check above
-          const valid = options.isValid!(value);
+          const valid = options.isValid ? options.isValid(value) : true;
           if (!valid) {
             return options.errorMessage ?? valid;
           }
@@ -167,6 +165,19 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this.options = options;
       this._configureValidator(options);
 
+      // setting default value for standard html elements
+      if (model instanceof FormModel) {
+        const defaultValue = deepGetValue(model.data, path);
+        if ('value' in this.fieldElement) {
+          this.fieldElement.value = defaultValue as string;
+        }
+      } else {
+        const defaultValue = deepGetValue(model, path);
+        if ('value' in this.fieldElement) {
+          this.fieldElement.value = defaultValue as string;
+        }
+      }
+
       if (FormFieldBindingMethodName in this.fieldElement) {
         this.ensureCustomEventSubscribed();
       } else {
@@ -174,7 +185,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       }
     }
 
-    return this.render(model, path, options);
+    return noChange;
   }
 
   override disconnected(): void {
