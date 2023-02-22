@@ -263,6 +263,11 @@ export class SimpleForm extends LitElement {
       </form>
     `;
   }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.modelChangeSubscription.unsubscribe();
+  }
 }
 
 declare global {
