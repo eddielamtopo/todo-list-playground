@@ -3,7 +3,7 @@ import {customElement, state} from 'lit/decorators.js';
 import {when} from 'lit/directives/when.js';
 import {map} from 'lit/directives/map.js';
 import {TCheckListItem} from '../my-checklist/my-checklist';
-import {field} from '../../helpers/field-directive';
+import {field, watchModelChange} from '../../helpers/field-directive';
 
 const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)
@@ -53,7 +53,7 @@ export class SimpleForm extends LitElement {
     profileImg: '',
     annualIncome: 200000,
     maritalStatus: '',
-    numberOfChildren: '-1',
+    numberOfChildren: '',
     phoneNumber: {
       personal: '',
       work: [''],
@@ -66,6 +66,17 @@ export class SimpleForm extends LitElement {
       },
     ],
   };
+
+  @state()
+  showNumberOfChildren = false;
+  @state()
+  checkedNumberOfChildren = this.formModel.numberOfChildren;
+
+  @state()
+  modelChangeSubscription = watchModelChange<typeof this.formModel>((value) => {
+    this.showNumberOfChildren = value.newFormModel.maritalStatus === 'married';
+    this.checkedNumberOfChildren = value.newFormModel.numberOfChildren;
+  });
 
   @state()
   renderCount = 0;
@@ -150,7 +161,6 @@ export class SimpleForm extends LitElement {
                 // reset number of children checkbox value
                 this.formModel.numberOfChildren = '-1';
               }
-              this.requestUpdate();
             }}
           >
             <option value="">-- Select one --</option>
@@ -164,19 +174,15 @@ export class SimpleForm extends LitElement {
         <!-- DEMO: checkbox that only allow 1 checked checkbox -->
         <!-- for something that needs this level of control, make it a controlled component instead of field -->
         <div>
-          ${when(this.formModel.maritalStatus === 'married', () =>
+          ${when(this.showNumberOfChildren, () =>
             map(this.numberOfChildrenOptions, (value) => {
               return html`
                 <label
                   ><input
                     type="checkbox"
-                    .value=${value}
-                    @change=${() => {
-                      this.formModel.numberOfChildren = value;
-                      // update view to re-render checked checkbox
-                      this.requestUpdate();
-                    }}
-                    .checked=${this.formModel.numberOfChildren === value}
+                    value=${value}
+                    ${field(this.formModel, 'numberOfChildren')}
+                    .checked=${this.checkedNumberOfChildren === value}
                   />
                   ${value ? `Has ${value} kids` : 'No kids'}
                 </label>

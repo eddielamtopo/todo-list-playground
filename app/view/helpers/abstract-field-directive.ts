@@ -1,4 +1,4 @@
-import {ElementPart, noChange, nothing} from 'lit';
+import {ElementPart, nothing} from 'lit';
 import {
   AsyncDirective,
   directive,
@@ -39,6 +39,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     invalid: 'invalid',
   };
 
+  private _defaultSet = false;
   private _subscription: Subscription | undefined;
   private _customEventSubscriptions: Subscription[] = [];
   protected validator: TDirectiveValidator = () => true;
@@ -154,7 +155,43 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
-  private _defaultSet = false;
+  protected appendDefaultValueAttribute() {
+    // setting default value for standard html elements
+    if (!this._defaultSet) {
+      // retrive the default value for this field element
+      let defaultValue: unknown;
+      if (this.model instanceof FormModel) {
+        defaultValue = deepGetValue(this.model.data, this.path);
+      } else {
+        defaultValue = deepGetValue(this.model, this.path);
+      }
+
+      const elementTypeAttr = this.fieldElement.getAttribute('type');
+      const isInputElement =
+        this.fieldElement.nodeName.toLocaleLowerCase() === 'input';
+      const isSelectElement =
+        this.fieldElement.nodeName.toLocaleLowerCase() === 'select';
+      // special handling: checkbox, select
+      if (isInputElement && elementTypeAttr && elementTypeAttr === 'checkbox') {
+        const checkboxValue = this.fieldElement.getAttribute('value');
+        if (checkboxValue === defaultValue) {
+          this.fieldElement.setAttribute('checked', 'true');
+        }
+      } else if (
+        (isInputElement || isSelectElement) &&
+        'value' in this.fieldElement
+      ) {
+        if (
+          typeof defaultValue === 'string' ||
+          typeof defaultValue === 'number'
+        ) {
+          this.fieldElement.setAttribute('value', String(defaultValue));
+        }
+      }
+
+      this._defaultSet = true;
+    }
+  }
 
   override update(
     part: ElementPart,
@@ -167,21 +204,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this.options = options;
       this._configureValidator(options);
 
-      // setting default value for standard html elements
-      if (!this._defaultSet) {
-        if (model instanceof FormModel) {
-          const defaultValue = deepGetValue(model.data, path);
-          if ('value' in this.fieldElement) {
-            this.fieldElement.value = defaultValue as string;
-          }
-        } else {
-          const defaultValue = deepGetValue(model, path);
-          if ('value' in this.fieldElement) {
-            this.fieldElement.value = defaultValue as string;
-          }
-        }
-        this._defaultSet = true;
-      }
+      this.appendDefaultValueAttribute();
 
       if (FormFieldBindingMethodName in this.fieldElement) {
         this.ensureCustomEventSubscribed();
@@ -190,7 +213,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       }
     }
 
-    return noChange;
+    return this.render(this.model, this.path, this.options);
   }
 
   override disconnected(): void {
