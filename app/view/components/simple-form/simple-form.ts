@@ -3,7 +3,7 @@ import {customElement, state} from 'lit/decorators.js';
 import {when} from 'lit/directives/when.js';
 import {map} from 'lit/directives/map.js';
 import {TCheckListItem} from '../my-checklist/my-checklist';
-import {field, watchModelChange} from '../../helpers/field-directive';
+import {field} from '../../helpers/field-directive';
 
 const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)
@@ -68,16 +68,11 @@ export class SimpleForm extends LitElement {
     ],
   };
 
+  // conditionals that control the view
   @state()
   showNumberOfChildren = false;
   @state()
   checkedNumberOfChildren = this.formModel.numberOfChildren;
-
-  @state()
-  modelChangeSubscription = watchModelChange<typeof this.formModel>((value) => {
-    this.showNumberOfChildren = value.newFormModel.maritalStatus === 'married';
-    this.checkedNumberOfChildren = value.newFormModel.numberOfChildren;
-  });
 
   @state()
   renderCount = 0;
@@ -157,9 +152,13 @@ export class SimpleForm extends LitElement {
           <label>Marital status:</label>
           <select
             ${field(this.formModel, 'maritalStatus')}
-            @change=${() => {
+            @change=${(e: Event) => {
+              // trigger state change for re-render
+              this.showNumberOfChildren =
+                (e.target as HTMLInputElement).value === 'married';
+
+              // reset number of children checkbox value
               if (this.formModel.maritalStatus !== 'married') {
-                // reset number of children checkbox value
                 this.formModel.numberOfChildren = '-1';
               }
             }}
@@ -183,6 +182,11 @@ export class SimpleForm extends LitElement {
                     type="checkbox"
                     value=${value}
                     ${field(this.formModel, 'numberOfChildren')}
+                    @change=${(e: Event) => {
+                      this.checkedNumberOfChildren = (
+                        e.target as HTMLInputElement
+                      ).value;
+                    }}
                     .checked=${this.checkedNumberOfChildren === value}
                   />
                   ${value ? `Has ${value} kids` : 'No kids'}
@@ -263,11 +267,6 @@ export class SimpleForm extends LitElement {
         <input type="submit" />
       </form>
     `;
-  }
-
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.modelChangeSubscription.unsubscribe();
   }
 }
 
