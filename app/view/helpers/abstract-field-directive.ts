@@ -33,7 +33,7 @@ type TBasicFormFieldElements =
 
 export type TFieldELement = TBasicFormFieldElements;
 type TModel = FormModel | object;
-export type TDirectiveValidator = (value: unknown) => boolean | string;
+export type TFieldDirectiveValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
@@ -42,7 +42,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _defaultSet = false;
   private _subscription: Subscription | undefined;
   private _customEventSubscriptions: Subscription[] = [];
-  protected validator: TDirectiveValidator = () => true;
+  protected validator: TFieldDirectiveValidator = () => true;
 
   abstract fieldElement: TFieldELement;
   abstract model: TModel;
@@ -139,7 +139,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
-  private _appendErrorStyleAttributes(value: unknown) {
+  protected _appendErrorStyleAttributes(value: unknown) {
     const validationResult = this.validator(value);
     const invalid =
       typeof validationResult === 'string' || validationResult === false;
@@ -171,7 +171,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         this.fieldElement.nodeName.toLocaleLowerCase() === 'input';
       const isSelectElement =
         this.fieldElement.nodeName.toLocaleLowerCase() === 'select';
-      // special handling: checkbox, select
+
       if (isInputElement && elementTypeAttr && elementTypeAttr === 'checkbox') {
         const checkboxValue = this.fieldElement.getAttribute('value');
         if (checkboxValue === defaultValue) {

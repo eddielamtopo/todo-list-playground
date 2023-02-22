@@ -1,6 +1,6 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
-import {TDirectiveValidator} from './abstract-field-directive';
+import {TFieldDirectiveValidator} from './abstract-field-directive';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldValues} from './types';
 
@@ -12,7 +12,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   errors: T;
   validations: {
     path: string;
-    validator: TDirectiveValidator;
+    validator: TFieldDirectiveValidator;
   }[] = [];
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
@@ -29,7 +29,9 @@ export class FormModel<T extends FieldValues = FieldValues>
     let allValid = true;
     for (let i = 0; i < this.validations.length; i++) {
       const {path, validator} = this.validations[i];
-      const valid = validator(deepGetValue(this.data, path));
+      const validationResult = validator(deepGetValue(this.data, path));
+      const valid =
+        validationResult === true && typeof validationResult !== 'string';
       if (!valid) {
         allValid = false;
         break;
@@ -60,7 +62,10 @@ export class FormModel<T extends FieldValues = FieldValues>
   hostConnected(): void {}
 
   updateData(path: string, value: unknown) {
-    this.data = deepUpdate(this.data, path, value);
+    const oldFormModelData = {...this.data};
+    const newFormModelData = {...deepUpdate(this.data, path, value)};
+    this.data = {...oldFormModelData, ...newFormModelData};
+    this.emitFormModelDataChange(oldFormModelData, newFormModelData);
     // trigger validation on the path
     this.triggerValidationOnPath(path, value);
   }
@@ -78,6 +83,18 @@ export class FormModel<T extends FieldValues = FieldValues>
 
       this.updateErrors(deepUpdate(this.errors, foundPath, errorValue));
     }
+  }
+
+  private fieldChangeSubject = new Subject<{
+    oldFormModelData: T;
+    newFormModelData: T;
+  }>();
+  private fieldChangeSubject$ = this.fieldChangeSubject.asObservable();
+  private emitFormModelDataChange(oldFormModelData: T, newFormModelData: T) {
+    this.fieldChangeSubject.next({oldFormModelData, newFormModelData});
+  }
+  watch(observer: (value: {oldFormModelData: T; newFormModelData: T}) => void) {
+    return this.fieldChangeSubject$.subscribe(observer);
   }
 
   private _errorSubject = new Subject<T>();

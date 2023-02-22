@@ -50,6 +50,7 @@ export class SimpleForm extends LitElement {
     firstName: '',
     lastName: '',
     age: 0,
+    dob: '',
     profileImg: '',
     annualIncome: 200000,
     maritalStatus: '',
@@ -197,7 +198,7 @@ export class SimpleForm extends LitElement {
           <input
             type="date"
             placeholder="Required"
-            ${field(this.formModel, 'firstName', {
+            ${field(this.formModel, 'dob', {
               isValid: (value) => {
                 return Boolean(
                   new Date(value as string).getTime() < new Date().getTime()
