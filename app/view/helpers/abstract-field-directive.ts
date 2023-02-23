@@ -13,17 +13,9 @@ import {
 } from './interface/form-binding-element';
 import {FieldValues, FieldPath} from './types';
 
-export type TFieldOptions =
-  | Partial<{
-      isValid: (value: unknown) => boolean;
-      errorMessage: string;
-      pattern: never;
-    }>
-  | Partial<{
-      isValid: never;
-      errorMessage: string;
-      pattern: RegExp;
-    }>;
+export type TFieldOptions = Partial<{
+  isValid: (value: unknown) => boolean | string;
+}>;
 
 type TBasicFormFieldElements =
   | HTMLInputElement
@@ -108,34 +100,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   /**
    * This method hook up the field directive with a validator function
    * The validator will be the 'isValid' function if provided,
-   * if isValid was not provided, 'pattern' will be used to test the string value,
-   * if pattern was provided, the validator will validate string value with the pattern regex,
-   * (** note if value is not string, then the validator will simply have no effect)
+   * returning string | false will indicate there's an error.
+   * e.g. string can be the error message for the failed validation rules.
    * */
   private _configureValidator(options?: TFieldOptions) {
-    if (options) {
-      if (options.pattern) {
-        this.validator = (value) => {
-          if (typeof value === 'string') {
-            if (options.pattern && !options.pattern.test(value)) {
-              return options.errorMessage ?? options.pattern!.test(value);
-            }
-            return true;
-          } else {
-            return true;
-          }
-        };
-      }
-
-      if (options.isValid) {
-        this.validator = (value: unknown) => {
-          const valid = options.isValid ? options.isValid(value) : true;
-          if (!valid) {
-            return options.errorMessage ?? valid;
-          }
-          return true;
-        };
-      }
+    if (options?.isValid) {
+      this.validator = options.isValid;
     }
   }
 

@@ -103,8 +103,8 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must give a name"
             ${field(this.formModel, 'firstName', {
-              isValid: (value) => (value as string).length > 0,
-              errorMessage: 'First name is required!',
+              isValid: (value) =>
+                (value as string).length > 0 ? true : 'First name is required',
             })}
           />
         </div>
@@ -116,8 +116,8 @@ export class SimpleForm extends LitElement {
             type="number"
             placeholder="Must disclose your age"
             ${field(this.formModel, 'age', {
-              isValid: (value) => (value as number) > 18,
-              errorMessage: 'Age validation!',
+              isValid: (value) =>
+                (value as number) > 18 || 'Must be older than 18',
             })}
           />
         </div>
@@ -204,11 +204,11 @@ export class SimpleForm extends LitElement {
             placeholder="Required"
             ${field(this.formModel, 'dob', {
               isValid: (value) => {
-                return Boolean(
+                const valid = Boolean(
                   new Date(value as string).getTime() < new Date().getTime()
                 );
+                return valid ? true : 'Age must be older than today';
               },
-              errorMessage: 'Age must be older than today!',
             })}
           />
         </div>
@@ -219,7 +219,13 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must be 8 digit long"
             ${field(this.formModel, 'phoneNumber.personal', {
-              pattern: /^\d{8}$/,
+              isValid: (v) => {
+                if (typeof v === 'string') {
+                  const valid = /^\d{8}$/.test(v);
+                  return !valid ? 'Must be 8 digit' : true;
+                }
+                return true;
+              },
             })}
           />
         </div>
@@ -229,7 +235,13 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must be 8 digits long"
             ${field(this.formModel, 'phoneNumber.work.0', {
-              pattern: /^\d{8}$/,
+              isValid: (v) => {
+                if (typeof v === 'string') {
+                  const valid = /^\d{8}$/.test(v);
+                  return valid ? true : 'Must be 8 digit long';
+                }
+                return true;
+              },
             })}
           />
         </div>
