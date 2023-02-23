@@ -4,6 +4,12 @@ import {TFieldDirectiveValidator} from './abstract-field-directive';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldValues} from './types';
 
+type TFieldChangeSubject<T extends FieldValues> = {
+  oldFormModelData: T;
+  newFormModelData: T;
+  isDataValid: boolean;
+};
+
 export class FormModel<T extends FieldValues = FieldValues>
   implements ReactiveController
 {
@@ -65,7 +71,11 @@ export class FormModel<T extends FieldValues = FieldValues>
     const oldFormModelData = {...this.data};
     const newFormModelData = {...deepUpdate(this.data, path, value)};
     this.data = {...oldFormModelData, ...newFormModelData};
-    this.emitFormModelDataChange(oldFormModelData, newFormModelData);
+    this.emitFormModelDataChange(
+      oldFormModelData,
+      newFormModelData,
+      this.isDataValid
+    );
     // trigger validation on the path
     this.triggerValidationOnPath(path, value);
   }
@@ -85,15 +95,20 @@ export class FormModel<T extends FieldValues = FieldValues>
     }
   }
 
-  private fieldChangeSubject = new Subject<{
-    oldFormModelData: T;
-    newFormModelData: T;
-  }>();
+  private fieldChangeSubject = new Subject<TFieldChangeSubject<T>>();
   private fieldChangeSubject$ = this.fieldChangeSubject.asObservable();
-  private emitFormModelDataChange(oldFormModelData: T, newFormModelData: T) {
-    this.fieldChangeSubject.next({oldFormModelData, newFormModelData});
+  private emitFormModelDataChange(
+    oldFormModelData: T,
+    newFormModelData: T,
+    isDataValid: boolean
+  ) {
+    this.fieldChangeSubject.next({
+      oldFormModelData,
+      newFormModelData,
+      isDataValid,
+    });
   }
-  watch(observer: (value: {oldFormModelData: T; newFormModelData: T}) => void) {
+  watch(observer: (value: TFieldChangeSubject<T>) => void) {
     return this.fieldChangeSubject$.subscribe(observer);
   }
 

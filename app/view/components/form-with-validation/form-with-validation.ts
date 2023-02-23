@@ -102,14 +102,19 @@ export class FormWithValidation extends LitElement {
   showNumberOfChildrenCheckBox = false;
   @state()
   checkedNumberOfChildren = this.formModel.data.numberOfChildren;
+  @state()
+  submitDisabled = this.formModel.isDataValid;
 
   @state()
-  formModelDataChangeSubscriptio = this.formModel.watch((value) => {
-    // update conditions
-    this.showNumberOfChildrenCheckBox =
-      value.newFormModelData.maritalStatus === 'married';
-    this.checkedNumberOfChildren = value.newFormModelData.numberOfChildren;
-  });
+  formModelDataChangeSubscriptio = this.formModel.watch(
+    ({newFormModelData, isDataValid}) => {
+      // update conditions
+      this.showNumberOfChildrenCheckBox =
+        newFormModelData.maritalStatus === 'married';
+      this.checkedNumberOfChildren = newFormModelData.numberOfChildren;
+      this.submitDisabled = !isDataValid;
+    }
+  );
 
   @state()
   renderCount = 0;
@@ -310,7 +315,7 @@ export class FormWithValidation extends LitElement {
           })}
         ></my-checklist>
 
-        <input type="submit" .disabled=${!this.formModel.isDataValid} />
+        <input type="submit" .disabled=${this.submitDisabled} />
       </form>
     `;
   }
