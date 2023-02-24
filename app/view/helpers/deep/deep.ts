@@ -1,11 +1,12 @@
+import {FieldPath} from '../types';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TObject = Record<string | number, any>;
 
-export function deepUpdate<T extends object>(
-  target: T,
-  path: string,
-  value: unknown
-): T {
+export function deepUpdate<
+  T extends object,
+  TFieldName extends string = FieldPath<T>
+>(target: T, path: TFieldName, value: unknown): T {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
     return [
@@ -24,10 +25,10 @@ export function deepUpdate<T extends object>(
   } as T;
 }
 
-export function deepGetValue<T extends TObject>(
-  target: T,
-  path: string
-): unknown {
+export function deepGetValue<
+  T extends TObject,
+  TFieldName extends string = FieldPath<T>
+>(target: T, path: TFieldName): T[typeof path] {
   const [head, ...rest] = path.split('.');
   const targetValue = target[head];
   // if there are more to go

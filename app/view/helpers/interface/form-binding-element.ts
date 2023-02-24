@@ -1,6 +1,10 @@
-export const FormFieldBindingMethodName = 'getFormFieldBindingEvents';
+export const FormFieldBindingMethodName = Symbol('getFormFieldBindingEvents');
 export const FormFieldBindingEventNamePropertyName = 'name';
 export const FormFieldBindingEventGetValueMethodName = 'getValue';
+export const FormFieldBindingEventSetValueMethodName = Symbol('setValue');
+export const CustomFormBindingElementTag = Symbol(
+  'customFormBindingElementTag'
+);
 
 type TFormBindingEventDetail<
   TFieldValue,
@@ -15,6 +19,11 @@ export interface IFormBindingElement<
   TFieldValue,
   TEvent extends CustomEvent = CustomEvent
 > {
+  /**
+   * Meta data to tag the element as a custom form binding element
+   * */
+  [CustomFormBindingElementTag]: unknown;
+
   /**
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
    * @example
@@ -33,9 +42,26 @@ export interface IFormBindingElement<
     TFieldValue,
     TEvent
   >[];
+
+  /**
+   * Set the property that will be used to bind to the form
+   * (Used by the form model to update the value in this form binding element)
+   * @example
+   * ```
+   * @property()
+   * items: TItems = [];
+   *
+   * [FormFieldBindingEventSetValueMethodName](newValue: TItems) {
+   *   this.items = newValue;
+   * }
+   * ```
+   * */
+  [FormFieldBindingEventSetValueMethodName]: (newValue: TFieldValue) => void;
 }
 
 export interface FormBindingElement extends HTMLElement {
+  [CustomFormBindingElementTag]: typeof CustomFormBindingElementTag;
+
   [FormFieldBindingMethodName]?: (
     ...args: Parameters<
       IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
@@ -43,4 +69,10 @@ export interface FormBindingElement extends HTMLElement {
   ) => ReturnType<
     IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
   >;
+
+  [FormFieldBindingEventSetValueMethodName]: (
+    ...args: Parameters<
+      IFormBindingElement<unknown>[typeof FormFieldBindingEventSetValueMethodName]
+    >
+  ) => void;
 }

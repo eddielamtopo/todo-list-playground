@@ -101,7 +101,7 @@ export class FormWithValidation extends LitElement {
   @state()
   showNumberOfChildrenCheckBox = false;
   @state()
-  checkedNumberOfChildren = this.formModel.data.numberOfChildren;
+  checkedNumberOfChildren = this.formModel.getData('numberOfChildren');
   @state()
   submitDisabled = this.formModel.isDataValid;
 
@@ -125,7 +125,7 @@ export class FormWithValidation extends LitElement {
   _handleSubmit(e: Event) {
     e.preventDefault();
     console.log('trigger submit');
-    console.log(this.formModel.data);
+    console.log(this.formModel.getAllData());
     console.log(this.formModel.errors);
     this.formModel.validateAllFields();
     console.log(`Form is valid: ${this.formModel.isDataValid}`);
@@ -137,7 +137,10 @@ export class FormWithValidation extends LitElement {
   _handleAddAdditional(e: Event) {
     e.preventDefault();
     this.additionalWorkNumberCount += 1;
-    this.formModel.data.phoneNumber.work[this.additionalWorkNumberCount] = '';
+    this.formModel.setData(
+      `phoneNumber.work.${this.additionalWorkNumberCount}`,
+      ''
+    );
   }
 
   override render() {
@@ -150,6 +153,10 @@ export class FormWithValidation extends LitElement {
 
         <div>
           <label> First name: <sub>*</sub></label>
+          <button @click=${(e: Event) => {
+            e.preventDefault();
+            this.formModel.setData('firstName', '');
+          }} >clear</button>
           <input
             placeholder="This is required!"
             ${formField(this.formModel, 'firstName', {
@@ -207,9 +214,9 @@ export class FormWithValidation extends LitElement {
           <select
             ${formField(this.formModel, 'maritalStatus')}
             @change=${() => {
-              if (this.formModel.data.maritalStatus !== 'married') {
+              if (this.formModel.getData('maritalStatus') !== 'married') {
                 // reset number of children checkbox value
-                this.formModel.data.numberOfChildren = '-1';
+                this.formModel.setData('numberOfChildren', '-1');
               }
             }}
           >
@@ -313,8 +320,19 @@ export class FormWithValidation extends LitElement {
           ⚠️ Not everything on the list is crossed-off!
         </div>
         </div>
+
+        <button @click=${(e: Event) => {
+          e.preventDefault();
+          this.formModel.setData(
+            'checkList',
+            this.formModel.getData('checkList').map((item) => ({
+              ...item,
+              crossedOff: true,
+            }))
+          );
+        }}>Cross off all items</button>
         <my-checklist
-          .items=${this.formModel.data.checkList}
+          .items=${this.formModel.getData('checkList')}
           ${formField(this.formModel, 'checkList', {
             isValid: (items) => {
               return (items as TCheckListItem[]).every((item) => {

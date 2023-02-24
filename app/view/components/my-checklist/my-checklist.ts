@@ -4,6 +4,8 @@ import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
 import {
+  CustomFormBindingElementTag,
+  FormFieldBindingEventSetValueMethodName,
   FormFieldBindingMethodName,
   IFormBindingElement,
 } from '../../helpers/interface/form-binding-element';
@@ -58,6 +60,12 @@ class MyCheckList
         },
       },
     ];
+  }
+
+  [CustomFormBindingElementTag] = true;
+
+  [FormFieldBindingEventSetValueMethodName](newValue: TCheckListItems) {
+    this.items = newValue;
   }
 
   @property()

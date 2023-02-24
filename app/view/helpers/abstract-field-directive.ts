@@ -17,13 +17,26 @@ export type TFieldOptions = Partial<{
   isValid: (value: unknown) => boolean | string;
 }>;
 
-type TBasicFormFieldElements =
+type TSupportedStandardFormFieldElements =
   | HTMLInputElement
   | HTMLTextAreaElement
-  | HTMLSelectElement
-  | FormBindingElement;
+  | HTMLSelectElement;
 
-export type TFieldELement = TBasicFormFieldElements;
+type TSupportedCustomFormFieldElements = FormBindingElement;
+
+type TSupportedFormFieldElements =
+  | TSupportedStandardFormFieldElements
+  | TSupportedCustomFormFieldElements;
+
+export const supportedStandardFormFieldElementsNodeNames = [
+  'INPUT',
+  'SELECT',
+  'TEXTAREA',
+  'SELECT',
+] as const;
+
+export type TFieldELement = TSupportedFormFieldElements;
+
 type TModel = FormModel | object;
 export type TFieldDirectiveValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
@@ -43,7 +56,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   get fieldValue() {
     if (this.model instanceof FormModel) {
-      return deepGetValue(this.model.data, this.path);
+      return deepGetValue(this.model.getAllData(), this.path);
     }
     return deepGetValue(this.model, this.path);
   }
@@ -131,7 +144,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       // retrive the default value for this field element
       let defaultValue: unknown;
       if (this.model instanceof FormModel) {
-        defaultValue = deepGetValue(this.model.data, this.path);
+        defaultValue = deepGetValue(this.model.getAllData(), this.path);
       } else {
         defaultValue = deepGetValue(this.model, this.path);
       }

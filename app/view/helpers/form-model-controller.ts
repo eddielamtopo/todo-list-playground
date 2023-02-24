@@ -2,7 +2,7 @@ import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Observable, Subject} from 'rxjs';
 import {TFieldDirectiveValidator} from './abstract-field-directive';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
-import {FieldValues} from './types';
+import {FieldPath, FieldValues} from './types';
 
 type TFieldChangeSubject<T extends FieldValues> = {
   oldFormModelData: T;
@@ -14,12 +14,39 @@ export class FormModel<T extends FieldValues = FieldValues>
   implements ReactiveController
 {
   host: ReactiveControllerHost;
-  data: T;
+  private data: T;
   errors: T;
   validations: {
     path: string;
     validator: TFieldDirectiveValidator;
   }[] = [];
+  formFieldSubjects: {
+    path: string;
+    subject: Subject<{path: string; newValue: unknown}>;
+  }[] = [];
+
+  getAllData() {
+    return this.data;
+  }
+
+  getData<TFieldName extends FieldPath<T> = FieldPath<T>>(
+    path: TFieldName
+  ): T[TFieldName] {
+    return deepGetValue(this.data, path);
+  }
+
+  setData<TFieldName extends FieldPath<T> = FieldPath<T>>(
+    path: TFieldName,
+    newValue: unknown
+  ) {
+    // update the data in the form model
+    this.data = {...deepUpdate(this.data, path, newValue)};
+    // tell the relevant field that the its data has changed,
+    // so it can update the value in its element part
+    this.formFieldSubjects
+      .find((sub) => sub.path === path)
+      ?.subject.next({path, newValue});
+  }
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
@@ -69,7 +96,9 @@ export class FormModel<T extends FieldValues = FieldValues>
 
   updateData(path: string, value: unknown) {
     const oldFormModelData = {...this.data};
-    const newFormModelData = {...deepUpdate(this.data, path, value)};
+    const newFormModelData = {
+      ...deepUpdate(this.data, path, value),
+    };
     this.data = {...oldFormModelData, ...newFormModelData};
     this.emitFormModelDataChange(
       oldFormModelData,
@@ -108,6 +137,7 @@ export class FormModel<T extends FieldValues = FieldValues>
       isDataValid,
     });
   }
+  /* for the host to subscribe to state change in the controller */
   watch(observer: (value: TFieldChangeSubject<T>) => void) {
     return this.fieldChangeSubject$.subscribe(observer);
   }

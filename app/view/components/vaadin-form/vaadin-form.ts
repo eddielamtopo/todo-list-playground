@@ -18,7 +18,7 @@ export class VaadinForm extends LitElement {
 
   handleSubmit(e: Event) {
     e.preventDefault();
-    console.log(this.form.data);
+    console.log(this.form.getAllData());
   }
 
   @property()
@@ -36,8 +36,10 @@ export class VaadinForm extends LitElement {
           .invalid=${this.form.errors.zipCode.length > 0}
           .errorMessage=${this.form.errors.zipCode}
           ${formField(this.form, 'zipCode', {
-            isValid: (value) => (value as string).length === 5,
-            errorMessage: 'Zip-code should be 5 letters long',
+            isValid: (value) =>
+              (value as string).length === 5
+                ? true
+                : 'Zip-code should be 5 letters long',
           })}
         >
         </vaadin-text-field>
@@ -49,8 +51,8 @@ export class VaadinForm extends LitElement {
             ? 'Last name is required'
             : ''}
           ${formField(this.form, 'lastName', {
-            isValid: (value) => (value as string).length > 0,
-            errorMessage: 'Last name required',
+            isValid: (value) =>
+              (value as string).length > 0 ? true : 'Last name required',
           })}
         >
         </vaadin-text-field>
