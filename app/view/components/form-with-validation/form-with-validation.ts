@@ -160,7 +160,7 @@ export class FormWithValidation extends LitElement {
           <input
             placeholder="This is required!"
             ${formField(this.formModel, 'firstName', {
-              isValid: (value) =>
+              isValidFn: (value) =>
                 (value as string).length > 0 ? true : 'First name is required!',
             })}
           />
@@ -179,7 +179,7 @@ export class FormWithValidation extends LitElement {
             type="number"
             placeholder="Enter your age"
             ${formField(this.formModel, 'age', {
-              isValid: (value) =>
+              isValidFn: (value) =>
                 (value as number) > 18 ? true : 'Must be older than 18',
             })}
           />
@@ -197,7 +197,7 @@ export class FormWithValidation extends LitElement {
           <input
             type="file"
             ${formField(this.formModel, 'profileImg', {
-              isValid: (value) => (value ? true : 'Must include an image'),
+              isValidFn: (value) => (value ? true : 'Must include an image'),
             })}
           />
           ${
@@ -256,7 +256,7 @@ export class FormWithValidation extends LitElement {
             .defaultValue=${new Date().toLocaleDateString()}
             placeholder="Required"
             ${formField(this.formModel, 'dob', {
-              isValid: (value) => {
+              isValidFn: (value) => {
                 return new Date(value as string).getTime() <
                   new Date().getTime()
                   ? true
@@ -271,7 +271,7 @@ export class FormWithValidation extends LitElement {
           <input
             placeholder="Must be 8 digit long"
             ${formField(this.formModel, 'phoneNumber.personal', {
-              isValid: (v) => {
+              isValidFn: (v) => {
                 if (typeof v === 'string') {
                   return /^\d{8}$/.test(v) ? true : 'Must be 8 digit long';
                 }
@@ -286,7 +286,7 @@ export class FormWithValidation extends LitElement {
           <input
             placeholder="Must be 8 digits long"
             ${formField(this.formModel, 'phoneNumber.work.0', {
-              isValid: (v) => {
+              isValidFn: (v) => {
                 if (typeof v === 'string') {
                   return /^\d{8}$/.test(v) ? true : 'Must be 8 digit';
                 }
@@ -334,7 +334,7 @@ export class FormWithValidation extends LitElement {
         <my-checklist
           .items=${this.formModel.getData('checkList')}
           ${formField(this.formModel, 'checkList', {
-            isValid: (items) => {
+            isValidFn: (items) => {
               return (items as TCheckListItem[]).every((item) => {
                 return item.crossedOff;
               });

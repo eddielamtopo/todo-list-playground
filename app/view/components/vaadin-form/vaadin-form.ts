@@ -36,7 +36,7 @@ export class VaadinForm extends LitElement {
           .invalid=${this.form.getErrors().zipCode.length > 0}
           .errorMessage=${this.form.getErrors().zipCode}
           ${formField(this.form, 'zipCode', {
-            isValid: (value) =>
+            isValidFn: (value) =>
               (value as string).length === 5
                 ? true
                 : 'Zip-code should be 5 letters long',
@@ -51,7 +51,7 @@ export class VaadinForm extends LitElement {
             ? 'Last name is required'
             : ''}
           ${formField(this.form, 'lastName', {
-            isValid: (value) =>
+            isValidFn: (value) =>
               (value as string).length > 0 ? true : 'Last name required',
           })}
         >

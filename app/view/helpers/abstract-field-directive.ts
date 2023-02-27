@@ -14,7 +14,7 @@ import {
 import {FieldValues, FieldPath} from './types';
 
 export type TFieldOptions = Partial<{
-  isValid: (value: unknown) => boolean | string;
+  isValidFn: (value: unknown) => boolean | string;
 }>;
 
 type TSupportedStandardFormFieldElements =
@@ -111,13 +111,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   /**
    * This method hook up the field directive with a validator function
-   * The validator will be the 'isValid' function if provided,
+   * The validator will be the 'isValidFn' function if provided,
    * returning string | false will indicate there's an error.
    * e.g. string can be the error message for the failed validation rules.
    * */
   private _configureValidator(options?: TFieldOptions) {
-    if (options?.isValid) {
-      this.validator = options.isValid;
+    if (options?.isValidFn) {
+      this.validator = options.isValidFn;
     }
   }
 

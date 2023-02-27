@@ -103,7 +103,7 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must give a name"
             ${field(this.formModel, 'firstName', {
-              isValid: (value) =>
+              isValidFn: (value) =>
                 (value as string).length > 0 ? true : 'First name is required',
             })}
           />
@@ -116,7 +116,7 @@ export class SimpleForm extends LitElement {
             type="number"
             placeholder="Must disclose your age"
             ${field(this.formModel, 'age', {
-              isValid: (value) =>
+              isValidFn: (value) =>
                 (value as number) > 18 || 'Must be older than 18',
             })}
           />
@@ -128,7 +128,7 @@ export class SimpleForm extends LitElement {
           <input
             type="file"
             ${field(this.formModel, 'profileImg', {
-              isValid: (value) => Boolean(value),
+              isValidFn: (value) => Boolean(value),
             })}
           />
         </div>
@@ -142,7 +142,7 @@ export class SimpleForm extends LitElement {
             max=${10000000}
             type="range"
             ${field(this.formModel, 'annualIncome', {
-              isValid: (value) => Boolean(value),
+              isValidFn: (value) => Boolean(value),
             })}
           />
         </div>
@@ -203,7 +203,7 @@ export class SimpleForm extends LitElement {
             type="date"
             placeholder="Required"
             ${field(this.formModel, 'dob', {
-              isValid: (value) => {
+              isValidFn: (value) => {
                 const valid = Boolean(
                   new Date(value as string).getTime() < new Date().getTime()
                 );
@@ -219,7 +219,7 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must be 8 digit long"
             ${field(this.formModel, 'phoneNumber.personal', {
-              isValid: (v) => {
+              isValidFn: (v) => {
                 if (typeof v === 'string') {
                   const valid = /^\d{8}$/.test(v);
                   return !valid ? 'Must be 8 digit' : true;
@@ -235,7 +235,7 @@ export class SimpleForm extends LitElement {
           <input
             placeholder="Must be 8 digits long"
             ${field(this.formModel, 'phoneNumber.work.0', {
-              isValid: (v) => {
+              isValidFn: (v) => {
                 if (typeof v === 'string') {
                   const valid = /^\d{8}$/.test(v);
                   return valid ? true : 'Must be 8 digit long';
@@ -268,7 +268,7 @@ export class SimpleForm extends LitElement {
         <my-checklist
           .items=${this.formModel.checkList}
           ${field(this.formModel, 'checkList', {
-            isValid: (items) => {
+            isValidFn: (items) => {
               return (items as TCheckListItem[]).every((item) => {
                 return item.crossedOff;
               });
