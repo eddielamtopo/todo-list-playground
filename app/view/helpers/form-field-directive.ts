@@ -9,10 +9,10 @@ import {
 import {ElementPart} from 'lit';
 import {Subject, Subscription} from 'rxjs';
 import {
-  CustomFormBindingElementTag,
   FormBindingElement,
   FormFieldBindingEventSetValueMethodName,
 } from './interface/form-binding-element';
+import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
