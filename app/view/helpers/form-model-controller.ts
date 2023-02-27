@@ -22,14 +22,20 @@ export class FormModel<T extends FieldValues = FieldValues>
   }
 
   private validations: Map<string, TFieldDirectiveValidator> = new Map();
-  setValidations: typeof this.validations['set'] = this.validations.set;
+  setValidations(path: string, validator: TFieldDirectiveValidator) {
+    this.validations.set(path, validator);
+  }
 
   private formFieldSubjects: Map<
     string,
     Subject<{path: string; newValue: unknown}>
   > = new Map();
-  setFormFieldSubjects: typeof this.formFieldSubjects['set'] =
-    this.formFieldSubjects.set;
+  setFormFieldSubjects(
+    path: string,
+    newValue: Subject<{path: string; newValue: unknown}>
+  ) {
+    this.formFieldSubjects.set(path, newValue);
+  }
 
   getAllData() {
     return this.data;
