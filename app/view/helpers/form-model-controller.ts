@@ -77,6 +77,16 @@ export class FormModel<T extends FieldValues = FieldValues>
     return allValid;
   }
 
+  private retrieveErrorValue(
+    validator: TFieldDirectiveValidator,
+    data: unknown
+  ) {
+    const validationResult = validator(data);
+    return typeof validationResult === 'string'
+      ? validationResult
+      : !validationResult;
+  }
+
   /**
    * 'validateAllFields' will trigger validation on all the binded fields
    * and update the host to display error message for invalid fields
@@ -84,12 +94,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   validateAllFields() {
     this.validations.forEach((validator, path) => {
       const data = deepGetValue(this.data, path);
-
-      const errorValue =
-        typeof validator(data) === 'string'
-          ? validator(data)
-          : !validator(data);
-
+      const errorValue = this.retrieveErrorValue(validator, data);
       this.errors = deepUpdate(this.errors, path, errorValue);
     });
     this.host.requestUpdate();
@@ -118,11 +123,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     const validator = this.validations.get(path);
 
     if (validator) {
-      const errorValue =
-        typeof validator(value) === 'string'
-          ? validator(value)
-          : !validator(value);
-
+      const errorValue = this.retrieveErrorValue(validator, value);
       this.updateErrors(deepUpdate(this.errors, path, errorValue));
     }
   }
