@@ -30,7 +30,6 @@ type TSupportedFormFieldElements =
 
 export const supportedStandardFormFieldElementsNodeNames = [
   'INPUT',
-  'SELECT',
   'TEXTAREA',
   'SELECT',
 ] as const;
