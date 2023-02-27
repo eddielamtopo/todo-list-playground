@@ -129,7 +129,6 @@ export class FormModel<T extends FieldValues = FieldValues>
   }
 
   private fieldChangeSubject = new Subject<TFieldChangeSubject<T>>();
-  private fieldChangeSubject$ = this.fieldChangeSubject.asObservable();
   private emitFormModelDataChange(
     oldFormModelData: T,
     newFormModelData: T,
@@ -143,12 +142,12 @@ export class FormModel<T extends FieldValues = FieldValues>
   }
   /* for the host to subscribe to state change in the controller */
   watch(observer: (value: TFieldChangeSubject<T>) => void) {
-    return this.fieldChangeSubject$.subscribe(observer);
+    return this.fieldChangeSubject.asObservable().subscribe(observer);
   }
 
   private _errorSubject = new Subject<T>();
-  private _errorSubject$ = this._errorSubject.asObservable();
-  private _errorSubscription = this._errorSubject$
+  private _errorSubscription = this._errorSubject
+    .asObservable()
     .pipe(
       distinctUntilChanged(
         (a, b) =>
