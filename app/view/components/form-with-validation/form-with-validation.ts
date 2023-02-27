@@ -126,7 +126,7 @@ export class FormWithValidation extends LitElement {
     e.preventDefault();
     console.log('trigger submit');
     console.log(this.formModel.getAllData());
-    console.log(this.formModel.errors);
+    console.log(this.formModel.getErrors());
     this.formModel.validateAllFields();
     console.log(`Form is valid: ${this.formModel.isDataValid}`);
   }
@@ -165,9 +165,9 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${
-            this.formModel.errors.firstName
+            this.formModel.getErrors().firstName
               ? html`<span class="error-message"
-                  >${this.formModel.errors.firstName}</span
+                  >${this.formModel.getErrors().firstName}</span
                 >`
               : nothing
           }
@@ -184,9 +184,9 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${
-            this.formModel.errors.age
+            this.formModel.getErrors().age
               ? html`<span class="error-message"
-                  >${this.formModel.errors.age}</span
+                  >${this.formModel.getErrors().age}</span
                 >`
               : nothing
           }
@@ -201,9 +201,9 @@ export class FormWithValidation extends LitElement {
             })}
           />
           ${
-            this.formModel.errors.profileImg
+            this.formModel.getErrors().profileImg
               ? html`<span class="error-message">
-                  ${this.formModel.errors.profileImg}</span
+                  ${this.formModel.getErrors().profileImg}</span
                 >`
               : nothing
           }
@@ -315,7 +315,7 @@ export class FormWithValidation extends LitElement {
 
         <div class=${classMap({
           'check-list-invalid-message': true,
-          'has-error': deepCheckAny(this.formModel.errors.checkList, true),
+          'has-error': deepCheckAny(this.formModel.getErrors().checkList, true),
         })}>
           ⚠️ Not everything on the list is crossed-off!
         </div>

@@ -31,10 +31,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
   ): symbol {
     const returnValue = super.update(part, params);
     // forwarding validations to be handled by the form model
-    this.model.validations.push({
-      path: this.path,
-      validator: this.validator,
-    });
+    this.model.setValidations(this.path, this.validator);
     // forwarding a subject for the model
     // to listen to emits of new change on the field the element part is binding to
     this.fieldChangeSubject$.subscribe(({newValue}) => {
@@ -51,10 +48,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
         element[FormFieldBindingEventSetValueMethodName](newValue);
       }
     });
-    this.model.formFieldSubjects.push({
-      path: this.path,
-      subject: this.fieldChangeSubject,
-    });
+    this.model.setFormFieldSubjects(this.path, this.fieldChangeSubject);
 
     return returnValue;
   }

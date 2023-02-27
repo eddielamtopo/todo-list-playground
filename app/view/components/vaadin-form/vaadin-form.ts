@@ -33,8 +33,8 @@ export class VaadinForm extends LitElement {
         <h1>My Vaadin Form</h1>
         <vaadin-text-field
           label="Zip code"
-          .invalid=${this.form.errors.zipCode.length > 0}
-          .errorMessage=${this.form.errors.zipCode}
+          .invalid=${this.form.getErrors().zipCode.length > 0}
+          .errorMessage=${this.form.getErrors().zipCode}
           ${formField(this.form, 'zipCode', {
             isValid: (value) =>
               (value as string).length === 5
@@ -46,8 +46,8 @@ export class VaadinForm extends LitElement {
 
         <vaadin-text-field
           label="Last name"
-          .invalid=${this.form.errors.lastName.length > 0}
-          .errorMessage=${this.form.errors.lastName
+          .invalid=${this.form.getErrors().lastName.length > 0}
+          .errorMessage=${this.form.getErrors().lastName
             ? 'Last name is required'
             : ''}
           ${formField(this.form, 'lastName', {

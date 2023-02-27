@@ -15,15 +15,21 @@ export class FormModel<T extends FieldValues = FieldValues>
 {
   host: ReactiveControllerHost;
   private data: T;
-  errors: T;
-  validations: {
-    path: string;
-    validator: TFieldDirectiveValidator;
-  }[] = [];
-  formFieldSubjects: {
-    path: string;
-    subject: Subject<{path: string; newValue: unknown}>;
-  }[] = [];
+  private errors: T;
+
+  getErrors() {
+    return this.errors;
+  }
+
+  private validations: Map<string, TFieldDirectiveValidator> = new Map();
+  setValidations: typeof this.validations['set'] = this.validations.set;
+
+  private formFieldSubjects: Map<
+    string,
+    Subject<{path: string; newValue: unknown}>
+  > = new Map();
+  setFormFieldSubjects: typeof this.formFieldSubjects['set'] =
+    this.formFieldSubjects.set;
 
   getAllData() {
     return this.data;
@@ -43,9 +49,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.data = {...deepUpdate(this.data, path, newValue)};
     // tell the relevant field that the its data has changed,
     // so it can update the value in its element part
-    this.formFieldSubjects
-      .find((sub) => sub.path === path)
-      ?.subject.next({path, newValue});
+    this.formFieldSubjects.get(path)?.next({path, newValue});
   }
 
   constructor(host: ReactiveControllerHost, defaultValue: T) {
@@ -60,16 +64,16 @@ export class FormModel<T extends FieldValues = FieldValues>
    * */
   get isDataValid() {
     let allValid = true;
-    for (let i = 0; i < this.validations.length; i++) {
-      const {path, validator} = this.validations[i];
+    this.validations.forEach((validator, path) => {
       const validationResult = validator(deepGetValue(this.data, path));
       const valid =
         validationResult === true && typeof validationResult !== 'string';
       if (!valid) {
         allValid = false;
-        break;
+        return;
       }
-    }
+    });
+
     return allValid;
   }
 
@@ -78,15 +82,15 @@ export class FormModel<T extends FieldValues = FieldValues>
    * and update the host to display error message for invalid fields
    * */
   validateAllFields() {
-    this.validations.forEach((validation) => {
-      const data = deepGetValue(this.data, validation.path);
+    this.validations.forEach((validator, path) => {
+      const data = deepGetValue(this.data, path);
 
       const errorValue =
-        typeof validation.validator(data) === 'string'
-          ? validation.validator(data)
-          : !validation.validator(data);
+        typeof validator(data) === 'string'
+          ? validator(data)
+          : !validator(data);
 
-      this.errors = deepUpdate(this.errors, validation.path, errorValue);
+      this.errors = deepUpdate(this.errors, path, errorValue);
     });
     this.host.requestUpdate();
   }
@@ -111,16 +115,15 @@ export class FormModel<T extends FieldValues = FieldValues>
 
   /* error handling */
   triggerValidationOnPath(path: string, value: unknown) {
-    const {path: foundPath, validator} =
-      this.validations.find((validation) => validation.path === path) ?? {};
+    const validator = this.validations.get(path);
 
-    if (foundPath && validator) {
+    if (validator) {
       const errorValue =
         typeof validator(value) === 'string'
           ? validator(value)
           : !validator(value);
 
-      this.updateErrors(deepUpdate(this.errors, foundPath, errorValue));
+      this.updateErrors(deepUpdate(this.errors, path, errorValue));
     }
   }
 
