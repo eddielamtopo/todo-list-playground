@@ -5,10 +5,15 @@ import {
   DirectiveClass,
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
+import {
+  CustomFormBindingElementTag,
+  supportFormBinding,
+} from './decorators/support-form-binding';
 import {FormModel} from './form-model-controller';
 import {
   IFormBindingElement,
   FormFieldBindingMethodName,
+  FormFieldBindingEventSetValueMethodName,
 } from './interface/form-binding-element';
 import {FieldValues, FieldPath} from './types';
 
@@ -57,11 +62,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     return this.validator(this.fieldValue);
   }
 
-  override render(
-    _model: typeof this.model,
-    _path: string,
-    _options?: FieldOptions
-  ) {
+  override render(_model: unknown, _path: string, _options?: FieldOptions) {
     return nothing;
   }
 
@@ -135,28 +136,57 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     if (!this._defaultSet) {
       // retrive the default value for this field element
       const defaultValue = this.fieldValue;
+      const isStandardFormElements =
+        supportedStandardFormFieldElementsNodeNames.find(
+          (nodeName) => nodeName === this.fieldElement?.nodeName
+        ) !== undefined;
 
-      const elementTypeAttr = this.fieldElement.getAttribute('type');
-      const isInputElement =
-        this.fieldElement.nodeName.toLocaleLowerCase() === 'input';
-      const isSelectElement =
-        this.fieldElement.nodeName.toLocaleLowerCase() === 'select';
+      if (isStandardFormElements) {
+        const isInputElement = this.fieldElement.nodeName === 'INPUT';
+        const elementTypeAttr = this.fieldElement.getAttribute('type');
+        const isCheckbox =
+          isInputElement && elementTypeAttr && elementTypeAttr === 'checkbox';
+        const isRadio =
+          isInputElement && elementTypeAttr && elementTypeAttr === 'radio';
 
-      if (isInputElement && elementTypeAttr && elementTypeAttr === 'checkbox') {
-        const checkboxValue = this.fieldElement.getAttribute('value');
-        if (checkboxValue === defaultValue) {
-          this.fieldElement.setAttribute('checked', 'true');
+        if (isCheckbox || isRadio) {
+          const checkValue = this.fieldElement.getAttribute('value');
+          if (!checkValue) {
+            console.error(`Misconfigured default value on field directive with path ${
+              this.path
+            }. 
+            ${this.fieldElement.nodeName.toLowerCase()} must have value attribute for proper setting of default value.`);
+          }
+
+          if (checkValue === defaultValue) {
+            this.fieldElement.setAttribute('checked', '');
+          }
+          return;
         }
-      } else if (
-        (isInputElement || isSelectElement) &&
-        'value' in this.fieldElement
-      ) {
-        if (
-          typeof defaultValue === 'string' ||
-          typeof defaultValue === 'number'
-        ) {
-          this.fieldElement.setAttribute('value', String(defaultValue));
+
+        if (isStandardFormElements && 'value' in this.fieldElement) {
+          if (
+            typeof defaultValue === 'string' ||
+            typeof defaultValue === 'number'
+          ) {
+            this.fieldElement.value = String(defaultValue);
+          } else {
+            console.error(
+              `Misconfigured field directive with path '${this.path}'. 
+              Default value for applied to input, select, textarea, element can only be of type string or number.`
+            );
+          }
         }
+
+        if (CustomFormBindingElementTag in this.fieldElement) {
+          (this.fieldElement as CustomFormFieldElement)[
+            FormFieldBindingEventSetValueMethodName
+          ](defaultValue);
+        }
+
+        console.error(`Failed to set default value on ${this.fieldElement.nodeName.toLowerCase()}. Element is not a supported form binding element.
+        If you are trying to bind to a custom form binding element. Make sure you have configured it with the 'supportFormBindng' decorator.
+        `);
       }
 
       this._defaultSet = true;
@@ -173,13 +203,25 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this.path = path;
       this.options = options;
       this.configureValidator(options);
-
       this.appendDefaultValueAttribute();
 
       if (FormFieldBindingMethodName in this.fieldElement) {
         this.ensureCustomEventSubscribed();
-      } else {
+      } else if (
+        supportedStandardFormFieldElementsNodeNames.find(
+          (nodeName) => nodeName === this.fieldElement.nodeName
+        )
+      ) {
         this.ensureChangeEventSubscribed();
+      } else {
+        console.error(`Field element '${this.fieldElement.nodeName.toLowerCase()}' is not a supported form binding element.
+        Make sure you field element is one of: ${supportedStandardFormFieldElementsNodeNames
+          .join(', ')
+          .toLowerCase()};
+        Or, if the field element is a custom form binding element, make sure you decorate it with '${
+          supportFormBinding.name
+        }' and implements the form binding element interface.
+        `);
       }
     }
 
