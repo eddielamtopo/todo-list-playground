@@ -5,7 +5,6 @@ import {
   DirectiveClass,
 } from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
-import {deepGetValue} from './deep/index';
 import {FormModel} from './form-model-controller';
 import {
   IFormBindingElement,
@@ -38,13 +37,13 @@ export const supportedStandardFormFieldElementsNodeNames = [
 
 export type FieldElement = SupportedFormFieldElements;
 
-type FieldModel = FormModel | object;
 export type FieldValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
   };
-  protected abstract model: FieldModel;
+  protected abstract model: unknown;
+  protected abstract get fieldValue(): unknown;
 
   private _defaultSet = false;
   private _subscription: Subscription | undefined;
@@ -54,19 +53,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected path!: string;
   protected options: FieldOptions | undefined;
 
-  private get fieldValue() {
-    if (this.model instanceof FormModel) {
-      return deepGetValue(this.model.getAllData(), this.path);
-    }
-    return deepGetValue(this.model, this.path);
-  }
-
   get isValid() {
     return this.validator(this.fieldValue);
   }
 
   override render(
-    _model: object | FormModel,
+    _model: typeof this.model,
     _path: string,
     _options?: FieldOptions
   ) {
@@ -142,12 +134,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     // setting default value for standard html elements
     if (!this._defaultSet) {
       // retrive the default value for this field element
-      let defaultValue: unknown;
-      if (this.model instanceof FormModel) {
-        defaultValue = deepGetValue(this.model.getAllData(), this.path);
-      } else {
-        defaultValue = deepGetValue(this.model, this.path);
-      }
+      const defaultValue = this.fieldValue;
 
       const elementTypeAttr = this.fieldElement.getAttribute('type');
       const isInputElement =

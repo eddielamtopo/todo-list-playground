@@ -11,10 +11,14 @@ import {
   IFormBindingElement,
 } from './interface/form-binding-element';
 import {CustomFormBindingElementTag} from './decorators/support-form-binding';
+import {deepGetValue} from './deep';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
   protected model!: FormModel;
+  protected get fieldValue(): unknown {
+    return deepGetValue(this.model.getAllData(), this.path);
+  }
 
   private fieldChangeSubject = new Subject<{path: string; newValue: unknown}>();
   private fieldChangeSubscription?: Subscription;
