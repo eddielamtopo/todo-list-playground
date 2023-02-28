@@ -1,11 +1,15 @@
 import {FieldPath} from '../types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TObject = Record<string | number, any>;
+interface Indexable {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: number]: any;
+}
 
 export function deepUpdate<
-  T extends object,
-  TFieldName extends FieldPath<T> = FieldPath<T>
+  T extends Indexable,
+  TFieldName extends string = FieldPath<T>
 >(target: T, path: TFieldName, value: unknown): T {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
@@ -15,25 +19,29 @@ export function deepUpdate<
         ? deepUpdate(target[Number(head)], rest.join('.'), value)
         : value,
       ...target.slice(Number(head) + 1),
-    ] as T;
+    ] as unknown as T;
   }
   return {
     ...target,
     [head]: rest.length
-      ? deepUpdate((target as TObject)[head], rest.join('.'), value)
+      ? deepUpdate(
+          (target as Indexable)[head] as Indexable,
+          rest.join('.'),
+          value
+        )
       : value,
   } as T;
 }
 
 export function deepGetValue<
-  T extends TObject,
-  TFieldName extends FieldPath<T> = FieldPath<T>
->(target: T, path: TFieldName): T[typeof path] {
+  T extends Indexable,
+  TFieldName extends string = FieldPath<T>
+>(target: T, path: TFieldName): T[TFieldName] {
   const [head, ...rest] = path.split('.');
   const targetValue = target[head];
   // if there are more to go
   if (rest.length) {
-    return deepGetValue(targetValue, rest.join('.'));
+    return deepGetValue(targetValue as Indexable, rest.join('.'));
   }
   // if we have reached the end
   else {
@@ -41,18 +49,10 @@ export function deepGetValue<
   }
 }
 
-export function deepSetAll<T extends TObject>(
-  target: TObject,
-  defaultValue: unknown
+export function deepSetAll<T extends Indexable>(
+  target: Indexable,
+  defaultValue: string | number | boolean
 ): T {
-  if (
-    typeof target === 'string' ||
-    typeof target === 'number' ||
-    typeof target === 'bigint'
-  ) {
-    return defaultValue as T;
-  }
-
   const keys = typeof target === 'string' ? [] : Object.keys(target);
   const clone = Array.isArray(target) ? [...target] : {...target};
   const isArray = Array.isArray(clone);
@@ -69,10 +69,10 @@ export function deepSetAll<T extends TObject>(
     }
 
     // else if the value is has nested values -- i.e. is array or object ...
-    if (Object.keys((clone as TObject)[indexer]).length) {
+    if (Object.keys((clone as Indexable)[indexer]).length) {
       // if we are sure it is an object ...
       if (!Array.isArray(clone)) {
-        clone[indexer] = deepSetAll((clone as TObject)[indexer], defaultValue);
+        clone[indexer] = deepSetAll(clone[indexer], defaultValue);
         continue;
       }
       // if we are sure it is an array ...
@@ -83,14 +83,14 @@ export function deepSetAll<T extends TObject>(
       // is array but indexer is not number ...
     }
 
-    (clone as TObject)[indexer] = defaultValue;
+    (clone as Indexable)[indexer] = defaultValue;
   }
 
   return clone as T;
 }
 
 export function deepCheckAny(
-  target: TObject,
+  target: Indexable,
   value: unknown,
   _previousResult = false
 ) {
