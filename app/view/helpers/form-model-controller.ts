@@ -26,8 +26,8 @@ export class FormModel<T extends FieldValues = FieldValues>
     return this.errors;
   }
 
-  private validations: Map<string, FieldValidator> = new Map();
-  setValidations(path: string, validator: FieldValidator) {
+  private validations = new Map<FieldPath<T>, FieldValidator>();
+  setValidations(path: FieldPath<T>, validator: FieldValidator) {
     this.validations.set(path, validator);
   }
 
@@ -57,7 +57,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     newValue: unknown
   ) {
     // update the data in the form model
-    this.data = {...deepUpdate(this.data, path, newValue)};
+    this.data = deepUpdate(this.data, path, newValue);
     // tell the relevant field that the its data has changed,
     // so it can update the value in its element part
     this.formFieldSubjects.get(path)?.next({path, newValue});
@@ -96,19 +96,17 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.validations.forEach((validator, path) => {
       const data = deepGetValue(this.data, path);
       const errorValue = this.retrieveErrorValue(validator, data);
-      this.errors = deepUpdate(this.errors, path, errorValue);
+      this.errors = deepUpdate<T>(this.errors, path, errorValue);
     });
     this.host.requestUpdate();
   }
 
   hostConnected(): void {}
 
-  updateData(path: string, value: unknown) {
-    const oldFormModelData = {...this.data};
-    const newFormModelData = {
-      ...deepUpdate(this.data, path, value),
-    };
-    this.data = {...oldFormModelData, ...newFormModelData};
+  updateData(path: FieldPath<T>, value: unknown) {
+    const oldFormModelData = JSON.parse(JSON.stringify(this.data));
+    const newFormModelData = deepUpdate(this.data, path, value);
+    this.data = newFormModelData;
     this.emitFormModelDataChange(
       oldFormModelData,
       newFormModelData,
@@ -119,7 +117,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   }
 
   /* error handling */
-  private triggerValidationOnPath(path: string, value: unknown) {
+  private triggerValidationOnPath(path: FieldPath<T>, value: unknown) {
     const validator = this.validations.get(path);
 
     if (validator) {

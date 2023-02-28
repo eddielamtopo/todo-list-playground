@@ -5,7 +5,7 @@ type TObject = Record<string | number, any>;
 
 export function deepUpdate<
   T extends object,
-  TFieldName extends string = FieldPath<T>
+  TFieldName extends FieldPath<T> = FieldPath<T>
 >(target: T, path: TFieldName, value: unknown): T {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
@@ -27,7 +27,7 @@ export function deepUpdate<
 
 export function deepGetValue<
   T extends TObject,
-  TFieldName extends string = FieldPath<T>
+  TFieldName extends FieldPath<T> = FieldPath<T>
 >(target: T, path: TFieldName): T[typeof path] {
   const [head, ...rest] = path.split('.');
   const targetValue = target[head];
