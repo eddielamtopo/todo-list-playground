@@ -44,18 +44,17 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
   };
+  protected abstract model: FieldModel;
 
   private _defaultSet = false;
   private _subscription: Subscription | undefined;
   private _customEventSubscriptions: Subscription[] = [];
   protected validator: FieldValidator = () => true;
+  protected fieldElement!: FieldElement;
+  protected path!: string;
+  protected options: FieldOptions | undefined;
 
-  abstract fieldElement: FieldElement;
-  abstract model: FieldModel;
-  abstract path: string;
-  abstract options: FieldOptions | undefined;
-
-  get fieldValue() {
+  private get fieldValue() {
     if (this.model instanceof FormModel) {
       return deepGetValue(this.model.getAllData(), this.path);
     }
@@ -75,20 +74,18 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   }
 
   /**
-   * Override to implement lower-level input event handling detail
+   * Implement logic to update the data stored in the generic model
    * */
-  abstract handleChangeEvent(event: Event): void;
-  /**
-   * Override to implement lower-level custom event handling detail
-   * */
-  abstract handleCustomEvent(eventPayload: unknown): void;
+  protected abstract updateModelData(value: unknown): void;
 
-  protected ensureChangeEventSubscribed() {
+  private ensureChangeEventSubscribed() {
     if (this._subscription === undefined) {
       this._subscription = fromEvent(this.fieldElement, 'change').subscribe(
         (event) => {
-          this.handleChangeEvent(event);
-          this._appendErrorStyleAttributes(
+          this.updateModelData(
+            (event.target as SupportedStandardFormFieldElements).value
+          );
+          this.appendErrorStyleAttributes(
             (this.fieldElement as HTMLInputElement).value
           );
         }
@@ -96,7 +93,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
-  protected ensureCustomEventSubscribed() {
+  private ensureCustomEventSubscribed() {
     const formBindingEventDetails =
       // '!' assertion is fine here; method name has to exists in order to come in here
       (this.fieldElement as CustomFormFieldElement)[
@@ -105,8 +102,8 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     formBindingEventDetails.forEach(({name, getValue}) => {
       const newSub = fromEvent(this.fieldElement, name).subscribe((e) => {
         const value = getValue(e as CustomEvent);
-        this.handleCustomEvent(value);
-        this._appendErrorStyleAttributes(value);
+        this.updateModelData(value);
+        this.appendErrorStyleAttributes(value);
       });
 
       this._customEventSubscriptions.push(newSub);
@@ -119,13 +116,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
    * returning string | false will indicate there's an error.
    * e.g. string can be the error message for the failed validation rules.
    * */
-  private _configureValidator(options?: FieldOptions) {
+  private configureValidator(options?: FieldOptions) {
     if (options?.isValidFn) {
       this.validator = options.isValidFn;
     }
   }
 
-  protected _appendErrorStyleAttributes(value: unknown) {
+  private appendErrorStyleAttributes(value: unknown) {
     const validationResult = this.validator(value);
     const invalid =
       typeof validationResult === 'string' || validationResult === false;
@@ -141,7 +138,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
-  protected appendDefaultValueAttribute() {
+  private appendDefaultValueAttribute() {
     // setting default value for standard html elements
     if (!this._defaultSet) {
       // retrive the default value for this field element
@@ -188,7 +185,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this.model = model;
       this.path = path;
       this.options = options;
-      this._configureValidator(options);
+      this.configureValidator(options);
 
       this.appendDefaultValueAttribute();
 
@@ -211,7 +208,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this._customEventSubscriptions = [];
   }
 
-  override reconnected(): void {
+  protected override reconnected(): void {
     this.ensureChangeEventSubscribed();
     this.ensureCustomEventSubscribed();
   }

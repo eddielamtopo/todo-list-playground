@@ -3,8 +3,6 @@ import {
   AbstractFieldDirective,
   createFieldDirective,
   supportedStandardFormFieldElementsNodeNames,
-  FieldElement,
-  FieldOptions,
 } from './abstract-field-directive';
 import {ElementPart} from 'lit';
 import {Subject, Subscription} from 'rxjs';
@@ -16,13 +14,9 @@ import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
-  fieldElement!: FieldElement;
-  model!: FormModel;
-  options!: FieldOptions;
-  path!: string;
+  protected model!: FormModel;
 
   private fieldChangeSubject = new Subject<{path: string; newValue: unknown}>();
-  private fieldChangeSubject$ = this.fieldChangeSubject.asObservable();
   private fieldChangeSubscription?: Subscription;
 
   override update(
@@ -34,7 +28,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
     this.model.setValidations(this.path, this.validator);
     // forwarding a subject for the model
     // to listen to emits of new change on the field the element part is binding to
-    this.fieldChangeSubject$.subscribe(({newValue}) => {
+    this.fieldChangeSubject.asObservable().subscribe(({newValue}) => {
       if (
         supportedStandardFormFieldElementsNodeNames.find(
           (nodeName) => nodeName === this.fieldElement.nodeName
@@ -53,17 +47,8 @@ export class FormFieldDirective extends AbstractFieldDirective {
     return returnValue;
   }
 
-  private _updateModelData(value: unknown) {
+  protected updateModelData(value: unknown) {
     this.model.updateData(this.path, value);
-  }
-
-  handleCustomEvent(data: unknown) {
-    this._updateModelData(data);
-  }
-
-  handleChangeEvent(event: Event): void {
-    // update data value
-    this._updateModelData((event.target as HTMLInputElement).value);
   }
 
   override disconnected(): void {
