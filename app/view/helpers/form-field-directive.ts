@@ -3,8 +3,8 @@ import {
   AbstractFieldDirective,
   createFieldDirective,
   supportedStandardFormFieldElementsNodeNames,
-  TFieldELement,
-  TFieldOptions,
+  FieldElement,
+  FieldOptions,
 } from './abstract-field-directive';
 import {ElementPart} from 'lit';
 import {Subject, Subscription} from 'rxjs';
@@ -16,9 +16,9 @@ import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
-  fieldElement!: TFieldELement;
+  fieldElement!: FieldElement;
   model!: FormModel;
-  options!: TFieldOptions;
+  options!: FieldOptions;
   path!: string;
 
   private fieldChangeSubject = new Subject<{path: string; newValue: unknown}>();

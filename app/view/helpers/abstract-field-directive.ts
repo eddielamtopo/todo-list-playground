@@ -13,20 +13,22 @@ import {
 } from './interface/form-binding-element';
 import {FieldValues, FieldPath} from './types';
 
-export type TFieldOptions = Partial<{
+export type FieldOptions = Partial<{
   isValidFn: (value: unknown) => boolean | string;
 }>;
 
-type TSupportedStandardFormFieldElements =
+type SupportedStandardFormFieldElements =
   | HTMLInputElement
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
-type TSupportedCustomFormFieldElements = IFormBindingElement<unknown>;
+type CustomFormFieldElement = IFormBindingElement<unknown>;
 
-type TSupportedFormFieldElements =
-  | TSupportedStandardFormFieldElements
-  | TSupportedCustomFormFieldElements;
+type SupportedCustomFormFieldElement = CustomFormFieldElement;
+
+type SupportedFormFieldElements =
+  | SupportedStandardFormFieldElements
+  | SupportedCustomFormFieldElement;
 
 export const supportedStandardFormFieldElementsNodeNames = [
   'INPUT',
@@ -34,10 +36,10 @@ export const supportedStandardFormFieldElementsNodeNames = [
   'SELECT',
 ] as const;
 
-export type TFieldELement = TSupportedFormFieldElements;
+export type FieldElement = SupportedFormFieldElements;
 
-type TModel = FormModel | object;
-export type TFieldDirectiveValidator = (value: unknown) => boolean | string;
+type FieldModel = FormModel | object;
+export type FieldValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
@@ -46,12 +48,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _defaultSet = false;
   private _subscription: Subscription | undefined;
   private _customEventSubscriptions: Subscription[] = [];
-  protected validator: TFieldDirectiveValidator = () => true;
+  protected validator: FieldValidator = () => true;
 
-  abstract fieldElement: TFieldELement;
-  abstract model: TModel;
+  abstract fieldElement: FieldElement;
+  abstract model: FieldModel;
   abstract path: string;
-  abstract options: TFieldOptions | undefined;
+  abstract options: FieldOptions | undefined;
 
   get fieldValue() {
     if (this.model instanceof FormModel) {
@@ -67,7 +69,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   override render(
     _model: object | FormModel,
     _path: string,
-    _options?: TFieldOptions
+    _options?: FieldOptions
   ) {
     return nothing;
   }
@@ -97,7 +99,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected ensureCustomEventSubscribed() {
     const formBindingEventDetails =
       // '!' assertion is fine here; method name has to exists in order to come in here
-      (this.fieldElement as IFormBindingElement<unknown>)[
+      (this.fieldElement as CustomFormFieldElement)[
         FormFieldBindingMethodName
       ]!();
     formBindingEventDetails.forEach(({name, getValue}) => {
@@ -117,7 +119,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
    * returning string | false will indicate there's an error.
    * e.g. string can be the error message for the failed validation rules.
    * */
-  private _configureValidator(options?: TFieldOptions) {
+  private _configureValidator(options?: FieldOptions) {
     if (options?.isValidFn) {
       this.validator = options.isValidFn;
     }
@@ -182,7 +184,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     [model, path, options]: Parameters<this['render']>
   ) {
     if (this.isConnected) {
-      this.fieldElement = part.element as TFieldELement;
+      this.fieldElement = part.element as FieldElement;
       this.model = model;
       this.path = path;
       this.options = options;
@@ -225,7 +227,7 @@ export const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
   >(
     formModel: FormModel<TFieldValues> | TFieldValues,
     path: TFieldName,
-    options?: TFieldOptions
+    options?: FieldOptions
   ) => {
     return _fieldDirective(formModel, path, options);
   };

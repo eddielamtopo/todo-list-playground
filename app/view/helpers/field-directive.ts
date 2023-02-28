@@ -1,16 +1,16 @@
 import {
   AbstractFieldDirective,
   createFieldDirective,
-  TFieldELement,
-  TFieldOptions,
+  FieldElement,
+  FieldOptions,
 } from './abstract-field-directive';
 import {deepUpdate} from './deep/index';
 import {FieldValues} from './types';
 
 export class FieldDirective extends AbstractFieldDirective {
-  fieldElement!: TFieldELement;
+  fieldElement!: FieldElement;
   model!: FieldValues;
-  options!: TFieldOptions;
+  options!: FieldOptions;
   path!: string;
 
   private _updateModelData(value: unknown) {

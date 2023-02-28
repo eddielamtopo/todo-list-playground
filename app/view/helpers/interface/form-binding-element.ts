@@ -3,7 +3,7 @@ export const FormFieldBindingEventNamePropertyName = 'name';
 export const FormFieldBindingEventGetValueMethodName = 'getValue';
 export const FormFieldBindingEventSetValueMethodName = Symbol('setValue');
 
-type TFormBindingEventDetail<
+type FormBindingEventDetail<
   TFieldValue,
   TEvent extends Event = Event,
   TEventName extends string = string
@@ -30,10 +30,7 @@ export interface IFormBindingElement<
    * }
    * ```
    * */
-  [FormFieldBindingMethodName](): TFormBindingEventDetail<
-    TFieldValue,
-    TEvent
-  >[];
+  [FormFieldBindingMethodName](): FormBindingEventDetail<TFieldValue, TEvent>[];
 
   /**
    * Set the property that will be used to bind to the form

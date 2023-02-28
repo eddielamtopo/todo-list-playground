@@ -1,10 +1,10 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Subject} from 'rxjs';
-import {TFieldDirectiveValidator} from './abstract-field-directive';
+import {FieldValidator} from './abstract-field-directive';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldPath, FieldValues} from './types';
 
-type TFieldChangeSubject<T extends FieldValues> = {
+type FieldChangeSubject<T extends FieldValues> = {
   oldFormModelData: T;
   newFormModelData: T;
   isDataValid: boolean;
@@ -13,16 +13,21 @@ type TFieldChangeSubject<T extends FieldValues> = {
 export class FormModel<T extends FieldValues = FieldValues>
   implements ReactiveController
 {
-  host: ReactiveControllerHost;
   private data: T;
   private errors: T;
+
+  constructor(private host: ReactiveControllerHost, defaultValue: T) {
+    this.data = defaultValue;
+    this.errors = deepSetAll(defaultValue, false);
+    this.host.addController(this);
+  }
 
   getErrors() {
     return this.errors;
   }
 
-  private validations: Map<string, TFieldDirectiveValidator> = new Map();
-  setValidations(path: string, validator: TFieldDirectiveValidator) {
+  private validations: Map<string, FieldValidator> = new Map();
+  setValidations(path: string, validator: FieldValidator) {
     this.validations.set(path, validator);
   }
 
@@ -58,13 +63,6 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.formFieldSubjects.get(path)?.next({path, newValue});
   }
 
-  constructor(host: ReactiveControllerHost, defaultValue: T) {
-    this.data = defaultValue;
-    this.errors = deepSetAll(defaultValue, false);
-    this.host = host;
-    this.host.addController(this);
-  }
-
   /**
    * 'valid' check if every binded field is valid without updating the host
    * */
@@ -83,10 +81,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     return allValid;
   }
 
-  private retrieveErrorValue(
-    validator: TFieldDirectiveValidator,
-    data: unknown
-  ) {
+  private retrieveErrorValue(validator: FieldValidator, data: unknown) {
     const validationResult = validator(data);
     return typeof validationResult === 'string'
       ? validationResult
@@ -133,7 +128,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     }
   }
 
-  private fieldChangeSubject = new Subject<TFieldChangeSubject<T>>();
+  private fieldChangeSubject = new Subject<FieldChangeSubject<T>>();
   private emitFormModelDataChange(
     oldFormModelData: T,
     newFormModelData: T,
@@ -146,7 +141,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     });
   }
   /* for the host to subscribe to state change in the controller */
-  watch(observer: (value: TFieldChangeSubject<T>) => void) {
+  watch(observer: (value: FieldChangeSubject<T>) => void) {
     return this.fieldChangeSubject.asObservable().subscribe(observer);
   }
 
