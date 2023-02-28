@@ -8,7 +8,7 @@ import {fromEvent, Subscription} from 'rxjs';
 import {deepGetValue} from './deep/index';
 import {FormModel} from './form-model-controller';
 import {
-  FormBindingElement,
+  IFormBindingElement,
   FormFieldBindingMethodName,
 } from './interface/form-binding-element';
 import {FieldValues, FieldPath} from './types';
@@ -22,7 +22,7 @@ type TSupportedStandardFormFieldElements =
   | HTMLTextAreaElement
   | HTMLSelectElement;
 
-type TSupportedCustomFormFieldElements = FormBindingElement;
+type TSupportedCustomFormFieldElements = IFormBindingElement<unknown>;
 
 type TSupportedFormFieldElements =
   | TSupportedStandardFormFieldElements
@@ -97,7 +97,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected ensureCustomEventSubscribed() {
     const formBindingEventDetails =
       // '!' assertion is fine here; method name has to exists in order to come in here
-      (this.fieldElement as FormBindingElement)[FormFieldBindingMethodName]!();
+      (this.fieldElement as IFormBindingElement<unknown>)[
+        FormFieldBindingMethodName
+      ]!();
     formBindingEventDetails.forEach(({name, getValue}) => {
       const newSub = fromEvent(this.fieldElement, name).subscribe((e) => {
         const value = getValue(e as CustomEvent);

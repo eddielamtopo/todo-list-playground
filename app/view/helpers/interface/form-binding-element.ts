@@ -15,7 +15,7 @@ type TFormBindingEventDetail<
 export interface IFormBindingElement<
   TFieldValue,
   TEvent extends CustomEvent = CustomEvent
-> {
+> extends HTMLElement {
   /**
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
    * @example
@@ -49,20 +49,4 @@ export interface IFormBindingElement<
    * ```
    * */
   [FormFieldBindingEventSetValueMethodName]: (newValue: TFieldValue) => void;
-}
-
-export interface FormBindingElement extends HTMLElement {
-  [FormFieldBindingMethodName]?: (
-    ...args: Parameters<
-      IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
-    >
-  ) => ReturnType<
-    IFormBindingElement<unknown>[typeof FormFieldBindingMethodName]
-  >;
-
-  [FormFieldBindingEventSetValueMethodName]: (
-    ...args: Parameters<
-      IFormBindingElement<unknown>[typeof FormFieldBindingEventSetValueMethodName]
-    >
-  ) => void;
 }

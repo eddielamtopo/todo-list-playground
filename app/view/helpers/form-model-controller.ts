@@ -1,5 +1,5 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
-import {distinctUntilChanged, Observable, Subject} from 'rxjs';
+import {distinctUntilChanged, Subject} from 'rxjs';
 import {TFieldDirectiveValidator} from './abstract-field-directive';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldPath, FieldValues} from './types';
@@ -106,7 +106,6 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.host.requestUpdate();
   }
 
-  errorsObservable: Observable<{[key: string]: unknown}> | null = null;
   hostConnected(): void {}
 
   updateData(path: string, value: unknown) {
@@ -125,7 +124,7 @@ export class FormModel<T extends FieldValues = FieldValues>
   }
 
   /* error handling */
-  triggerValidationOnPath(path: string, value: unknown) {
+  private triggerValidationOnPath(path: string, value: unknown) {
     const validator = this.validations.get(path);
 
     if (validator) {
@@ -168,7 +167,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     this._errorSubject.next(newErrors);
   }
 
-  updateErrors(errors: T) {
+  private updateErrors(errors: T) {
     this.errors = errors;
     this._updateErrorSubject(errors);
   }

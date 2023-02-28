@@ -9,8 +9,8 @@ import {
 import {ElementPart} from 'lit';
 import {Subject, Subscription} from 'rxjs';
 import {
-  FormBindingElement,
   FormFieldBindingEventSetValueMethodName,
+  IFormBindingElement,
 } from './interface/form-binding-element';
 import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 
@@ -44,7 +44,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
       }
 
       if (CustomFormBindingElementTag in this.fieldElement) {
-        const element = this.fieldElement as FormBindingElement;
+        const element = this.fieldElement as IFormBindingElement<unknown>;
         element[FormFieldBindingEventSetValueMethodName](newValue);
       }
     });
