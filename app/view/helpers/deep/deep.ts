@@ -53,7 +53,7 @@ export function deepSetAll<T extends Indexable>(
   target: Indexable,
   defaultValue: string | number | boolean
 ): T {
-  const keys = typeof target === 'string' ? [] : Object.keys(target);
+  const keys = Object.keys(target);
   const clone = Array.isArray(target) ? [...target] : {...target};
   const isArray = Array.isArray(clone);
 
