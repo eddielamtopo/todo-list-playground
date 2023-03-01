@@ -1,21 +1,15 @@
-import {ElementPart, nothing} from 'lit';
-import {
-  AsyncDirective,
-  directive,
-  DirectiveClass,
-} from 'lit/async-directive.js';
+import {AsyncDirective} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {
   CustomFormBindingElementTag,
   supportFormBinding,
 } from './decorators/support-form-binding';
-import {FormModel} from './form-model-controller';
+// import {FormModel} from './form-model-controller';
 import {
   IFormBindingElement,
   FormFieldBindingMethodName,
   FormFieldBindingEventSetValueMethodName,
 } from './interface/form-binding-element';
-import {FieldValues, FieldPath} from './types';
 
 export type FieldOptions = Partial<{
   isValidFn: (value: unknown) => boolean | string;
@@ -47,7 +41,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
   };
-  protected abstract model: unknown;
   protected abstract get fieldValue(): unknown;
 
   private _defaultSet = false;
@@ -60,10 +53,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   get isValid() {
     return this.validator(this.fieldValue);
-  }
-
-  override render(_model: unknown, _path: string, _options?: FieldOptions) {
-    return nothing;
   }
 
   /**
@@ -134,7 +123,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private appendDefaultValueAttribute() {
     // setting default value for standard html elements
     if (!this._defaultSet) {
-      // retrive the default value for this field element
+      // retrieve the default value for this field element
       const defaultValue = this.fieldValue;
       const isStandardFormElements =
         supportedStandardFormFieldElementsNodeNames.find(
@@ -192,40 +181,33 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._defaultSet = true;
     }
   }
+  
+  protected bind(fieldElement: FieldElement, path: string, options: FieldOptions | undefined) {
+    this.fieldElement = fieldElement;
+    this.path = path;
+    this.options = options;
+    
+    this.configureValidator(options);
+    this.appendDefaultValueAttribute();
 
-  override update(
-    part: ElementPart,
-    [model, path, options]: Parameters<this['render']>
-  ) {
-    if (this.isConnected) {
-      this.fieldElement = part.element as FieldElement;
-      this.model = model;
-      this.path = path;
-      this.options = options;
-      this.configureValidator(options);
-      this.appendDefaultValueAttribute();
-
-      if (FormFieldBindingMethodName in this.fieldElement) {
-        this.ensureCustomEventSubscribed();
-      } else if (
+    if (FormFieldBindingMethodName in this.fieldElement) {
+      this.ensureCustomEventSubscribed();
+    } else if (
         supportedStandardFormFieldElementsNodeNames.find(
-          (nodeName) => nodeName === this.fieldElement.nodeName
+            (nodeName) => nodeName === this.fieldElement.nodeName
         )
-      ) {
-        this.ensureChangeEventSubscribed();
-      } else {
-        console.error(`Field element '${this.fieldElement.nodeName.toLowerCase()}' is not a supported form binding element.
-        Make sure you field element is one of: ${supportedStandardFormFieldElementsNodeNames
+    ) {
+      this.ensureChangeEventSubscribed();
+    } else {
+      console.error(`Field element '${this.fieldElement.nodeName.toLowerCase()}' is not a supported form binding element.
+      Make sure you field element is one of: ${supportedStandardFormFieldElementsNodeNames
           .join(', ')
           .toLowerCase()};
-        Or, if the field element is a custom form binding element, make sure you decorate it with '${
+      Or, if the field element is a custom form binding element, make sure you decorate it with '${
           supportFormBinding.name
-        }' and implements the form binding element interface.
-        `);
-      }
+      }' and implements the form binding element interface.
+      `);
     }
-
-    return this.render(this.model, this.path, this.options);
   }
 
   override disconnected(): void {
@@ -242,19 +224,3 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.ensureCustomEventSubscribed();
   }
 }
-
-// helper function to create type safe field directive
-export const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
-  const _fieldDirective = directive(CustomDirectiveClass);
-
-  return <
-    TFieldValues extends FieldValues = FieldValues,
-    TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-  >(
-    formModel: FormModel<TFieldValues> | TFieldValues,
-    path: TFieldName,
-    options?: FieldOptions
-  ) => {
-    return _fieldDirective(formModel, path, options);
-  };
-};
