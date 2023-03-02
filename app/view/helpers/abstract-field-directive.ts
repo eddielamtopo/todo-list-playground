@@ -4,7 +4,6 @@ import {
   CustomFormBindingElementTag,
   supportFormBinding,
 } from './decorators/support-form-binding';
-// import {FormModel} from './form-model-controller';
 import {
   IFormBindingElement,
   FormFieldBindingMethodName,
@@ -141,10 +140,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         if (isCheckbox || isRadio) {
           const checkValue = this.fieldElement.getAttribute('value');
           if (!checkValue) {
-            console.error(`Misconfigured default value on field directive with path ${
+            console.error(`Misconfigured default value on field directive with path '${
               this.path
-            }. 
-            ${this.fieldElement.nodeName.toLowerCase()} must have value attribute for proper setting of default value.`);
+            }'. 
+            ${this.fieldElement.nodeName.toLowerCase()} must have the 'value' attribute for proper setting of default value.`);
           }
 
           if (checkValue === defaultValue) {
@@ -162,7 +161,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
           } else {
             console.error(
               `Misconfigured field directive with path '${this.path}'. 
-              Default value for applied to input, select, textarea, element can only be of type string or number.`
+              Default value for input, select, and textarea elements can only be of type string or number.`
             );
           }
         }
@@ -174,37 +173,41 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         }
 
         console.error(`Failed to set default value on ${this.fieldElement.nodeName.toLowerCase()}. Element is not a supported form binding element.
-        If you are trying to bind to a custom form binding element. Make sure you have configured it with the 'supportFormBindng' decorator.
+        If you are trying to bind to a custom form binding element. Make sure you have decorated it with the 'supportFormBindng' decorator.
         `);
       }
 
       this._defaultSet = true;
     }
   }
-  
-  protected bind(fieldElement: FieldElement, path: string, options: FieldOptions | undefined) {
+
+  protected bind(
+    fieldElement: FieldElement,
+    path: string,
+    options: FieldOptions | undefined
+  ) {
     this.fieldElement = fieldElement;
     this.path = path;
     this.options = options;
-    
+
     this.configureValidator(options);
     this.appendDefaultValueAttribute();
 
     if (FormFieldBindingMethodName in this.fieldElement) {
       this.ensureCustomEventSubscribed();
     } else if (
-        supportedStandardFormFieldElementsNodeNames.find(
-            (nodeName) => nodeName === this.fieldElement.nodeName
-        )
+      supportedStandardFormFieldElementsNodeNames.find(
+        (nodeName) => nodeName === this.fieldElement.nodeName
+      )
     ) {
       this.ensureChangeEventSubscribed();
     } else {
       console.error(`Field element '${this.fieldElement.nodeName.toLowerCase()}' is not a supported form binding element.
       Make sure you field element is one of: ${supportedStandardFormFieldElementsNodeNames
-          .join(', ')
-          .toLowerCase()};
+        .join(', ')
+        .toLowerCase()};
       Or, if the field element is a custom form binding element, make sure you decorate it with '${
-          supportFormBinding.name
+        supportFormBinding.name
       }' and implements the form binding element interface.
       `);
     }
