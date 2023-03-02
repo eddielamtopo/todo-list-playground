@@ -105,7 +105,7 @@ export class FormWithValidation extends LitElement {
   submitDisabled = this.formModel.isDataValid;
 
   @state()
-  formModelDataChangeSubscriptio = this.formModel.watch(
+  formModelDataChangeSubscription = this.formModel.watch(
     ({newFormModelData, isDataValid}) => {
       // update conditions
       this.showNumberOfChildrenCheckBox =
@@ -130,8 +130,14 @@ export class FormWithValidation extends LitElement {
     this.formModel.validateAllFields();
     console.log(`Form is valid: ${this.formModel.isDataValid}`);
     const form = new FormData(e.target as HTMLFormElement);
-    console.log(form.get('file')); // null
+    console.log(form.get('profileImg')); // null
     console.log(form.get('firstName'));
+
+    const formData = this.formModel.getFormData(
+      e.target as HTMLFormElement,
+      this.formModel
+    );
+    console.log(formData);
   }
 
   @property()
@@ -144,6 +150,10 @@ export class FormWithValidation extends LitElement {
       `phoneNumber.work.${this.additionalWorkNumberCount}`,
       ''
     );
+  }
+
+  override disconnectedCallback(): void {
+    this.formModelDataChangeSubscription.unsubscribe();
   }
 
   override render() {
