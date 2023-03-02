@@ -1,11 +1,28 @@
-import {FieldPath} from '../types';
+import {FieldPath, FieldValues} from '../types';
 
-interface Indexable {
+type Indexable<T extends FieldValues = FieldValues> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: number]: any;
-}
+  [Property in keyof T]: any;
+};
+
+// type Split<S extends string> = S extends `${string}.${infer U}`
+//   ? [...Split<U>]
+//   : [S];
+// type Element<A extends string[]> = A[0];
+// type LastPath<TPath extends string> = `${Element<Split<TPath>>}`;
+
+// type TIndexable<TPath extends string, TValue> = Record<
+//   `${LastPath<TPath>}`,
+//   TValue
+// >;
+
+// type DeepUpdateReturnType<
+//   TTarget,
+//   TFieldName extends string,
+//   TValue
+// > = Indexable<
+//   Omit<TTarget, `${LastPath<TFieldName>}`> & TIndexable<`${TFieldName}`, TValue>
+// >;
 
 export function deepUpdate<
   T extends Indexable,
@@ -21,6 +38,7 @@ export function deepUpdate<
       ...target.slice(Number(head) + 1),
     ] as unknown as T;
   }
+
   return {
     ...target,
     [head]: rest.length
@@ -33,10 +51,24 @@ export function deepUpdate<
   } as T;
 }
 
+/**
+ * Caution: array of mixed types will return unknown.
+ * e.g. Indexing { a: { b: [ 1, { c: 2 } ] } } with 'a.b.1.c' will return type 'unknown',
+ * becasue b is typed as '(number | { c: number })[]' by typescript
+ * */
+export type TypeAtPath<
+  TTarget extends Indexable,
+  TPath extends string
+> = TPath extends `${infer Head}.${infer Tail}`
+  ? TypeAtPath<TTarget[Head], `${Tail}`>
+  : TPath extends string
+  ? TTarget[`${TPath}`]
+  : unknown;
+
 export function deepGetValue<
-  T extends Indexable,
-  TFieldName extends string = FieldPath<T>
->(target: T, path: TFieldName): T[TFieldName] {
+  T extends FieldValues,
+  TFieldName extends FieldPath<T> = FieldPath<T>
+>(target: T, path: TFieldName): TypeAtPath<T, TFieldName> {
   const [head, ...rest] = path.split('.');
   const targetValue = target[head];
   // if there are more to go

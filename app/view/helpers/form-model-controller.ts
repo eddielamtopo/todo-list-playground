@@ -1,6 +1,7 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Subject} from 'rxjs';
 import {FieldValidator} from './abstract-field-directive';
+import {TypeAtPath} from './deep/deep';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldPath, FieldValues} from './types';
 
@@ -48,7 +49,7 @@ export class FormModel<T extends FieldValues = FieldValues>
 
   getData<TFieldName extends FieldPath<T> = FieldPath<T>>(
     path: TFieldName
-  ): T[TFieldName] {
+  ): TypeAtPath<T, TFieldName> {
     return deepGetValue(this.data, path);
   }
 
