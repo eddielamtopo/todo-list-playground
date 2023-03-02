@@ -11,11 +11,13 @@ type FieldChangeSubject<T extends FieldValues> = {
   isDataValid: boolean;
 };
 
+type ErrorsState<T> = {[key in keyof T]: boolean | string};
+
 export class FormModel<T extends FieldValues = FieldValues>
   implements ReactiveController
 {
   private data: T;
-  private errors: T;
+  private errors: ErrorsState<T>;
 
   constructor(private host: ReactiveControllerHost, defaultValue: T) {
     this.data = defaultValue;
@@ -97,7 +99,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.validations.forEach((validator, path) => {
       const data = deepGetValue(this.data, path);
       const errorValue = this.retrieveErrorValue(validator, data);
-      this.errors = deepUpdate<T>(this.errors, path, errorValue);
+      this.errors = deepUpdate(this.errors, path, errorValue);
     });
     this.host.requestUpdate();
   }
@@ -144,7 +146,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     return this.fieldChangeSubject.asObservable().subscribe(observer);
   }
 
-  private _errorSubject = new Subject<T>();
+  private _errorSubject = new Subject<ErrorsState<T>>();
   private _errorSubscription = this._errorSubject
     .asObservable()
     .pipe(
@@ -157,11 +159,11 @@ export class FormModel<T extends FieldValues = FieldValues>
     .subscribe(() => {
       this.host.requestUpdate();
     });
-  private _updateErrorSubject(newErrors: T) {
+  private _updateErrorSubject(newErrors: ErrorsState<T>) {
     this._errorSubject.next(newErrors);
   }
 
-  private updateErrors(errors: T) {
+  private updateErrors(errors: ErrorsState<T>) {
     this.errors = errors;
     this._updateErrorSubject(errors);
   }

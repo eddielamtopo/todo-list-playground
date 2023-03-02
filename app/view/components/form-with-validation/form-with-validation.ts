@@ -6,7 +6,6 @@ import {FormModel} from '../../helpers/form-model-controller';
 import {formField} from '../../helpers/form-field-directive';
 import {TCheckListItem} from '../my-checklist/my-checklist';
 import '../my-checklist/my-checklist';
-import {deepCheckAny} from '../../helpers/deep/index';
 
 type TMyForm = {
   firstName: string;
@@ -315,7 +314,9 @@ export class FormWithValidation extends LitElement {
 
         <div class=${classMap({
           'check-list-invalid-message': true,
-          'has-error': deepCheckAny(this.formModel.getErrors().checkList, true),
+          'has-error':
+            this.formModel.getErrors().checkList === true ||
+            typeof this.formModel.getErrors().checkList === 'string',
         })}>
           ⚠️ Not everything on the list is crossed-off!
         </div>

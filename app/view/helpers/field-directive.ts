@@ -1,5 +1,5 @@
 import {ElementPart, nothing} from 'lit';
-import {directive, DirectiveResult} from 'lit/async-directive';
+import {directive, DirectiveClass} from 'lit/async-directive.js';
 import {
   AbstractFieldDirective,
   FieldElement,
@@ -36,14 +36,20 @@ export class FieldDirective extends AbstractFieldDirective {
   }
 }
 
-// type safe field directive
-declare function FieldFn<
-  TFieldValues extends FieldValues = FieldValues,
-  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->(
-  formModel: TFieldValues,
-  path: TFieldName,
-  options?: FieldOptions
-): DirectiveResult<typeof FieldDirective>;
+// helper function to create type safe field directive
+const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
+  const _fieldDirective = directive(CustomDirectiveClass);
 
-export const field: typeof FieldFn = () => directive(FieldDirective);
+  return <
+    TFieldValues extends FieldValues = FieldValues,
+    TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  >(
+    formModel: TFieldValues,
+    path: TFieldName,
+    options?: FieldOptions
+  ) => {
+    return _fieldDirective(formModel, path, options);
+  };
+};
+
+export const field = createFieldDirective(FieldDirective);

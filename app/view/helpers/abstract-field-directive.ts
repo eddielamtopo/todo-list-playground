@@ -31,6 +31,7 @@ export const supportedStandardFormFieldElementsNodeNames = [
   'INPUT',
   'TEXTAREA',
   'SELECT',
+  'VAADIN-TEXT-FIELD',
 ] as const;
 
 export type FieldElement = SupportedFormFieldElements;
@@ -164,12 +165,14 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
               Default value for input, select, and textarea elements can only be of type string or number.`
             );
           }
+          return;
         }
 
         if (CustomFormBindingElementTag in this.fieldElement) {
           (this.fieldElement as CustomFormFieldElement)[
             FormFieldBindingEventSetValueMethodName
           ](defaultValue);
+          return;
         }
 
         console.error(`Failed to set default value on ${this.fieldElement.nodeName.toLowerCase()}. Element is not a supported form binding element.
