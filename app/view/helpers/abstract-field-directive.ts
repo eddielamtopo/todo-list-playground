@@ -137,10 +137,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
           isInputElement && elementTypeAttr && elementTypeAttr === 'checkbox';
         const isRadio =
           isInputElement && elementTypeAttr && elementTypeAttr === 'radio';
+        const isFile =
+          isInputElement && elementTypeAttr && elementTypeAttr === 'file';
 
         if (isCheckbox || isRadio) {
           const checkValue = this.fieldElement.getAttribute('value');
-          if (!checkValue) {
+          if (!checkValue && checkValue !== '') {
             console.error(`Misconfigured default value on field directive with path '${
               this.path
             }'. 
@@ -153,12 +155,15 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
           return;
         }
 
+        // You should not set 'value' to input[type="file"] for security reason
+        if (isFile) return;
+
         if (isStandardFormElements && 'value' in this.fieldElement) {
           if (
             typeof defaultValue === 'string' ||
             typeof defaultValue === 'number'
           ) {
-            this.fieldElement.value = String(defaultValue);
+            this.fieldElement.value = defaultValue.toString();
           } else {
             console.error(
               `Misconfigured field directive with path '${this.path}'. 

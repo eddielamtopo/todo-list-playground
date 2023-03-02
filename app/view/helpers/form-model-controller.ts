@@ -9,6 +9,7 @@ type FieldChangeSubject<T extends FieldValues> = {
   oldFormModelData: T;
   newFormModelData: T;
   isDataValid: boolean;
+  changedPath: FieldPath<T>;
 };
 
 type ErrorsState<T> = {[key in keyof T]: boolean | string};
@@ -34,17 +35,6 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.validations.set(path, validator);
   }
 
-  private formFieldSubjects: Map<
-    string,
-    Subject<{path: string; newValue: unknown}>
-  > = new Map();
-  setFormFieldSubjects(
-    path: string,
-    newValue: Subject<{path: string; newValue: unknown}>
-  ) {
-    this.formFieldSubjects.set(path, newValue);
-  }
-
   getAllData() {
     return this.data;
   }
@@ -53,17 +43,6 @@ export class FormModel<T extends FieldValues = FieldValues>
     path: TFieldName
   ): TypeAtPath<T, TFieldName> {
     return deepGetValue(this.data, path);
-  }
-
-  setData<TFieldName extends FieldPath<T> = FieldPath<T>>(
-    path: TFieldName,
-    newValue: unknown
-  ) {
-    // update the data in the form model
-    this.data = deepUpdate(this.data, path, newValue);
-    // tell the relevant field that the its data has changed,
-    // so it can update the value in its element part
-    this.formFieldSubjects.get(path)?.next({path, newValue});
   }
 
   /**
@@ -110,10 +89,12 @@ export class FormModel<T extends FieldValues = FieldValues>
     const oldFormModelData = JSON.parse(JSON.stringify(this.data));
     const newFormModelData = deepUpdate(this.data, path, value);
     this.data = newFormModelData;
+
     this.emitFormModelDataChange(
       oldFormModelData,
       newFormModelData,
-      this.isDataValid
+      this.isDataValid,
+      path
     );
     // trigger validation on the path
     this.triggerValidationOnPath(path, value);
@@ -133,12 +114,14 @@ export class FormModel<T extends FieldValues = FieldValues>
   private emitFormModelDataChange(
     oldFormModelData: T,
     newFormModelData: T,
-    isDataValid: boolean
+    isDataValid: boolean,
+    changedPath: FieldPath<T>
   ) {
     this.fieldChangeSubject.next({
       oldFormModelData,
       newFormModelData,
       isDataValid,
+      changedPath,
     });
   }
   /* for the host to subscribe to state change in the controller */

@@ -7,7 +7,6 @@ import {
   supportedStandardFormFieldElementsNodeNames,
 } from './abstract-field-directive';
 import {ElementPart, nothing} from 'lit';
-import {Subject, Subscription} from 'rxjs';
 import {
   FormFieldBindingEventSetValueMethodName,
   IFormBindingElement,
@@ -15,6 +14,7 @@ import {
 import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 import {deepGetValue} from './deep';
 import {FieldPath, FieldValues} from './types';
+import {Subscription} from 'rxjs';
 
 // Custom field directive to bind form model to input value
 export class FormFieldDirective extends AbstractFieldDirective {
@@ -23,8 +23,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
     return deepGetValue(this.model.getAllData(), this.path);
   }
 
-  private fieldChangeSubject = new Subject<{path: string; newValue: unknown}>();
-  private fieldChangeSubscription?: Subscription;
+  private subscriptions: Subscription[] = [];
 
   override update(
     part: ElementPart,
@@ -37,23 +36,32 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
       // forwarding validations to be handled by the form model
       this.model.setValidations(this.path, this.validator);
-      // forwarding a subject for the model
-      // to listen to emits of new change on the field the element part is binding to
-      this.fieldChangeSubject.asObservable().subscribe(({newValue}) => {
-        if (
-          supportedStandardFormFieldElementsNodeNames.find(
-            (nodeName) => nodeName === this.fieldElement.nodeName
-          )
-        ) {
-          (this.fieldElement as HTMLInputElement).value = String(newValue);
-        }
 
-        if (CustomFormBindingElementTag in this.fieldElement) {
-          const element = this.fieldElement as IFormBindingElement<unknown>;
-          element[FormFieldBindingEventSetValueMethodName](newValue);
-        }
-      });
-      this.model.setFormFieldSubjects(this.path, this.fieldChangeSubject);
+      this.subscriptions.push(
+        this.model.watch(
+          ({oldFormModelData, newFormModelData, changedPath}) => {
+            const changed =
+              deepGetValue(oldFormModelData, this.path) ===
+              deepGetValue(newFormModelData, this.path);
+
+            if (!changed || changedPath !== this.path) return;
+
+            const newValue = deepGetValue(newFormModelData, this.path);
+            if (
+              supportedStandardFormFieldElementsNodeNames.find(
+                (nodeName) => nodeName === this.fieldElement.nodeName
+              )
+            ) {
+              (this.fieldElement as HTMLInputElement).value = String(newValue);
+            }
+
+            if (CustomFormBindingElementTag in this.fieldElement) {
+              const element = this.fieldElement as IFormBindingElement<unknown>;
+              element[FormFieldBindingEventSetValueMethodName](newValue);
+            }
+          }
+        )
+      );
     }
 
     return this.render(this.model, this.path, this.options);
@@ -69,8 +77,8 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
   override disconnected(): void {
     super.disconnected();
-    this.fieldChangeSubscription?.unsubscribe();
-    this.fieldChangeSubscription = undefined;
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+    this.subscriptions = [];
   }
 }
 

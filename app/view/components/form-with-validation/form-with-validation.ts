@@ -136,7 +136,7 @@ export class FormWithValidation extends LitElement {
   _handleAddAdditional(e: Event) {
     e.preventDefault();
     this.additionalWorkNumberCount += 1;
-    this.formModel.setData(
+    this.formModel.updateData(
       `phoneNumber.work.${this.additionalWorkNumberCount}`,
       ''
     );
@@ -154,7 +154,7 @@ export class FormWithValidation extends LitElement {
           <label> First name: <sub>*</sub></label>
           <button @click=${(e: Event) => {
             e.preventDefault();
-            this.formModel.setData('firstName', '');
+            this.formModel.updateData('firstName', '');
           }} >clear</button>
           <input
             placeholder="This is required!"
@@ -215,7 +215,7 @@ export class FormWithValidation extends LitElement {
             @change=${() => {
               if (this.formModel.getData('maritalStatus') !== 'married') {
                 // reset number of children checkbox value
-                this.formModel.setData('numberOfChildren', '-1');
+                this.formModel.updateData('numberOfChildren', '-1');
               }
             }}
           >
@@ -324,7 +324,7 @@ export class FormWithValidation extends LitElement {
 
         <button @click=${(e: Event) => {
           e.preventDefault();
-          this.formModel.setData(
+          this.formModel.updateData(
             'checkList',
             this.formModel.getData('checkList').map((item) => ({
               ...item,
