@@ -120,6 +120,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     }
   }
 
+  private appendNameAttribute() {
+    const secondLastPathPart =
+      this.path.split('.').find((_e, i, arr) => i === arr.length - 1) ?? '';
+    const name = secondLastPathPart;
+    this.fieldElement.setAttribute('name', name);
+  }
+
   private appendDefaultValueAttribute() {
     // setting default value for standard html elements
     if (!this._defaultSet) {
@@ -199,6 +206,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.options = options;
 
     this.configureValidator(options);
+    this.appendNameAttribute();
     this.appendDefaultValueAttribute();
 
     if (FormFieldBindingMethodName in this.fieldElement) {

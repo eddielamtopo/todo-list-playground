@@ -122,12 +122,16 @@ export class FormWithValidation extends LitElement {
   numberOfChildrenOptions = ['', '0 - 2', '3 - 5 or more'];
 
   _handleSubmit(e: Event) {
+    console.log(e.target);
     e.preventDefault();
     console.log('trigger submit');
     console.log(this.formModel.getAllData());
     console.log(this.formModel.getErrors());
     this.formModel.validateAllFields();
     console.log(`Form is valid: ${this.formModel.isDataValid}`);
+    const form = new FormData(e.target as HTMLFormElement);
+    console.log(form.get('file')); // null
+    console.log(form.get('firstName'));
   }
 
   @property()
@@ -195,6 +199,7 @@ export class FormWithValidation extends LitElement {
           <label>Profile Image: <sub>*</sub></label>
           <input
             type="file"
+            name="file"
             ${formField(this.formModel, 'profileImg', {
               isValidFn: (value) => (value ? true : 'Must include an image'),
             })}
