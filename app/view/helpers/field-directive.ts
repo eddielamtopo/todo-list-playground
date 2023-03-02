@@ -1,8 +1,9 @@
 import {ElementPart, nothing} from 'lit';
-import {directive, DirectiveClass} from 'lit/async-directive';
+import {directive, DirectiveResult} from 'lit/async-directive';
 import {
   AbstractFieldDirective,
-  FieldElement, FieldOptions,
+  FieldElement,
+  FieldOptions,
 } from './abstract-field-directive';
 import {deepGetValue, deepUpdate} from './deep/index';
 import {FieldPath, FieldValues} from './types';
@@ -19,14 +20,14 @@ export class FieldDirective extends AbstractFieldDirective {
   }
 
   override update(
-      part: ElementPart,
-      [model, path, options]: Parameters<this['render']>
+    part: ElementPart,
+    [model, path, options]: Parameters<this['render']>
   ) {
-    if(this.isConnected) {
+    if (this.isConnected) {
       this.model = model;
       this.bind(part.element as FieldElement, path, options);
     }
-    
+
     return this.render(this.model, this.path, this.options);
   }
 
@@ -35,20 +36,14 @@ export class FieldDirective extends AbstractFieldDirective {
   }
 }
 
-// helper function to create type safe field directive
-const createFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
-  const _fieldDirective = directive(CustomDirectiveClass);
+// type safe field directive
+declare function FieldFn<
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  formModel: TFieldValues,
+  path: TFieldName,
+  options?: FieldOptions
+): DirectiveResult<typeof FieldDirective>;
 
-  return <
-      TFieldValues extends FieldValues = FieldValues,
-      TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-  >(
-      formModel: TFieldValues,
-      path: TFieldName,
-      options?: FieldOptions
-  ) => {
-    return _fieldDirective(formModel, path, options);
-  };
-};
-
-export const field = createFieldDirective(FieldDirective);
+export const field: typeof FieldFn = () => directive(FieldDirective);

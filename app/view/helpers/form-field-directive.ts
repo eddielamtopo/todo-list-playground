@@ -1,8 +1,9 @@
-import {directive, DirectiveClass} from 'lit/async-directive';
+import {directive, DirectiveResult} from 'lit/async-directive';
 import {FormModel} from './form-model-controller';
 import {
   AbstractFieldDirective,
-  FieldElement, FieldOptions,
+  FieldElement,
+  FieldOptions,
   supportedStandardFormFieldElementsNodeNames,
 } from './abstract-field-directive';
 import {ElementPart, nothing} from 'lit';
@@ -29,9 +30,9 @@ export class FormFieldDirective extends AbstractFieldDirective {
     part: ElementPart,
     [model, path, options]: Parameters<this['render']>
   ): symbol {
-    if(this.isConnected) {
+    if (this.isConnected) {
       this.model = model;
-      
+
       this.bind(part.element as FieldElement, path, options);
 
       // forwarding validations to be handled by the form model
@@ -40,9 +41,9 @@ export class FormFieldDirective extends AbstractFieldDirective {
       // to listen to emits of new change on the field the element part is binding to
       this.fieldChangeSubject.asObservable().subscribe(({newValue}) => {
         if (
-            supportedStandardFormFieldElementsNodeNames.find(
-                (nodeName) => nodeName === this.fieldElement.nodeName
-            )
+          supportedStandardFormFieldElementsNodeNames.find(
+            (nodeName) => nodeName === this.fieldElement.nodeName
+          )
         ) {
           (this.fieldElement as HTMLInputElement).value = String(newValue);
         }
@@ -73,20 +74,15 @@ export class FormFieldDirective extends AbstractFieldDirective {
   }
 }
 
-// helper function to create type safe field directive
-const createFormFieldDirective = (CustomDirectiveClass: DirectiveClass) => {
-  const _fieldDirective = directive(CustomDirectiveClass);
+// type safe form field directive
+declare function FormFieldFn<
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  formModel: FormModel<TFieldValues>,
+  path: TFieldName,
+  options?: FieldOptions
+): DirectiveResult<typeof FormFieldDirective>;
 
-  return <
-      TFieldValues extends FieldValues = FieldValues,
-      TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-  >(
-      formModel: FormModel<TFieldValues>,
-      path: TFieldName,
-      options?: FieldOptions
-  ) => {
-    return _fieldDirective(formModel, path, options);
-  };
-};
-
-export const formField = createFormFieldDirective(FormFieldDirective);
+export const formField: typeof FormFieldFn = () =>
+  directive(FormFieldDirective);
