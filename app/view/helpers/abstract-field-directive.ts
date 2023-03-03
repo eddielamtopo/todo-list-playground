@@ -36,9 +36,6 @@ export const supportedStandardFormFieldElementsNodeNames = [
 
 export type FieldElement = SupportedFormFieldElements;
 
-export const FIELD_DIRECTIVE_PATH_ATTRIBUTE =
-  'data-field-directive-path' as const;
-
 export type FieldValidator = (value: unknown) => boolean | string;
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
@@ -130,10 +127,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.fieldElement.setAttribute('name', name);
   }
 
-  private appendPathAttribute() {
-    this.fieldElement.setAttribute(FIELD_DIRECTIVE_PATH_ATTRIBUTE, this.path);
-  }
-
   private appendDefaultValueAttribute() {
     // setting default value for standard html elements
     if (!this._defaultSet) {
@@ -215,7 +208,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.configureValidator(options);
     this.appendNameAttribute();
     this.appendDefaultValueAttribute();
-    this.appendPathAttribute();
 
     if (FormFieldBindingMethodName in this.fieldElement) {
       this.ensureCustomEventSubscribed();

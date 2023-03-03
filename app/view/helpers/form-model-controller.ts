@@ -1,9 +1,6 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Subject} from 'rxjs';
-import {
-  FieldValidator,
-  FIELD_DIRECTIVE_PATH_ATTRIBUTE,
-} from './abstract-field-directive';
+import {FieldValidator} from './abstract-field-directive';
 import {TypeAtPath} from './deep/deep';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
 import {FieldPath, FieldValues} from './types';
@@ -84,27 +81,6 @@ export class FormModel<T extends FieldValues = FieldValues>
       this.errors = deepUpdate(this.errors, path, errorValue);
     });
     this.host.requestUpdate();
-  }
-
-  // TODO: passing in formModel becasue 'this' is lost, see if there's a way to bind this
-  getFormData<TFormModelFields extends FieldValues>(
-    formElement: HTMLFormElement,
-    formModel: FormModel<TFormModelFields>
-  ) {
-    // check for file input
-    const formData = new FormData(formElement);
-    const fileInputs = formElement.querySelectorAll('input[type="file"]');
-    let modelData = {...formModel.data};
-
-    Array.from(fileInputs).forEach((fileInput) => {
-      const path = fileInput.getAttribute(FIELD_DIRECTIVE_PATH_ATTRIBUTE);
-      const inputName = fileInput.getAttribute('name');
-      if (path && inputName) {
-        modelData = deepUpdate(modelData, path, formData.get(inputName));
-      }
-    });
-
-    return modelData;
   }
 
   hostConnected(): void {}
