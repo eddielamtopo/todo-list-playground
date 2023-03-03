@@ -129,9 +129,15 @@ export class FormWithValidation extends LitElement {
     console.log(this.formModel.getErrors());
     this.formModel.validateAllFields();
     console.log(`Form is valid: ${this.formModel.isDataValid}`);
-    const form = new FormData(e.target as HTMLFormElement);
-    console.log(form.get('file')); // null
-    console.log(form.get('firstName'));
+
+    const formData = new FormData(e.target as HTMLFormElement);
+
+    console.log('>>> log form data:');
+
+    for (const [key, value] of formData) {
+      console.log(key);
+      console.log(value);
+    }
   }
 
   @property()
@@ -161,6 +167,7 @@ export class FormWithValidation extends LitElement {
             this.formModel.updateData('firstName', '');
           }} >clear</button>
           <input
+            name="firstName"
             placeholder="This is required!"
             ${formField(this.formModel, 'firstName', {
               isValidFn: (value) =>
@@ -180,6 +187,7 @@ export class FormWithValidation extends LitElement {
           <label> Age: <sub>*</sub></label>
           <input
             type="number"
+            name="age"
             placeholder="Enter your age"
             ${formField(this.formModel, 'age', {
               isValidFn: (value) =>
@@ -199,7 +207,7 @@ export class FormWithValidation extends LitElement {
           <label>Profile Image: <sub>*</sub></label>
           <input
             type="file"
-            name="file"
+            name="profileImg"
             ${formField(this.formModel, 'profileImg', {
               isValidFn: (value) => (value ? true : 'Must include an image'),
             })}
@@ -216,6 +224,7 @@ export class FormWithValidation extends LitElement {
         <div>
           <label>Marital status:</label>
           <select
+            name="maritalStatus"
             ${formField(this.formModel, 'maritalStatus')}
             @change=${() => {
               if (this.formModel.getData('maritalStatus') !== 'married') {
@@ -240,6 +249,7 @@ export class FormWithValidation extends LitElement {
                     <label
                       ><input
                         type="checkbox"
+                        name="numberOfChildren"
                         value=${value}
                         ${formField(this.formModel, 'numberOfChildren')}
                         .checked=${this.checkedNumberOfChildren === value}
@@ -257,6 +267,7 @@ export class FormWithValidation extends LitElement {
           <label> Date of birth:<sub>*</sub></label>
           <input
             type="date"
+            name="dob"
             .defaultValue=${new Date().toLocaleDateString()}
             placeholder="Required"
             ${formField(this.formModel, 'dob', {
@@ -273,6 +284,7 @@ export class FormWithValidation extends LitElement {
         <div>
           <label> Phone number (personal):</label>
           <input
+            name="personalPhoneNumber"
             placeholder="Must be 8 digit long"
             ${formField(this.formModel, 'phoneNumber.personal', {
               isValidFn: (v) => {
@@ -288,6 +300,7 @@ export class FormWithValidation extends LitElement {
         <div>
           <label> Phone number (work):</label>
           <input
+            name="workPhoneNumber"
             placeholder="Must be 8 digits long"
             ${formField(this.formModel, 'phoneNumber.work.0', {
               isValidFn: (v) => {
@@ -311,7 +324,10 @@ export class FormWithValidation extends LitElement {
                 <label for="nested.b.${i}">
                   Additional work phone (${i}):</label
                 >
-                <input ${formField(this.formModel, `phoneNumber.work.${i}`)} />
+                <input
+                  name="workPhoneNumber"
+                  ${formField(this.formModel, `phoneNumber.work.${i}`)}
+                />
               </div>
             `;
           })}
