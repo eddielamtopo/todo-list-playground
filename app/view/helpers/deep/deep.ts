@@ -1,33 +1,47 @@
 import {FieldPath, FieldValues} from '../types';
 
-type Indexable<T extends FieldValues = FieldValues> = {
+export type Indexable<T extends FieldValues = FieldValues> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [Property in keyof T]: any;
 };
 
-// type Split<S extends string> = S extends `${string}.${infer U}`
-//   ? [...Split<U>]
-//   : [S];
-// type Element<A extends string[]> = A[0];
-// type LastPath<TPath extends string> = `${Element<Split<TPath>>}`;
+type Split<S extends string> = S extends `${string}.${infer U}`
+  ? [...Split<U>]
+  : [S];
+type Element<A extends string[]> = A[0];
+/**
+ * @example
+ * ```ts
+ * const endPath: LastPath<'my.end.path'> = 'path'
+ * ```
+ * */
+type LastPath<TPath extends string> = `${Element<Split<TPath>>}`;
 
-// type TIndexable<TPath extends string, TValue> = Record<
-//   `${LastPath<TPath>}`,
-//   TValue
-// >;
-
-// type DeepUpdateReturnType<
-//   TTarget,
-//   TFieldName extends string,
-//   TValue
-// > = Indexable<
-//   Omit<TTarget, `${LastPath<TFieldName>}`> & TIndexable<`${TFieldName}`, TValue>
-// >;
+/**
+ * @example
+ * ```ts
+ * const value = { a: { b: { c: 123 } } }
+ * const newValue:DeepUpdateReturnType<typeof value, 'a.b.c', string> = value; // error: Type 'number' is not assignable to type 'string'.
+ * const updatedValue = newValue.a.b.c // type: 'string'
+ * ```
+ * */
+type DeepUpdateReturnType<T, TPath extends string, TValue> = {
+  [Property in keyof T]: T[Property] extends Indexable
+    ? DeepUpdateReturnType<T[Property], TPath, TValue>
+    : Property extends LastPath<TPath>
+    ? TValue
+    : T[Property];
+};
 
 export function deepUpdate<
   T extends Indexable,
+  TValue,
   TFieldName extends string = FieldPath<T>
->(target: T, path: TFieldName, value: unknown): T {
+>(
+  target: T,
+  path: TFieldName,
+  value: TValue
+): DeepUpdateReturnType<T, TFieldName, TValue> {
   const [head, ...rest] = path.split('.');
   if (Array.isArray(target)) {
     return [
@@ -36,7 +50,7 @@ export function deepUpdate<
         ? deepUpdate(target[Number(head)], rest.join('.'), value)
         : value,
       ...target.slice(Number(head) + 1),
-    ] as unknown as T;
+    ] as unknown as DeepUpdateReturnType<T, TFieldName, TValue>;
   }
 
   return {
@@ -48,7 +62,7 @@ export function deepUpdate<
           value
         )
       : value,
-  } as T;
+  } as unknown as DeepUpdateReturnType<T, TFieldName, TValue>;
 }
 
 /**

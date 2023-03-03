@@ -1,11 +1,11 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Subject} from 'rxjs';
 import {FieldValidator} from './abstract-field-directive';
-import {TypeAtPath} from './deep/deep';
+import {Indexable, TypeAtPath} from './deep/deep';
 import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
-import {FieldPath, FieldValues} from './types';
+import {FieldPath} from './types';
 
-type FieldChangeSubject<T extends FieldValues> = {
+type FieldChangeSubject<T extends Indexable> = {
   oldFormModelData: T;
   newFormModelData: T;
   isDataValid: boolean;
@@ -14,7 +14,7 @@ type FieldChangeSubject<T extends FieldValues> = {
 
 type ErrorsState<T> = {[key in keyof T]: boolean | string};
 
-export class FormModel<T extends FieldValues = FieldValues>
+export class FormModel<T extends Indexable = Indexable>
   implements ReactiveController
 {
   private data: T;
@@ -78,7 +78,7 @@ export class FormModel<T extends FieldValues = FieldValues>
     this.validations.forEach((validator, path) => {
       const data = deepGetValue(this.data, path);
       const errorValue = this.retrieveErrorValue(validator, data);
-      this.errors = deepUpdate(this.errors, path, errorValue);
+      this.errors = deepUpdate(this.errors, path, errorValue) as ErrorsState<T>;
     });
     this.host.requestUpdate();
   }
@@ -88,11 +88,11 @@ export class FormModel<T extends FieldValues = FieldValues>
   updateData(path: FieldPath<T>, value: unknown) {
     const oldFormModelData = JSON.parse(JSON.stringify(this.data));
     const newFormModelData = deepUpdate(this.data, path, value);
-    this.data = newFormModelData;
+    this.data = newFormModelData as T;
 
     this.emitFormModelDataChange(
       oldFormModelData,
-      newFormModelData,
+      newFormModelData as T,
       this.isDataValid,
       path
     );
@@ -106,7 +106,9 @@ export class FormModel<T extends FieldValues = FieldValues>
 
     if (validator) {
       const errorValue = this.retrieveErrorValue(validator, value);
-      this.updateErrors(deepUpdate(this.errors, path, errorValue));
+      this.updateErrors(
+        deepUpdate(this.errors, path, errorValue) as ErrorsState<T>
+      );
     }
   }
 
