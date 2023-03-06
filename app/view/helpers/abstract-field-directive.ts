@@ -11,7 +11,7 @@ import {
 } from './interface/form-binding-element';
 import {FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES} from './dependency-injections/field-element-event-service/inversify.types';
 import {IFieldDataUpdateEventService} from './dependency-injections/field-element-event-service/field-element-event-service';
-import {myContainer} from './dependency-injections/field-element-event-service/inversify.config';
+import {container} from './dependency-injections/field-element-event-service/inversify.config';
 
 export type FieldOptions = Partial<{
   isValidFn: (value: unknown) => boolean | string;
@@ -55,9 +55,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected options: FieldOptions | undefined;
 
   protected fieldDataUpdateService: IFieldDataUpdateEventService =
-    myContainer.get(
-      FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService
-    );
+    container.get(FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService);
 
   get isValid() {
     return this.validator(this.fieldValue);
