@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {fromEvent, Observable} from 'rxjs';
 
 export interface IFieldDataUpdateEventService {
-  dataUpdate$: Observable<Event>;
+  getDataUpdate$: (element: Element) => Observable<Event>;
 }
 
 @injectable()
@@ -13,7 +13,12 @@ export class FieldDataUpdateEventService
   private static FieldElementDataUpdateEventConfig: {
     nodeName: string;
     eventName: string;
-  }[] = [];
+  }[] = [
+    {
+      nodeName: 'VAADIN-TEXT-FIELD',
+      eventName: 'change',
+    },
+  ];
 
   private static FieldElementDataUpdateEventMap: Map<string, string> =
     FieldDataUpdateEventService.FieldElementDataUpdateEventConfig.reduce(
@@ -24,18 +29,16 @@ export class FieldDataUpdateEventService
     );
   private static defaultDataUpdateEventName = 'change';
 
-  private element: Element;
-  private elementDataUpdateEventName: string;
+  private element?: Element;
+  private elementDataUpdateEventName?: string;
 
-  constructor(element: Element) {
+  getDataUpdate$(element: Element) {
     this.element = element;
     this.elementDataUpdateEventName =
       FieldDataUpdateEventService.FieldElementDataUpdateEventMap.get(
         element.nodeName
       ) ?? FieldDataUpdateEventService.defaultDataUpdateEventName;
-  }
 
-  get dataUpdate$() {
     return fromEvent(this.element, this.elementDataUpdateEventName);
   }
 }
