@@ -74,7 +74,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   private ensureChangeEventSubscribed() {
     if (this._subscription === undefined) {
-      this.fieldDataUpdateService
+      this._subscription = this.fieldDataUpdateService
         .getDataUpdate$(this.fieldElement)
         .subscribe((event) => {
           this.updateModelData(
