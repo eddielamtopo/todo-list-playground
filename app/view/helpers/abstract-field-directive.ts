@@ -1,20 +1,17 @@
-import {inject, injectable} from 'inversify';
 import {AsyncDirective} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {
   CustomFormBindingElementTag,
   supportFormBinding,
 } from './decorators/support-form-binding';
-import {IFieldDataUpdateEventService} from './field-element-event-service';
 import {
   IFormBindingElement,
   FormFieldBindingMethodName,
   FormFieldBindingEventSetValueMethodName,
 } from './interface/form-binding-element';
-import {
-  FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES,
-  myContainer,
-} from './inversify.config';
+import {FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES} from './dependency-injections/field-element-event-service/inversify.types';
+import {IFieldDataUpdateEventService} from './dependency-injections/field-element-event-service/field-element-event-service';
+import {myContainer} from './dependency-injections/field-element-event-service/inversify.config';
 
 export type FieldOptions = Partial<{
   isValidFn: (value: unknown) => boolean | string;
@@ -43,7 +40,6 @@ export type FieldElement = SupportedFormFieldElements;
 
 export type FieldValidator = (value: unknown) => boolean | string;
 
-@injectable()
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
@@ -58,10 +54,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected path!: string;
   protected options: FieldOptions | undefined;
 
-  @inject(FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService)
-  protected fieldDataUpdateService: IFieldDataUpdateEventService = myContainer.get(
-    FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService
-  );
+  protected fieldDataUpdateService: IFieldDataUpdateEventService =
+    myContainer.get(
+      FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService
+    );
 
   get isValid() {
     return this.validator(this.fieldValue);
