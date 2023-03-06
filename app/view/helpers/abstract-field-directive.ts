@@ -61,7 +61,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   constructor(
     partInfo: PartInfo,
-    // TODO: dont assigns just keep interface
+    // TODO: how to do automatic injection??
     private readonly fieldElementUpdateDataEventService: ISubscribeChangeEventService = new FieldElementChangeEventService(
       (partInfo as ElementPart).element
     )
