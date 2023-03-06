@@ -1,9 +1,13 @@
-import {AsyncDirective} from 'lit/async-directive.js';
+import {AsyncDirective, ElementPart, PartInfo} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
 import {
   CustomFormBindingElementTag,
   supportFormBinding,
 } from './decorators/support-form-binding';
+import {
+  FieldElementChangeEventService,
+  ISubscribeChangeEventService,
+} from './field-element-event-service';
 import {
   IFormBindingElement,
   FormFieldBindingMethodName,
@@ -31,12 +35,12 @@ export const supportedStandardFormFieldElementsNodeNames = [
   'INPUT',
   'TEXTAREA',
   'SELECT',
-  'VAADIN-TEXT-FIELD',
 ] as const;
 
 export type FieldElement = SupportedFormFieldElements;
 
 export type FieldValidator = (value: unknown) => boolean | string;
+
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static errorStylingAttributeNames = {
     invalid: 'invalid',
@@ -55,6 +59,16 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     return this.validator(this.fieldValue);
   }
 
+  constructor(
+    partInfo: PartInfo,
+    // TODO: dont assigns just keep interface
+    private readonly fieldElementUpdateDataEventService: ISubscribeChangeEventService = new FieldElementChangeEventService(
+      (partInfo as ElementPart).element
+    )
+  ) {
+    super(partInfo);
+  }
+
   /**
    * Implement logic to update the data stored in the generic model
    * */
@@ -62,16 +76,14 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   private ensureChangeEventSubscribed() {
     if (this._subscription === undefined) {
-      this._subscription = fromEvent(this.fieldElement, 'change').subscribe(
-        (event) => {
-          this.updateModelData(
-            (event.target as SupportedStandardFormFieldElements).value
-          );
-          this.appendErrorStyleAttributes(
-            (this.fieldElement as HTMLInputElement).value
-          );
-        }
-      );
+      this.fieldElementUpdateDataEventService.dataUpdate$.subscribe((event) => {
+        this.updateModelData(
+          (event.target as SupportedStandardFormFieldElements).value
+        );
+        this.appendErrorStyleAttributes(
+          (this.fieldElement as HTMLInputElement).value
+        );
+      });
     }
   }
 
@@ -92,12 +104,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     });
   }
 
-  /**
-   * This method hook up the field directive with a validator function
-   * The validator will be the 'isValidFn' function if provided,
-   * returning string | false will indicate there's an error.
-   * e.g. string can be the error message for the failed validation rules.
-   * */
   private configureValidator(options?: FieldOptions) {
     if (options?.isValidFn) {
       this.validator = options.isValidFn;
@@ -204,9 +210,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     if (FormFieldBindingMethodName in this.fieldElement) {
       this.ensureCustomEventSubscribed();
     } else if (
-      supportedStandardFormFieldElementsNodeNames.find(
-        (nodeName) => nodeName === this.fieldElement.nodeName
-      )
+      // supportedStandardFormFieldElementsNodeNames.find(
+      //   (nodeName) => nodeName === this.fieldElement.nodeName
+      // )
+      // eslint-disable-next-line no-constant-condition
+      2 / 1 ===
+      2
     ) {
       this.ensureChangeEventSubscribed();
     } else {
