@@ -5,8 +5,8 @@ import {
   supportFormBinding,
 } from './decorators/support-form-binding';
 import {
-  FieldElementChangeEventService,
-  ISubscribeChangeEventService,
+  FieldDataUpdateEventService,
+  IFieldDataUpdateEventService,
 } from './field-element-event-service';
 import {
   IFormBindingElement,
@@ -62,7 +62,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   constructor(
     partInfo: PartInfo,
     // TODO: how to do automatic injection??
-    private readonly fieldElementUpdateDataEventService: ISubscribeChangeEventService = new FieldElementChangeEventService(
+    private readonly fieldDataUpdateEventService: IFieldDataUpdateEventService = new FieldDataUpdateEventService(
       (partInfo as ElementPart).element
     )
   ) {
@@ -76,7 +76,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   private ensureChangeEventSubscribed() {
     if (this._subscription === undefined) {
-      this.fieldElementUpdateDataEventService.dataUpdate$.subscribe((event) => {
+      this.fieldDataUpdateEventService.dataUpdate$.subscribe((event) => {
         this.updateModelData(
           (event.target as SupportedStandardFormFieldElements).value
         );

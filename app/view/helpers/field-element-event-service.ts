@@ -1,13 +1,13 @@
 import {injectable} from 'inversify';
 import {fromEvent, Observable} from 'rxjs';
 
-export interface ISubscribeChangeEventService {
+export interface IFieldDataUpdateEventService {
   dataUpdate$: Observable<Event>;
 }
 
 @injectable()
-export class FieldElementChangeEventService
-  implements ISubscribeChangeEventService
+export class FieldDataUpdateEventService
+  implements IFieldDataUpdateEventService
 {
   // TODO: how do we pass in the config?
   private static FieldElementDataUpdateEventConfig: {
@@ -16,7 +16,7 @@ export class FieldElementChangeEventService
   }[] = [];
 
   private static FieldElementDataUpdateEventMap: Map<string, string> =
-    FieldElementChangeEventService.FieldElementDataUpdateEventConfig.reduce(
+    FieldDataUpdateEventService.FieldElementDataUpdateEventConfig.reduce(
       (map, {nodeName, eventName}) => {
         return map.set(nodeName, eventName);
       },
@@ -30,9 +30,9 @@ export class FieldElementChangeEventService
   constructor(element: Element) {
     this.element = element;
     this.elementDataUpdateEventName =
-      FieldElementChangeEventService.FieldElementDataUpdateEventMap.get(
+      FieldDataUpdateEventService.FieldElementDataUpdateEventMap.get(
         element.nodeName
-      ) ?? FieldElementChangeEventService.defaultDataUpdateEventName;
+      ) ?? FieldDataUpdateEventService.defaultDataUpdateEventName;
   }
 
   get dataUpdate$() {
