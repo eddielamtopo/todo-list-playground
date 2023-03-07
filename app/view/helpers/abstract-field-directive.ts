@@ -54,9 +54,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected path!: string;
   protected options: FieldOptions | undefined;
 
-  protected fieldDataUpdateService: IFieldDataUpdateEventService =
-    container.get(FIELD_DATA_UPDATE_EVENT_SERVICE_TYPES.FieldDataUpdateService);
-
   get isValid() {
     return this.validator(this.fieldValue);
   }
