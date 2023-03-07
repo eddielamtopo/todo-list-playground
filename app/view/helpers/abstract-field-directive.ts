@@ -173,7 +173,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         this._formBindingSetValueFn =
           formBindingEventDetailsFound[FormFieldBindingEventSetValueMethodName];
       } else {
-        console.warn(`Cannot find corresponding form binding event details of '${this.fieldElement.nodeName}'. 
+        console.warn(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
         Please provide details to the 'fieldEventBindingMap'.`);
         return;
       }
