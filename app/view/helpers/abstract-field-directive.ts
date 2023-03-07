@@ -80,6 +80,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   protected validator: FieldValidator = () => true;
   protected fieldElement!: FieldElement;
+  protected isCustomFormBindingElement = false;
   protected path!: string;
   protected options: FieldOptions | undefined;
 
@@ -136,7 +137,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       const defaultValue = this.fieldValue;
 
       // set value on custom form binding element
-      if (CustomFormBindingElementTag in this.fieldElement) {
+      if (this.isCustomFormBindingElement) {
         (this.fieldElement as CustomFormFieldElement)[SetFormBindingEventValue](
           defaultValue,
           this.fieldElement
@@ -159,10 +160,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.fieldElement = fieldElement;
     this.path = path;
     this.options = options;
-    const isCustomFormBindingElement =
-      CustomFormBindingElementTag in this.fieldElement;
+    this.isCustomFormBindingElement =
+      CustomFormBindingElementTag in this.fieldElement &&
+      GetFormBindingDetails in this.fieldElement &&
+      SetFormBindingEventValue in this.fieldElement;
 
-    if (isCustomFormBindingElement) {
+    if (this.isCustomFormBindingElement) {
       this._formBindingEventDetails = (
         this.fieldElement as CustomFormFieldElement
       )[GetFormBindingDetails]();
@@ -180,7 +183,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         this._formBindingSetValueFn =
           formBindingEventDetailsFound[SetFormBindingEventValue];
       } else {
-        console.warn(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
+        console.error(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
         Please provide details to the 'fieldEventBindingMap'.`);
         return;
       }
