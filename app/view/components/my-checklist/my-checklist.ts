@@ -35,7 +35,7 @@ const MyCheckListName = 'my-checklist';
 @supportFormBinding()
 class MyCheckList
   extends LitElement
-  implements IFormBindingElement<TCheckListItems>
+  implements IFormBindingElement<TCheckListItems, CustomEvent>
 {
   static override styles = css`
     .crossed-off {

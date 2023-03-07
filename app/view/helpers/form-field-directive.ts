@@ -49,12 +49,12 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
             if (CustomFormBindingElementTag in this.fieldElement) {
               const element = this.fieldElement as IFormBindingElement<unknown>;
-              element[FormFieldBindingEventSetValueMethodName](newValue);
-            } else {
-              this._formBindingEventDetail.setValue(
+              element[FormFieldBindingEventSetValueMethodName](
                 newValue,
                 this.fieldElement
               );
+            } else {
+              this._formBindingSetValueFn(newValue, this.fieldElement);
             }
           }
         )

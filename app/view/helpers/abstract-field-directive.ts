@@ -5,9 +5,10 @@ import {
   IFormBindingElement,
   FormFieldBindingMethodName,
   FormFieldBindingEventSetValueMethodName,
-  FormBindingEventDetail,
   FormFieldBindingEventGetValueMethodName,
   FormFieldBindingEventNamePropertyName,
+  FormBindingEventDetail,
+  FormFieldBindingEventSetValueFn,
 } from './interface/form-binding-element';
 
 export type FieldOptions = Partial<{
@@ -37,25 +38,22 @@ export type FieldElement = SupportedFormFieldElements;
 
 export type FieldValidator = (value: unknown) => boolean | string;
 
-export type FieldElementFormBindingEventMapValue =
-  FormBindingEventDetail<unknown> & {
-    setValue: <TValue>(newValue: TValue, element: Element) => void;
-  };
-
-export type FieldElementFormBindingEventMap = Map<
+export type FieldElementFormBindingEventMap<
+  TFieldValue = unknown,
+  TElement extends Element = Element
+> = Map<
   string,
-  FieldElementFormBindingEventMapValue
+  IFormBindingElement<TFieldValue, Event | CustomEvent, TElement>
 >;
 
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static readonly errorStylingAttributeNames = {
     invalid: 'invalid',
   };
-  private static fieldElementFormBindingEventMap: FieldElementFormBindingEventMap =
-    new Map();
 
-  static setFieldElementFormBindingEventMap(
-    map: FieldElementFormBindingEventMap
+  private static fieldElementFormBindingEventMap = new Map();
+  static setFieldElementFormBindingEventMap<TElement extends Element>(
+    map: FieldElementFormBindingEventMap<string, TElement>
   ) {
     AbstractFieldDirective.fieldElementFormBindingEventMap = new Map([
       ...AbstractFieldDirective.fieldElementFormBindingEventMap,
@@ -66,9 +64,13 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   protected abstract get fieldValue(): unknown;
 
   private _defaultSet = false;
-  private _subscription: Subscription | undefined;
-  private _customEventSubscriptions: Subscription[] = [];
-  protected _formBindingEventDetail!: FieldElementFormBindingEventMapValue;
+  private _subscriptions: Subscription[] = [];
+  protected _formBindingEventDetails: FormBindingEventDetail<unknown>[] = [];
+  protected _formBindingSetValueFn: FormFieldBindingEventSetValueFn = () => {
+    console.error(
+      `'${this.fieldElement}' did not specify form binding set value function.`
+    );
+  };
 
   protected validator: FieldValidator = () => true;
   protected fieldElement!: FieldElement;
@@ -84,38 +86,17 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
    * */
   protected abstract updateModelData(value: unknown): void;
 
-  private ensureChangeEventSubscribed() {
-    if (this._subscription === undefined) {
-      this._subscription = fromEvent(
-        this.fieldElement,
-        this._formBindingEventDetail[FormFieldBindingEventNamePropertyName]
-      ).subscribe((event) => {
-        const newValue =
-          this._formBindingEventDetail[FormFieldBindingEventGetValueMethodName](
-            event
-          );
-
-        this.updateModelData(newValue);
-        this.appendErrorStyleAttributes(newValue);
-      });
-    }
-  }
-
-  private ensureCustomEventSubscribed() {
-    if (!this._customEventSubscriptions.length) {
-      const formBindingEventDetails =
-        // '!' assertion is fine here; method name has to exists in order to come in here
-        (this.fieldElement as CustomFormFieldElement)[
-          FormFieldBindingMethodName
-        ]!();
-      formBindingEventDetails.forEach(({name, getValue}) => {
-        const newSub = fromEvent(this.fieldElement, name).subscribe((e) => {
-          const value = getValue(e as CustomEvent);
+  private ensureFormBindingEventSubscribed() {
+    if (!this._subscriptions.length) {
+      this._formBindingEventDetails.map((detail) => {
+        return fromEvent(
+          this.fieldElement,
+          detail[FormFieldBindingEventNamePropertyName]
+        ).subscribe((event) => {
+          const value = detail[FormFieldBindingEventGetValueMethodName](event);
           this.updateModelData(value);
           this.appendErrorStyleAttributes(value);
         });
-
-        this._customEventSubscriptions.push(newSub);
       });
     }
   }
@@ -152,11 +133,11 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (CustomFormBindingElementTag in this.fieldElement) {
         (this.fieldElement as CustomFormFieldElement)[
           FormFieldBindingEventSetValueMethodName
-        ](defaultValue);
+        ](defaultValue, this.fieldElement);
         return;
       } else {
         // set default value on mapped elements
-        this._formBindingEventDetail.setValue(defaultValue, this.fieldElement);
+        this._formBindingSetValueFn(defaultValue, this.fieldElement);
       }
 
       this._defaultSet = true;
@@ -174,39 +155,42 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     const isCustomFormBindingElement =
       CustomFormBindingElementTag in this.fieldElement;
 
-    const formBindingEventDetailsFound =
-      AbstractFieldDirective.fieldElementFormBindingEventMap.get(
-        this.fieldElement.nodeName
-      );
-    if (formBindingEventDetailsFound) {
-      this._formBindingEventDetail = formBindingEventDetailsFound;
-    } else if (!isCustomFormBindingElement) {
-      console.warn(`Cannot find corresponding form binding event details of '${this.fieldElement.nodeName}'. 
-      Please provide details to the 'fieldEventBindingMap'.`);
-      return;
+    if (isCustomFormBindingElement) {
+      this._formBindingEventDetails = (
+        this.fieldElement as CustomFormFieldElement
+      )[FormFieldBindingMethodName]();
+      this._formBindingSetValueFn = (
+        this.fieldElement as CustomFormFieldElement
+      )[FormFieldBindingEventSetValueMethodName];
+    } else {
+      const formBindingEventDetailsFound =
+        AbstractFieldDirective.fieldElementFormBindingEventMap.get(
+          this.fieldElement.nodeName
+        );
+      if (formBindingEventDetailsFound) {
+        this._formBindingEventDetails =
+          formBindingEventDetailsFound[FormFieldBindingMethodName]();
+        this._formBindingSetValueFn =
+          formBindingEventDetailsFound[FormFieldBindingEventSetValueMethodName];
+      } else {
+        console.warn(`Cannot find corresponding form binding event details of '${this.fieldElement.nodeName}'. 
+        Please provide details to the 'fieldEventBindingMap'.`);
+        return;
+      }
     }
 
     this.configureValidator(options);
     this.appendDefaultValueAttribute();
 
-    if (isCustomFormBindingElement) {
-      this.ensureCustomEventSubscribed();
-    } else {
-      this.ensureChangeEventSubscribed();
-    }
+    this.ensureFormBindingEventSubscribed();
   }
 
   override disconnected(): void {
-    this._subscription?.unsubscribe();
-    this._subscription = undefined;
-    this._customEventSubscriptions.forEach((sub) => {
-      sub.unsubscribe();
-    });
-    this._customEventSubscriptions = [];
+    this._subscriptions.forEach((sub) => sub.unsubscribe());
+    this._subscriptions = [];
   }
 
   protected override reconnected(): void {
-    this.ensureChangeEventSubscribed();
-    this.ensureCustomEventSubscribed();
+    this.ensureFormBindingEventSubscribed();
   }
 }

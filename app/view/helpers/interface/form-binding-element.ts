@@ -12,9 +12,15 @@ export type FormBindingEventDetail<
   [FormFieldBindingEventGetValueMethodName]: (e: TEvent) => TFieldValue;
 };
 
+export type FormFieldBindingEventSetValueFn<
+  TFieldValue = unknown,
+  TElement extends Element = Element
+> = (newValue: TFieldValue, element: TElement) => void;
+
 export interface IFormBindingElement<
   TFieldValue,
-  TEvent extends CustomEvent = CustomEvent
+  TEvent extends Event | CustomEvent = Event,
+  TElement extends Element = Element
 > {
   /**
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
@@ -45,5 +51,8 @@ export interface IFormBindingElement<
    * }
    * ```
    * */
-  [FormFieldBindingEventSetValueMethodName]: (newValue: TFieldValue) => void;
+  [FormFieldBindingEventSetValueMethodName]: FormFieldBindingEventSetValueFn<
+    TFieldValue,
+    TElement
+  >;
 }
