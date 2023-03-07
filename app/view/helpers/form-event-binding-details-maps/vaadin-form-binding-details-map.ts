@@ -1,10 +1,10 @@
 import {TextField} from '@vaadin/text-field';
 import {FieldElementFormBindingEventMap} from '../abstract-field-directive';
 import {
-  FormFieldBindingEventGetValueMethodName,
-  FormFieldBindingEventNamePropertyName,
-  FormFieldBindingEventSetValueMethodName,
-  FormFieldBindingMethodName,
+  GetFormBindingEventValue,
+  FormBindingEventName,
+  SetFormBindingEventValue,
+  GetFormBindingDetails,
 } from '../interface/form-binding-element';
 
 const vaadinFormBindingEventMap: FieldElementFormBindingEventMap<
@@ -13,15 +13,13 @@ const vaadinFormBindingEventMap: FieldElementFormBindingEventMap<
 > = new Map();
 
 vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
-  [FormFieldBindingMethodName]: () => [
+  [GetFormBindingDetails]: () => [
     {
-      [FormFieldBindingEventNamePropertyName]: 'change',
-      [FormFieldBindingEventGetValueMethodName]: (event) =>
-        (event.target as TextField).value,
+      [FormBindingEventName]: 'change',
+      [GetFormBindingEventValue]: (event) => (event.target as TextField).value,
     },
   ],
-  [FormFieldBindingEventSetValueMethodName]: (newValue, element) =>
-    (element.value = newValue),
+  [SetFormBindingEventValue]: (newValue, element) => (element.value = newValue),
 });
 
 export {vaadinFormBindingEventMap};

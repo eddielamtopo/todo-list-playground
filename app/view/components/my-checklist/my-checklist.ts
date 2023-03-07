@@ -4,8 +4,8 @@ import {classMap} from 'lit/directives/class-map.js';
 import strictCustomEvent from '../../helpers/customevents/strict-custom-event';
 import {createRef, Ref, ref} from 'lit/directives/ref.js';
 import {
-  FormFieldBindingEventSetValueMethodName,
-  FormFieldBindingMethodName,
+  SetFormBindingEventValue,
+  GetFormBindingDetails,
   IFormBindingElement,
 } from '../../helpers/interface/form-binding-element';
 import {supportFormBinding} from '../../helpers/decorators/support-form-binding';
@@ -44,7 +44,7 @@ class MyCheckList
     }
   `;
 
-  [FormFieldBindingMethodName]() {
+  [GetFormBindingDetails]() {
     return [
       {
         name: ItemAddEventName,
@@ -63,7 +63,7 @@ class MyCheckList
     ];
   }
 
-  [FormFieldBindingEventSetValueMethodName](newValue: TCheckListItems) {
+  [SetFormBindingEventValue](newValue: TCheckListItems) {
     this.items = newValue;
   }
 

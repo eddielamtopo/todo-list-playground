@@ -1,15 +1,15 @@
-export const FormFieldBindingMethodName = Symbol('getFormFieldBindingEvents');
-export const FormFieldBindingEventNamePropertyName = 'name';
-export const FormFieldBindingEventGetValueMethodName = 'getValue';
-export const FormFieldBindingEventSetValueMethodName = Symbol('setValue');
+export const GetFormBindingDetails = Symbol('getFormFieldBindingEvents');
+export const FormBindingEventName = 'name' as const;
+export const GetFormBindingEventValue = 'getValue' as const;
+export const SetFormBindingEventValue = Symbol('setValue');
 
 export type FormBindingEventDetail<
   TFieldValue,
   TEvent extends Event = Event,
   TEventName extends string = string
 > = {
-  [FormFieldBindingEventNamePropertyName]: TEventName;
-  [FormFieldBindingEventGetValueMethodName]: (e: TEvent) => TFieldValue;
+  [FormBindingEventName]: TEventName;
+  [GetFormBindingEventValue]: (e: TEvent) => TFieldValue;
 };
 
 export type FormFieldBindingEventSetValueFn<
@@ -26,17 +26,17 @@ export interface IFormBindingElement<
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
    * @example
    * ```
-   * [FormFieldBindingMethodName]() {
+   * [GetFormBindingDetails]() {
    *   return [
    *     {
-   *       [FormFieldBindingEventNamePropertyName]: 'my-custom-event',
-   *       [FormFieldBindingEventGetValueMethodName]: (event: CustomEvent<TMyCustomEventPayload>) => event.detail.foo
+   *       [FormBindingEventName]: 'my-custom-event',
+   *       [GetFormBindingEventValue]: (event: CustomEvent<TMyCustomEventPayload>) => event.detail.foo
    *     }
    *   ]
    * }
    * ```
    * */
-  [FormFieldBindingMethodName](): FormBindingEventDetail<TFieldValue, TEvent>[];
+  [GetFormBindingDetails](): FormBindingEventDetail<TFieldValue, TEvent>[];
 
   /**
    * Set the property that will be used to bind to the form
@@ -46,12 +46,12 @@ export interface IFormBindingElement<
    * @property()
    * items: TItems = [];
    *
-   * [FormFieldBindingEventSetValueMethodName](newValue: TItems) {
+   * [SetFormBindingEventValue](newValue: TItems) {
    *   this.items = newValue;
    * }
    * ```
    * */
-  [FormFieldBindingEventSetValueMethodName]: FormFieldBindingEventSetValueFn<
+  [SetFormBindingEventValue]: FormFieldBindingEventSetValueFn<
     TFieldValue,
     TElement
   >;

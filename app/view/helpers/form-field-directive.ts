@@ -7,7 +7,7 @@ import {
 } from './abstract-field-directive';
 import {ElementPart, nothing} from 'lit';
 import {
-  FormFieldBindingEventSetValueMethodName,
+  SetFormBindingEventValue,
   IFormBindingElement,
 } from './interface/form-binding-element';
 import {CustomFormBindingElementTag} from './decorators/support-form-binding';
@@ -49,10 +49,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
             if (CustomFormBindingElementTag in this.fieldElement) {
               const element = this.fieldElement as IFormBindingElement<unknown>;
-              element[FormFieldBindingEventSetValueMethodName](
-                newValue,
-                this.fieldElement
-              );
+              element[SetFormBindingEventValue](newValue, this.fieldElement);
             } else {
               this._formBindingSetValueFn(newValue, this.fieldElement);
             }

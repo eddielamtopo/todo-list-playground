@@ -3,10 +3,10 @@ import {fromEvent, Subscription} from 'rxjs';
 import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 import {
   IFormBindingElement,
-  FormFieldBindingMethodName,
-  FormFieldBindingEventSetValueMethodName,
-  FormFieldBindingEventGetValueMethodName,
-  FormFieldBindingEventNamePropertyName,
+  GetFormBindingDetails,
+  SetFormBindingEventValue,
+  GetFormBindingEventValue,
+  FormBindingEventName,
   FormBindingEventDetail,
   FormFieldBindingEventSetValueFn,
 } from './interface/form-binding-element';
@@ -52,6 +52,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   };
 
   private static fieldElementFormBindingEventMap = new Map();
+  /**
+   * Used for adding details of how a specific element node retrieve and update form binding value based on specific events
+   * */
   static setFieldElementFormBindingEventMap<TElement extends Element>(
     map: FieldElementFormBindingEventMap<string, TElement>
   ) {
@@ -61,6 +64,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     ]);
   }
 
+  /**
+   * Implement the logic to retrieve value from the binding model
+   * */
   protected abstract get fieldValue(): unknown;
 
   private _defaultSet = false;
@@ -91,9 +97,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._formBindingEventDetails.map((detail) => {
         return fromEvent(
           this.fieldElement,
-          detail[FormFieldBindingEventNamePropertyName]
+          detail[FormBindingEventName]
         ).subscribe((event) => {
-          const value = detail[FormFieldBindingEventGetValueMethodName](event);
+          const value = detail[GetFormBindingEventValue](event);
           this.updateModelData(value);
           this.appendErrorStyleAttributes(value);
         });
@@ -131,9 +137,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
       // set value on custom form binding element
       if (CustomFormBindingElementTag in this.fieldElement) {
-        (this.fieldElement as CustomFormFieldElement)[
-          FormFieldBindingEventSetValueMethodName
-        ](defaultValue, this.fieldElement);
+        (this.fieldElement as CustomFormFieldElement)[SetFormBindingEventValue](
+          defaultValue,
+          this.fieldElement
+        );
         return;
       } else {
         // set default value on mapped elements
@@ -158,10 +165,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     if (isCustomFormBindingElement) {
       this._formBindingEventDetails = (
         this.fieldElement as CustomFormFieldElement
-      )[FormFieldBindingMethodName]();
+      )[GetFormBindingDetails]();
       this._formBindingSetValueFn = (
         this.fieldElement as CustomFormFieldElement
-      )[FormFieldBindingEventSetValueMethodName];
+      )[SetFormBindingEventValue];
     } else {
       const formBindingEventDetailsFound =
         AbstractFieldDirective.fieldElementFormBindingEventMap.get(
@@ -169,9 +176,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         );
       if (formBindingEventDetailsFound) {
         this._formBindingEventDetails =
-          formBindingEventDetailsFound[FormFieldBindingMethodName]();
+          formBindingEventDetailsFound[GetFormBindingDetails]();
         this._formBindingSetValueFn =
-          formBindingEventDetailsFound[FormFieldBindingEventSetValueMethodName];
+          formBindingEventDetailsFound[SetFormBindingEventValue];
       } else {
         console.warn(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
         Please provide details to the 'fieldEventBindingMap'.`);

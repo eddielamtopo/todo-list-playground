@@ -4,10 +4,10 @@ import {
   FieldElementFormBindingEventMap,
 } from '../abstract-field-directive';
 import {
-  FormFieldBindingEventGetValueMethodName,
-  FormFieldBindingEventNamePropertyName,
-  FormFieldBindingEventSetValueMethodName,
-  FormFieldBindingMethodName,
+  GetFormBindingEventValue,
+  FormBindingEventName,
+  SetFormBindingEventValue,
+  GetFormBindingDetails,
 } from '../interface/form-binding-element';
 
 const standardFormBindingMap: FieldElementFormBindingEventMap<
@@ -17,14 +17,14 @@ const standardFormBindingMap: FieldElementFormBindingEventMap<
 
 supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
   standardFormBindingMap.set(nodeName, {
-    [FormFieldBindingMethodName]: () => [
+    [GetFormBindingDetails]: () => [
       {
-        [FormFieldBindingEventNamePropertyName]: 'change',
-        [FormFieldBindingEventGetValueMethodName]: (event) =>
+        [FormBindingEventName]: 'change',
+        [GetFormBindingEventValue]: (event) =>
           (event.target as SupportedStandardFormFieldElements).value,
       },
     ],
-    [FormFieldBindingEventSetValueMethodName]: (newValue, element) => {
+    [SetFormBindingEventValue]: (newValue, element) => {
       const elementType = element.getAttribute('type');
       // skip setting input[type="file"] for security reason
       if (elementType === 'file') return;
