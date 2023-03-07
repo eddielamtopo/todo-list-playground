@@ -4,7 +4,6 @@ import {
   AbstractFieldDirective,
   FieldElement,
   FieldOptions,
-  supportedStandardFormFieldElementsNodeNames,
 } from './abstract-field-directive';
 import {ElementPart, nothing} from 'lit';
 import {
@@ -41,23 +40,21 @@ export class FormFieldDirective extends AbstractFieldDirective {
         this.model.watch(
           ({oldFormModelData, newFormModelData, changedPath}) => {
             const changed =
-              deepGetValue(oldFormModelData, this.path) ===
+              deepGetValue(oldFormModelData, this.path) !==
               deepGetValue(newFormModelData, this.path);
 
             if (!changed || changedPath !== this.path) return;
 
             const newValue = deepGetValue(newFormModelData, this.path);
-            if (
-              supportedStandardFormFieldElementsNodeNames.find(
-                (nodeName) => nodeName === this.fieldElement.nodeName
-              )
-            ) {
-              (this.fieldElement as HTMLInputElement).value = String(newValue);
-            }
 
             if (CustomFormBindingElementTag in this.fieldElement) {
               const element = this.fieldElement as IFormBindingElement<unknown>;
               element[FormFieldBindingEventSetValueMethodName](newValue);
+            } else {
+              this._formBindingEventDetail.setValue(
+                newValue,
+                this.fieldElement
+              );
             }
           }
         )

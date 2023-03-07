@@ -3,7 +3,7 @@ export const FormFieldBindingEventNamePropertyName = 'name';
 export const FormFieldBindingEventGetValueMethodName = 'getValue';
 export const FormFieldBindingEventSetValueMethodName = Symbol('setValue');
 
-type FormBindingEventDetail<
+export type FormBindingEventDetail<
   TFieldValue,
   TEvent extends Event = Event,
   TEventName extends string = string
@@ -15,7 +15,7 @@ type FormBindingEventDetail<
 export interface IFormBindingElement<
   TFieldValue,
   TEvent extends CustomEvent = CustomEvent
-> extends HTMLElement {
+> {
   /**
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
    * @example
