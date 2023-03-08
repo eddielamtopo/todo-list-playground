@@ -8,7 +8,7 @@ import {
   FormBindingEventName,
   FormBindingEventDetail,
   FormFieldBindingEventSetValueFn,
-} from './interface/form-binding-element';
+} from '../interface/form-binding-element';
 
 export type FieldOptions = Partial<{
   isValidFn: (value: unknown) => boolean | string;

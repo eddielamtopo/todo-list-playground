@@ -2,8 +2,8 @@ import {css, html, LitElement, nothing} from 'lit';
 import {classMap} from 'lit/directives/class-map.js';
 import {customElement, property, state} from 'lit/decorators.js';
 // form model and form field directive
-import {FormModel} from '../../helpers/form-model-controller';
-import {formField} from '../../helpers/form-field-directive';
+import {FormModel} from '../../helpers/form-binding/form-model-controller';
+import {formField} from '../../helpers/form-binding/form-field-directive';
 import {TCheckListItem} from '../my-checklist/my-checklist';
 import '../my-checklist/my-checklist';
 

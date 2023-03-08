@@ -2,13 +2,13 @@ import {
   supportedStandardFormFieldElementsNodeNames,
   SupportedStandardFormFieldElements,
   FieldElementFormBindingEventMap,
-} from '../abstract-field-directive';
+} from '../field-directive-base';
 import {
   GetFormBindingEventValue,
   FormBindingEventName,
   SetFormBindingEventValue,
   GetFormBindingDetails,
-} from '../interface/form-binding-element';
+} from '../../interface/form-binding-element';
 
 const standardFormBindingMap: FieldElementFormBindingEventMap<SupportedStandardFormFieldElements> =
   new Map();

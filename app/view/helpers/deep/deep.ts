@@ -1,4 +1,4 @@
-import {FieldPath, FieldValues} from '../types';
+import {FieldPath, FieldValues} from '../form-binding/types';
 
 export type Indexable<T extends FieldValues = FieldValues> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

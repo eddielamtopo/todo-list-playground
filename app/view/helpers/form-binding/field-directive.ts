@@ -4,9 +4,9 @@ import {
   AbstractFieldDirective,
   FieldElement,
   FieldOptions,
-} from './abstract-field-directive';
-import {deepGetValue, deepUpdate} from './deep/index';
-import {FieldPath, FieldValues} from './types';
+} from './field-directive-base';
+import {deepGetValue, deepUpdate} from '../deep/index';
+import {FieldPath, FieldValues} from '../form-binding/types';
 
 export class FieldDirective extends AbstractFieldDirective {
   protected model!: FieldValues;

@@ -4,10 +4,10 @@ import {
   AbstractFieldDirective,
   FieldElement,
   FieldOptions,
-} from './abstract-field-directive';
+} from './field-directive-base';
 import {ElementPart, nothing} from 'lit';
-import {deepGetValue} from './deep';
-import {FieldPath, FieldValues} from './types';
+import {deepGetValue} from '../deep';
+import {FieldPath, FieldValues} from '../form-binding/types';
 import {Subscription} from 'rxjs';
 
 // Custom field directive to bind form model to input value

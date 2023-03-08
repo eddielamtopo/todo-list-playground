@@ -4,8 +4,8 @@ import {LitElement} from 'lit';
 // import {field} from '../../helpers/field-directive';
 import '@vaadin/text-field';
 import '@vaadin/text-field/src/vaadin-text-field';
-import {FormModel} from '../../helpers/form-model-controller';
-import {formField} from '../../helpers/form-field-directive';
+import {FormModel} from '../../helpers/form-binding/form-model-controller';
+import {formField} from '../../helpers/form-binding/form-field-directive';
 
 const VaadinFormName = 'vaadin-form';
 @customElement(VaadinFormName)

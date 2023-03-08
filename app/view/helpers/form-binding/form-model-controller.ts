@@ -1,9 +1,9 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
 import {distinctUntilChanged, Subject} from 'rxjs';
-import {FieldValidator} from './abstract-field-directive';
-import {Indexable, TypeAtPath} from './deep/deep';
-import {deepGetValue, deepSetAll, deepUpdate} from './deep/index';
-import {FieldPath} from './types';
+import {FieldValidator} from './field-directive-base';
+import {Indexable, TypeAtPath} from '../deep/deep';
+import {deepGetValue, deepSetAll, deepUpdate} from '../deep/index';
+import {FieldPath} from '../form-binding/types';
 
 type FieldChangeSubject<T extends Indexable> = {
   oldFormModelData: T;

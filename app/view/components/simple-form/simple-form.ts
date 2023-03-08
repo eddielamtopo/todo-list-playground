@@ -3,7 +3,7 @@ import {customElement, state} from 'lit/decorators.js';
 import {when} from 'lit/directives/when.js';
 import {map} from 'lit/directives/map.js';
 import {TCheckListItem} from '../my-checklist/my-checklist';
-import {field} from '../../helpers/field-directive';
+import {field} from '../../helpers/form-binding/field-directive';
 
 const SimpleFormName = 'simple-form';
 @customElement(SimpleFormName)

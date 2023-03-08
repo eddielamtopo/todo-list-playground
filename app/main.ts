@@ -1,8 +1,8 @@
-import {AbstractFieldDirective} from './view/helpers/abstract-field-directive';
+import {AbstractFieldDirective} from './view/helpers/form-binding/field-directive-base';
 import {
   standardFormBindingMap,
   vaadinFormBindingMap,
-} from './view/helpers/form-binding-maps';
+} from './view/helpers/form-binding/form-binding-maps';
 
 console.log('running main.ts...');
 

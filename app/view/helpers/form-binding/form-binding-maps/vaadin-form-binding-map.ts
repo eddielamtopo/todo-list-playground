@@ -1,11 +1,11 @@
 import {TextField} from '@vaadin/text-field';
-import {FieldElementFormBindingEventMap} from '../abstract-field-directive';
+import {FieldElementFormBindingEventMap} from '../field-directive-base';
 import {
   GetFormBindingEventValue,
   FormBindingEventName,
   SetFormBindingEventValue,
   GetFormBindingDetails,
-} from '../interface/form-binding-element';
+} from '../../interface/form-binding-element';
 
 const vaadinFormBindingMap: FieldElementFormBindingEventMap<TextField> =
   new Map();
