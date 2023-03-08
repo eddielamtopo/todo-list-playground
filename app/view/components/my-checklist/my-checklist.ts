@@ -8,7 +8,6 @@ import {
   GetFormBindingDetails,
   IFormBindingElement,
 } from '../../helpers/interface/form-binding-element';
-import {supportFormBinding} from '../../helpers/decorators/support-form-binding';
 
 export type TCheckListItem = {
   id: string;
@@ -32,7 +31,6 @@ export type TCrossOffItemFromCheckListEventPayload = {
 
 const MyCheckListName = 'my-checklist';
 @customElement(MyCheckListName)
-@supportFormBinding()
 class MyCheckList
   extends LitElement
   implements IFormBindingElement<TCheckListItems, CustomEvent>
