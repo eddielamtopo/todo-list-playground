@@ -1,14 +1,14 @@
 import {ElementPart, nothing} from 'lit';
 import {directive, DirectiveClass} from 'lit/async-directive.js';
 import {
-  AbstractFieldDirective,
+  FieldDirectiveBase,
   FieldElement,
   FieldOptions,
 } from './field-directive-base';
 import {deepGetValue, deepUpdate} from '../deep/index';
 import {FieldPath, FieldValues} from '../form-binding/types';
 
-export class FieldDirective extends AbstractFieldDirective {
+export class FieldDirective extends FieldDirectiveBase {
   protected model!: FieldValues;
   protected get fieldValue(): unknown {
     return deepGetValue(this.model, this.path);

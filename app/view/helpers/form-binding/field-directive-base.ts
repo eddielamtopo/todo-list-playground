@@ -41,7 +41,7 @@ export type FieldElementFormBindingEventMap<
   TElement extends Element = Element
 > = Map<string, IFormBindingElement<unknown, Event | CustomEvent, TElement>>;
 
-export abstract class AbstractFieldDirective extends AsyncDirective {
+export abstract class FieldDirectiveBase extends AsyncDirective {
   static readonly errorStylingAttributeNames = {
     invalid: 'invalid',
   };
@@ -61,7 +61,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   >(map: FieldElementFormBindingEventMap<TElement>) {
     map.forEach((value, key) => {
       (
-        AbstractFieldDirective.fieldElementFormBindingEventMap as FieldElementFormBindingEventMap<TElement>
+        FieldDirectiveBase.fieldElementFormBindingEventMap as FieldElementFormBindingEventMap<TElement>
       ).set(key, value);
     });
   }
@@ -120,12 +120,12 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       typeof validationResult === 'string' || validationResult === false;
     if (invalid) {
       this.fieldElement.setAttribute(
-        AbstractFieldDirective.errorStylingAttributeNames.invalid,
+        FieldDirectiveBase.errorStylingAttributeNames.invalid,
         ''
       );
     } else {
       this.fieldElement.removeAttribute(
-        AbstractFieldDirective.errorStylingAttributeNames.invalid
+        FieldDirectiveBase.errorStylingAttributeNames.invalid
       );
     }
   }
@@ -160,7 +160,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       )[SetFormBindingEventValue].bind(this.fieldElement);
     } else {
       const formBindingEventDetailsFound =
-        AbstractFieldDirective.fieldElementFormBindingEventMap.get(
+        FieldDirectiveBase.fieldElementFormBindingEventMap.get(
           this.fieldElement.nodeName
         );
       if (formBindingEventDetailsFound) {

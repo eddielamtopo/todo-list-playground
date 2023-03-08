@@ -1,7 +1,7 @@
 import {directive, DirectiveClass} from 'lit/async-directive.js';
 import {FormModel} from './form-model-controller';
 import {
-  AbstractFieldDirective,
+  FieldDirectiveBase,
   FieldElement,
   FieldOptions,
 } from './field-directive-base';
@@ -11,7 +11,7 @@ import {FieldPath, FieldValues} from '../form-binding/types';
 import {Subscription} from 'rxjs';
 
 // Custom field directive to bind form model to input value
-export class FormFieldDirective extends AbstractFieldDirective {
+export class FormFieldDirective extends FieldDirectiveBase {
   protected model!: FormModel;
   protected get fieldValue(): unknown {
     return deepGetValue(this.model.getAllData(), this.path);

@@ -1,4 +1,4 @@
-import {AbstractFieldDirective} from './view/helpers/form-binding/field-directive-base';
+import {FieldDirectiveBase} from './view/helpers/form-binding/field-directive-base';
 import {
   standardFormBindingMap,
   vaadinFormBindingMap,
@@ -6,7 +6,5 @@ import {
 
 console.log('running main.ts...');
 
-AbstractFieldDirective.setFieldElementFormBindingEventMap(
-  standardFormBindingMap
-);
-AbstractFieldDirective.setFieldElementFormBindingEventMap(vaadinFormBindingMap);
+FieldDirectiveBase.setFieldElementFormBindingEventMap(standardFormBindingMap);
+FieldDirectiveBase.setFieldElementFormBindingEventMap(vaadinFormBindingMap);
