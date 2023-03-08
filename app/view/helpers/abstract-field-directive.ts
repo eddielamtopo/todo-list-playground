@@ -157,7 +157,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._formBindingSetValueFn = (...args) =>
         (this.fieldElement as CustomFormFieldElement)[
           SetFormBindingEventValue
-        ].bind(this.fieldElement).bind(this.fieldElement)(...args);
+        ].bind(this.fieldElement)(...args);
     } else {
       const formBindingEventDetailsFound =
         AbstractFieldDirective.fieldElementFormBindingEventMap.get(
@@ -169,7 +169,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
         this._formBindingSetValueFn = (...args) =>
           formBindingEventDetailsFound[SetFormBindingEventValue].bind(
             this.fieldElement
-          ).bind(this.fieldElement)(...args);
+          )(...args);
       } else {
         console.error(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
         Please provide details to the 'fieldEventBindingMap'.`);
