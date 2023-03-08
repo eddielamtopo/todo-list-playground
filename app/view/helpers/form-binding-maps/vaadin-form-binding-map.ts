@@ -7,10 +7,10 @@ import {
   GetFormBindingDetails,
 } from '../interface/form-binding-element';
 
-const vaadinFormBindingEventMap: FieldElementFormBindingEventMap<TextField> =
+const vaadinFormBindingMap: FieldElementFormBindingEventMap<TextField> =
   new Map();
 
-vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
+vaadinFormBindingMap.set('VAADIN-TEXT-FIELD', {
   [GetFormBindingDetails]: () => [
     {
       [FormBindingEventName]: 'change',
@@ -22,4 +22,4 @@ vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
   },
 });
 
-export {vaadinFormBindingEventMap};
+export {vaadinFormBindingMap};
