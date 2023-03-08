@@ -1,6 +1,5 @@
 import {AsyncDirective} from 'lit/async-directive.js';
 import {fromEvent, Subscription} from 'rxjs';
-import {CustomFormBindingElementTag} from './decorators/support-form-binding';
 import {
   IFormBindingElement,
   GetFormBindingDetails,
@@ -150,7 +149,6 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
     this.path = path;
     this.options = options;
     this.isCustomFormBindingElement =
-      CustomFormBindingElementTag in this.fieldElement &&
       GetFormBindingDetails in this.fieldElement &&
       SetFormBindingEventValue in this.fieldElement;
 
