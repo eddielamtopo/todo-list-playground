@@ -74,11 +74,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private _isDefaultValueSet = false;
   private _subscriptions: Subscription[] = [];
   protected _formBindingEventDetails: FormBindingEventDetail<unknown>[] = [];
-  protected _formBindingSetValueFn: FormFieldBindingEventSetValueFn = () => {
-    console.error(
-      `'${this.fieldElement}' did not specify form binding set value function.`
-    );
-  };
+  protected _formBindingSetValueFn!: (
+    ...args: Parameters<FormFieldBindingEventSetValueFn>
+  ) => void;
 
   protected validator: FieldValidator = () => true;
   protected fieldElement!: FieldElement;
@@ -135,7 +133,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
   private appendDefaultValueAttribute() {
     // setting default value for standard html elements
     if (!this._isDefaultValueSet) {
-      this._formBindingSetValueFn(this.fieldValue, this.fieldElement);
+      this._formBindingSetValueFn(this.fieldValue);
       this._isDefaultValueSet = true;
     }
   }
@@ -156,9 +154,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       this._formBindingEventDetails = (
         this.fieldElement as CustomFormFieldElement
       )[GetFormBindingDetails]();
-      this._formBindingSetValueFn = (
-        this.fieldElement as CustomFormFieldElement
-      )[SetFormBindingEventValue];
+      this._formBindingSetValueFn = (...args) =>
+        (this.fieldElement as CustomFormFieldElement)[
+          SetFormBindingEventValue
+        ].bind(this.fieldElement).bind(this.fieldElement)(...args);
     } else {
       const formBindingEventDetailsFound =
         AbstractFieldDirective.fieldElementFormBindingEventMap.get(
@@ -167,8 +166,10 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
       if (formBindingEventDetailsFound) {
         this._formBindingEventDetails =
           formBindingEventDetailsFound[GetFormBindingDetails]();
-        this._formBindingSetValueFn =
-          formBindingEventDetailsFound[SetFormBindingEventValue];
+        this._formBindingSetValueFn = (...args) =>
+          formBindingEventDetailsFound[SetFormBindingEventValue].bind(
+            this.fieldElement
+          ).bind(this.fieldElement)(...args);
       } else {
         console.error(`Cannot find corresponding form binding event details for '${this.fieldElement.nodeName}'. 
         Please provide details to the 'fieldEventBindingMap'.`);

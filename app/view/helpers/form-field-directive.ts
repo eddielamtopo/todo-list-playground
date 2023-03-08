@@ -6,10 +6,6 @@ import {
   FieldOptions,
 } from './abstract-field-directive';
 import {ElementPart, nothing} from 'lit';
-import {
-  SetFormBindingEventValue,
-  IFormBindingElement,
-} from './interface/form-binding-element';
 import {deepGetValue} from './deep';
 import {FieldPath, FieldValues} from './types';
 import {Subscription} from 'rxjs';
@@ -46,12 +42,7 @@ export class FormFieldDirective extends AbstractFieldDirective {
 
             const newValue = deepGetValue(newFormModelData, this.path);
 
-            if (this.isCustomFormBindingElement) {
-              const element = this.fieldElement as IFormBindingElement<unknown>;
-              element[SetFormBindingEventValue](newValue, this.fieldElement);
-            } else {
-              this._formBindingSetValueFn(newValue, this.fieldElement);
-            }
+            this._formBindingSetValueFn(newValue);
           }
         )
       );

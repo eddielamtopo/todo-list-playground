@@ -22,13 +22,13 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
           (event.target as SupportedStandardFormFieldElements).value,
       },
     ],
-    [SetFormBindingEventValue]: (newValue, element) => {
-      const elementType = element.getAttribute('type');
+    [SetFormBindingEventValue]: function (newValue) {
+      const elementType = this.getAttribute('type');
       // skip setting input[type="file"] for security reason
       if (elementType === 'file') return;
       // setting the default checked checkable input elements
       if (elementType === 'checkbox' || elementType === 'radio') {
-        const checkValue = element.getAttribute('value');
+        const checkValue = this.getAttribute('value');
         if (!checkValue && checkValue !== '') {
           console.warn(
             'Checkbox / radio element must specify a value attribute.'
@@ -36,11 +36,11 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
           return;
         }
 
-        element.setAttribute('checked', '');
+        this.setAttribute('checked', '');
         return;
       }
 
-      element.value = newValue as string;
+      this.value = newValue as string;
     },
   });
 });

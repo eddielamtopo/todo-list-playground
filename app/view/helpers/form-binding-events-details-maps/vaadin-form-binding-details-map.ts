@@ -17,8 +17,9 @@ vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
       [GetFormBindingEventValue]: (event) => (event.target as TextField).value,
     },
   ],
-  [SetFormBindingEventValue]: (newValue, element) =>
-    (element.value = newValue as string),
+  [SetFormBindingEventValue]: function (newValue) {
+    this.value = newValue as string;
+  },
 });
 
 export {vaadinFormBindingEventMap};

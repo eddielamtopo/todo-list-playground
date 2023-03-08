@@ -15,7 +15,7 @@ export type FormBindingEventDetail<
 export type FormFieldBindingEventSetValueFn<
   TFieldValue = unknown,
   TElement extends Element = Element
-> = (newValue: TFieldValue, element: TElement) => void;
+> = (this: TElement, newValue: TFieldValue) => void;
 
 export interface IFormBindingElement<
   TFieldValue,
