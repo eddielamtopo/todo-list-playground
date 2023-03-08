@@ -39,29 +39,32 @@ export type FieldElement = SupportedFormFieldElements;
 export type FieldValidator = (value: unknown) => boolean | string;
 
 export type FieldElementFormBindingEventMap<
-  TFieldValue = unknown,
   TElement extends Element = Element
-> = Map<
-  string,
-  IFormBindingElement<TFieldValue, Event | CustomEvent, TElement>
->;
+> = Map<string, IFormBindingElement<unknown, Event | CustomEvent, TElement>>;
 
 export abstract class AbstractFieldDirective extends AsyncDirective {
   static readonly errorStylingAttributeNames = {
     invalid: 'invalid',
   };
 
-  private static fieldElementFormBindingEventMap = new Map();
+  private static fieldElementFormBindingEventMap: FieldElementFormBindingEventMap =
+    new Map();
   /**
    * Used for adding details of how a specific element node retrieve and update form binding value based on specific events
    * */
-  static setFieldElementFormBindingEventMap<TElement extends Element>(
-    map: FieldElementFormBindingEventMap<string, TElement>
-  ) {
-    AbstractFieldDirective.fieldElementFormBindingEventMap = new Map([
-      ...AbstractFieldDirective.fieldElementFormBindingEventMap,
-      ...map,
-    ]);
+  static setFieldElementFormBindingEventMap<
+    TMap extends FieldElementFormBindingEventMap<Element>,
+    TElement extends Element = TMap extends FieldElementFormBindingEventMap<
+      infer TElement
+    >
+      ? TElement
+      : Element
+  >(map: FieldElementFormBindingEventMap<TElement>) {
+    map.forEach((value, key) => {
+      (
+        AbstractFieldDirective.fieldElementFormBindingEventMap as FieldElementFormBindingEventMap<TElement>
+      ).set(key, value);
+    });
   }
 
   /**

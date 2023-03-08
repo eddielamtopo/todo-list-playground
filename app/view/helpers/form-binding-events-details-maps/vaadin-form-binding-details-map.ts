@@ -7,10 +7,8 @@ import {
   GetFormBindingDetails,
 } from '../interface/form-binding-element';
 
-const vaadinFormBindingEventMap: FieldElementFormBindingEventMap<
-  string,
-  TextField
-> = new Map();
+const vaadinFormBindingEventMap: FieldElementFormBindingEventMap<TextField> =
+  new Map();
 
 vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
   [GetFormBindingDetails]: () => [
@@ -19,7 +17,8 @@ vaadinFormBindingEventMap.set('VAADIN-TEXT-FIELD', {
       [GetFormBindingEventValue]: (event) => (event.target as TextField).value,
     },
   ],
-  [SetFormBindingEventValue]: (newValue, element) => (element.value = newValue),
+  [SetFormBindingEventValue]: (newValue, element) =>
+    (element.value = newValue as string),
 });
 
 export {vaadinFormBindingEventMap};

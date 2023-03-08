@@ -10,10 +10,8 @@ import {
   GetFormBindingDetails,
 } from '../interface/form-binding-element';
 
-const standardFormBindingMap: FieldElementFormBindingEventMap<
-  string,
-  SupportedStandardFormFieldElements
-> = new Map();
+const standardFormBindingMap: FieldElementFormBindingEventMap<SupportedStandardFormFieldElements> =
+  new Map();
 
 supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
   standardFormBindingMap.set(nodeName, {
@@ -42,7 +40,7 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
         return;
       }
 
-      element.value = newValue;
+      element.value = newValue as string;
     },
   });
 });
