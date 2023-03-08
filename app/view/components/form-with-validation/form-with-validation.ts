@@ -73,9 +73,9 @@ export class FormWithValidation extends LitElement {
 
   @state()
   formModel = new FormModel<TMyForm>(this, {
-    firstName: '',
+    firstName: 'Topo',
     lastName: '',
-    age: 0,
+    age: 6,
     dob: `${new Date().getFullYear()}-${
       (new Date().getMonth() + 1).toString().length === 1 ? '0' : ''
     }${new Date().getUTCMonth() + 1}-${new Date().getDate()}`,
@@ -91,7 +91,7 @@ export class FormWithValidation extends LitElement {
       {
         id: '1',
         name: 'Drink water',
-        crossedOff: false,
+        crossedOff: true,
       },
     ],
   });

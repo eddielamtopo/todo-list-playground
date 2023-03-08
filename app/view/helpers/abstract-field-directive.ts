@@ -72,7 +72,7 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
    * */
   protected abstract get fieldValue(): unknown;
 
-  private _defaultSet = false;
+  private _isDefaultValueSet = false;
   private _subscriptions: Subscription[] = [];
   protected _formBindingEventDetails: FormBindingEventDetail<unknown>[] = [];
   protected _formBindingSetValueFn: FormFieldBindingEventSetValueFn = () => {
@@ -135,23 +135,9 @@ export abstract class AbstractFieldDirective extends AsyncDirective {
 
   private appendDefaultValueAttribute() {
     // setting default value for standard html elements
-    if (!this._defaultSet) {
-      // retrieve the default value for this field element
-      const defaultValue = this.fieldValue;
-
-      // set value on custom form binding element
-      if (this.isCustomFormBindingElement) {
-        (this.fieldElement as CustomFormFieldElement)[SetFormBindingEventValue](
-          defaultValue,
-          this.fieldElement
-        );
-        return;
-      } else {
-        // set default value on mapped elements
-        this._formBindingSetValueFn(defaultValue, this.fieldElement);
-      }
-
-      this._defaultSet = true;
+    if (!this._isDefaultValueSet) {
+      this._formBindingSetValueFn(this.fieldValue, this.fieldElement);
+      this._isDefaultValueSet = true;
     }
   }
 
