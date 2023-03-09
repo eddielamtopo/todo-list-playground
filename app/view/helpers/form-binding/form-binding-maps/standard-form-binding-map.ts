@@ -31,12 +31,13 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
         const checkValue = this.getAttribute('value');
         if (!checkValue && checkValue !== '') {
           console.warn(
-            'Checkbox / radio element must specify a value attribute.'
+            `${this.nodeName} element must specify a value attribute.`
           );
           return;
         }
-
-        this.setAttribute('checked', '');
+        if (newValue === checkValue) {
+          this.setAttribute('checked', '');
+        }
         return;
       }
 

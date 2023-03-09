@@ -28,8 +28,8 @@
         "strict": true
       }
     ],
-    "types": ["reflect-metadata", "jest"]
+    "types": ["reflect-metadata", "mocha"]
   },
   "include": ["app/**/*"],
-  "exclude": []
+  "exclude": ["node_modules/**/*", "build/**/*"]
 }

@@ -1,6 +1,7 @@
+import {assert} from '@open-wc/testing';
 import {deepUpdate} from './deep';
 
-describe('deepUpdate', () => {
+suite('deepUpdate', () => {
   const nestedObject = {
     layer1: {
       layer2: {
@@ -40,7 +41,7 @@ describe('deepUpdate', () => {
       },
     };
 
-    expect(test1).toStrictEqual(expectedTest1);
+    assert.deepEqual(test1, expectedTest1 as unknown as typeof test1);
   });
 
   test('expect update nested array value to work', () => {
@@ -66,7 +67,7 @@ describe('deepUpdate', () => {
       },
     };
 
-    expect(test2).toStrictEqual(expectedTest2);
+    assert.deepEqual(test2, expectedTest2 as unknown as typeof test2);
   });
 
   test('expect update array of nested values to work', () => {
@@ -81,7 +82,7 @@ describe('deepUpdate', () => {
     ];
 
     const result = deepUpdate(target, '0.layer1.layer2.value', 456);
-    expect(result).toStrictEqual([
+    assert.deepEqual(result, [
       {
         layer1: {
           layer2: {

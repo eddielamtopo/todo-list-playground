@@ -1,7 +1,8 @@
+import {assert} from '@open-wc/testing';
 import {deepCheckAny} from './deep';
 
-describe('deepCheckAny', () => {
-  it('should check if value is in target of object', () => {
+suite('deepCheckAny', () => {
+  test('should works with nested object', () => {
     const target = {
       a: {
         b: {
@@ -10,10 +11,10 @@ describe('deepCheckAny', () => {
       },
     };
     const result = deepCheckAny(target, true);
-    expect(result).toBe(true);
+    assert.equal(result, true);
   });
 
-  it('should check if value is in target of array', () => {
+  test('should works with array', () => {
     const target = [
       {
         b: {
@@ -22,10 +23,10 @@ describe('deepCheckAny', () => {
       },
     ];
     const result = deepCheckAny(target, true);
-    expect(result).toBe(true);
+    assert.equal(result, true);
   });
 
-  it('should check if value is in target of nested array or object', () => {
+  test('should works with nested array', () => {
     const target = [
       {
         a: [{b: false, a: {f: true}}],
@@ -35,6 +36,6 @@ describe('deepCheckAny', () => {
       },
     ];
     const result = deepCheckAny(target, true);
-    expect(result).toBe(true);
+    assert.equal(result, true);
   });
 });

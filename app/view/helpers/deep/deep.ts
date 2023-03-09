@@ -68,7 +68,7 @@ export function deepUpdate<
 /**
  * Caution: array of mixed types will return unknown.
  * e.g. Indexing { a: { b: [ 1, { c: 2 } ] } } with 'a.b.1.c' will return type 'unknown',
- * becasue b is typed array and not tuple in ts -- i.e. '(number | { c: number })[]'
+ * because b is typed array and not tuple in ts -- i.e. '(number | { c: number })[]'
  * */
 export type TypeAtPath<
   TTarget extends Indexable,
@@ -99,6 +99,11 @@ export function deepSetAll<T extends Indexable, TValue>(
   target: Indexable,
   defaultValue: TValue
 ): {[key in keyof T]: TValue} {
+  // prevent iterating target of string
+  if (typeof target === 'string') {
+    return defaultValue as unknown as {[key in keyof T]: TValue};
+  }
+
   const keys = Object.keys(target);
   const clone = Array.isArray(target) ? [...target] : {...target};
   const isArray = Array.isArray(clone);

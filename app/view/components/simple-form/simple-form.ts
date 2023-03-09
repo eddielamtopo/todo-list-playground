@@ -47,10 +47,11 @@ export class SimpleForm extends LitElement {
 
   @state()
   formModel = {
-    firstName: '',
-    lastName: '',
-    age: 0,
+    firstName: 'Ever',
+    lastName: 'Greatest',
+    age: '100',
     dob: '',
+    placeOfBirth: '',
     profileImg: '',
     annualIncome: 200000,
     maritalStatus: '',
@@ -171,6 +172,36 @@ export class SimpleForm extends LitElement {
           </select>
         </div>
 
+        <div>
+          <label>
+            Huey:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="Hong Kong"
+            />
+          </label>
+          <label>
+            Dewey:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="China"
+            />
+          </label>
+          <label>
+            Louie:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="Outside of China"
+            />
+          </label>
+        </div>
+
         <!-- DEMO: checkbox that only allow 1 checked checkbox -->
         <!-- for something that needs this level of control, make it a controlled component instead of field -->
         <div>
@@ -200,7 +231,7 @@ export class SimpleForm extends LitElement {
         <div>
           <label> Date of birth:<sub>*</sub></label>
           <input
-            type="date"
+            type="datetime-local"
             placeholder="Required"
             ${field(this.formModel, 'dob', {
               isValidFn: (value) => {
