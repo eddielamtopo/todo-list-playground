@@ -21,26 +21,57 @@ suite('field-directive', async () => {
     html`<form-with-field-directive></form-with-field-directive>`
   );
 
+  const textInput = el.shadowRoot!.querySelector(
+    'input[type="text"]'
+  ) as HTMLInputElement;
+  const numberInput = el.shadowRoot!.querySelector(
+    'input[type="number"]'
+  ) as HTMLInputElement;
+  const dateInput = el.shadowRoot!.querySelector(
+    'input[type="date"]'
+  ) as HTMLInputElement;
+  const checkboxInputs = el.shadowRoot!.querySelectorAll(
+    'input[type="checkbox"]'
+  ) as NodeListOf<HTMLInputElement>;
+  const radioInputs = el.shadowRoot!.querySelectorAll(
+    'input[type="radio"]'
+  ) as NodeListOf<HTMLInputElement>;
+
+  test('default set properly', () => {
+    assert.equal(textInput.value, el.form.textField);
+    assert.equal(numberInput.value, String(el.form.numberField));
+    assert.equal(dateInput.value, el.form.dateField);
+    assert(
+      Array.from(checkboxInputs).reduce((_, checkbox, index) => {
+        const isCorrectlyChecked =
+          checkbox.value === el.form.checkboxesField[index]
+            ? checkbox.checked
+            : !checkbox.checked;
+        return isCorrectlyChecked;
+      }, true)
+    );
+    assert(
+      Array.from(radioInputs).reduce((_, radio, index) => {
+        const isCorrectlyChecked =
+          radio.value === el.form.radioField[index]
+            ? radio.checked
+            : !radio.checked;
+        return isCorrectlyChecked;
+      }, true)
+    );
+  });
+
   test('works with input[type="text"]', () => {
-    const textInput = el.shadowRoot!.querySelector(
-      'input[type="text"]'
-    ) as HTMLInputElement;
     simulateChangeEvent(textInput, 'Hello');
     assert.strictEqual('Hello', el.form.textField);
   });
 
   test('works with input[type="number"]', () => {
-    const numberInput = el.shadowRoot!.querySelector(
-      'input[type="number"]'
-    ) as HTMLInputElement;
     simulateChangeEvent(numberInput, 123);
     assert.equal(123, el.form.numberField);
   });
 
   test('works with input[type="date"]', () => {
-    const dateInput = el.shadowRoot!.querySelector(
-      'input[type="date"]'
-    ) as HTMLInputElement;
     const today = new Date();
     const day = `0${today.getDate()}`.slice(-2);
     const month = `0${today.getMonth() + 1}`.slice(-2);
@@ -50,9 +81,6 @@ suite('field-directive', async () => {
   });
 
   test('works with input[type="checkbox"]', () => {
-    const checkboxInputs = el.shadowRoot!.querySelectorAll(
-      'input[type="checkbox"]'
-    ) as NodeListOf<HTMLInputElement>;
     Array.from(checkboxInputs).forEach((checkBox, index) => {
       if (index !== 1) {
         checkBox.click();
@@ -67,9 +95,6 @@ suite('field-directive', async () => {
   });
 
   test('works with input[type="radio"]', () => {
-    const radioInputs = el.shadowRoot!.querySelectorAll(
-      'input[type="radio"]'
-    ) as NodeListOf<HTMLInputElement>;
     Array.from(radioInputs).forEach((radio) => {
       radio.click();
       radio.dispatchEvent(new Event('change'));

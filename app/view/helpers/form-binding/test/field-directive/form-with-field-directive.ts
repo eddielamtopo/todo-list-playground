@@ -24,7 +24,7 @@ export class FormWithFieldDirective extends LitElement {
       numberField: 123,
       fileField: '',
       dateField: '',
-      checkboxesField: ['unchecked', 'unchecked', 'unchecked'],
+      checkboxesField: ['checked', 'unchecked', 'unchecked'],
       radioField: 'dewey',
       selectField: '',
     };
