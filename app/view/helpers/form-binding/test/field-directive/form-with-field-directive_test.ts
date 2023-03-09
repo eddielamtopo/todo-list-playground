@@ -1,5 +1,5 @@
-import './form-with-field-directive';
-import {TestFormDataType} from './form-with-field-directive';
+import './form-with-field-directive'; // import this to have the element built
+import {FormWithFieldDirective} from './form-with-field-directive'; // import the type definition of the element
 import '../../../../../main.js';
 import {assert, litFixture} from '@open-wc/testing';
 import {html} from 'lit/static-html.js';
@@ -13,35 +13,20 @@ suite('field-directive', async () => {
     element.dispatchEvent(new Event('change', {composed: true}));
   }
 
-  let formResult: TestFormDataType = {
-    textField: '',
-    numberField: 123,
-    fileField: '',
-    dateField: '',
-    checkboxesField: ['unchecked', 'unchecked', 'unchecked'],
-    radioField: 'Dewey',
-    selectField: '',
-  };
-
-  const el = await litFixture(
-    html`<form-with-field-directive
-      .returnResult=${(formData: TestFormDataType) => {
-        formResult = formData;
-      }}
-    ></form-with-field-directive>`
+  /**
+   * define el's type here so you can access properties on it safely
+   * el.form <-- ts let this pass
+   * */
+  const el: FormWithFieldDirective = await litFixture(
+    html`<form-with-field-directive></form-with-field-directive>`
   );
-
-  const submitBtn = el.shadowRoot!.querySelector(
-    'input[type="submit"]'
-  ) as HTMLInputElement;
 
   test('works with input[type="text"]', () => {
     const textInput = el.shadowRoot!.querySelector(
       'input[type="text"]'
     ) as HTMLInputElement;
     simulateChangeEvent(textInput, 'Hello');
-    submitBtn.click();
-    assert.strictEqual('Hello', formResult.textField);
+    assert.strictEqual('Hello', el.form.textField);
   });
 
   test('works with input[type="number"]', () => {
@@ -49,8 +34,7 @@ suite('field-directive', async () => {
       'input[type="number"]'
     ) as HTMLInputElement;
     simulateChangeEvent(numberInput, 123);
-    submitBtn.click();
-    assert.equal(123, formResult.numberField);
+    assert.equal(123, el.form.numberField);
   });
 
   test('works with input[type="date"]', () => {
@@ -62,8 +46,7 @@ suite('field-directive', async () => {
     const month = `0${today.getMonth() + 1}`.slice(-2);
     const dateValue = `${today.getFullYear()}-${month}-${day}`;
     simulateChangeEvent(dateInput, dateValue);
-    submitBtn.click();
-    assert.strictEqual(formResult.dateField, dateValue);
+    assert.strictEqual(el.form.dateField, dateValue);
   });
 
   test('works with input[type="checkbox"]', () => {
@@ -76,7 +59,7 @@ suite('field-directive', async () => {
         checkBox.dispatchEvent(new Event('change'));
       }
     });
-    assert.deepEqual(formResult.checkboxesField, [
+    assert.deepEqual(el.form.checkboxesField, [
       'checked',
       'unchecked',
       'checked',
@@ -91,14 +74,14 @@ suite('field-directive', async () => {
       radio.click();
       radio.dispatchEvent(new Event('change'));
     });
-    assert.deepEqual(formResult.radioField, 'Louie');
+    assert.deepEqual(el.form.radioField, 'Louie');
   });
 
   test('works with select', () => {
     const select = el.shadowRoot!.querySelector('select') as HTMLSelectElement;
     simulateChangeEvent(select, 'option-2');
-    submitBtn.click();
-    assert.strictEqual(formResult.selectField, 'option-2');
+
+    assert.strictEqual(el.form.selectField, 'option-2');
   });
 
   // test('works with standard html form elements', async () => {
