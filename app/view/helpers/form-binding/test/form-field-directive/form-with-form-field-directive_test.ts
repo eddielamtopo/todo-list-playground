@@ -51,7 +51,7 @@ suite('field-directive', async () => {
       }, true)
     );
     assert(
-      Array.from(radioInputs).reduce((_, radio, index) => {
+      Array.from(radioInputs).reduce((_, radio) => {
         const isCorrectlyChecked =
           radio.value === el.form.getData('radioField')
             ? radio.checked
@@ -64,6 +64,14 @@ suite('field-directive', async () => {
   test('works with input[type="text"]', () => {
     simulateChangeEvent(textInput, 'Hello');
     assert.strictEqual('Hello', el.form.getData('textField'));
+  });
+
+  test('validate input on change', () => {
+    simulateChangeEvent(textInput, '');
+    assert(
+      typeof el.form.getErrors().textField === 'string',
+      "Required input with error message should return value of type 'string'"
+    );
   });
 
   test('works with input[type="number"]', () => {
@@ -87,11 +95,27 @@ suite('field-directive', async () => {
         checkBox.dispatchEvent(new Event('change'));
       }
     });
-    assert.deepEqual(el.form.getData('checkboxesField'), [
-      'checked',
-      'unchecked',
-      'checked',
-    ]);
+    assert(() => {
+      return (
+        // unchecking returns null
+        el.form.getData('checkboxesField.0') === null &&
+        el.form.getData('checkboxesField.1') === 'unchecked' &&
+        el.form.getData('checkboxesField.2') === 'checked'
+      );
+    }, 'Wrong checkbox values');
+  });
+
+  test('correctly validate checkbox value', async () => {
+    const mustBeCheckedCheckbox = checkboxInputs[1];
+    mustBeCheckedCheckbox.click();
+    mustBeCheckedCheckbox.dispatchEvent(new Event('change'));
+    mustBeCheckedCheckbox.click();
+    mustBeCheckedCheckbox.dispatchEvent(new Event('change'));
+    assert(
+      // FIXME: getErrors type definition
+      typeof (el.form.getErrors().checkboxesField as unknown as string[])[1] ===
+        'string'
+    );
   });
 
   test('works with input[type="radio"]', () => {

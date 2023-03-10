@@ -217,6 +217,8 @@ export class SimpleForm extends LitElement {
                       this.checkedNumberOfChildren = (
                         e.target as HTMLInputElement
                       ).value;
+                      // prevent triggering field 'change' subscription again
+                      e.stopImmediatePropagation();
                     }}
                     .checked=${this.checkedNumberOfChildren === value}
                   />

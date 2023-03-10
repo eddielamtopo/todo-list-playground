@@ -36,13 +36,16 @@ export class FormWithFormFieldDirective extends LitElement {
       <form
         @submit=${(e: Event) => {
           e.preventDefault();
-          // this.returnResult(this.form);
         }}
       >
         <input
           class="text-field"
           type="text"
-          ${formField(this.form, 'textField')}
+          ${formField(this.form, 'textField', {
+            isValidFn: (value) => {
+              return (value as string).length > 0 || 'required';
+            },
+          })}
         />
         <input
           class="number-field"
@@ -69,7 +72,11 @@ export class FormWithFormFieldDirective extends LitElement {
           class="checkboxes-field"
           type="checkbox"
           value="checked"
-          ${formField(this.form, 'checkboxesField.1')}
+          ${formField(this.form, 'checkboxesField.1', {
+            isValidFn: (value) => {
+              return (value as string) === 'checked' || 'must be checked';
+            },
+          })}
         />
         <input
           class="checkboxes-field"

@@ -100,7 +100,10 @@ export abstract class FieldDirectiveBase extends AsyncDirective {
           this.fieldElement,
           detail[FormBindingEventName]
         ).subscribe((event) => {
-          const value = detail[GetFormBindingEventValue](event);
+          const value = detail[GetFormBindingEventValue].bind(
+            this.fieldElement
+          )(event);
+          this._formBindingSetValueFn(value);
           this.updateModelData(value);
           this.appendErrorStyleAttributes(value);
         });

@@ -6,10 +6,11 @@ export const SetFormBindingEventValue = Symbol('setValue');
 export type FormBindingEventDetail<
   TFieldValue,
   TEvent extends Event = Event,
-  TEventName extends string = string
+  TEventName extends string = string,
+  TElement extends Element = Element
 > = {
   [FormBindingEventName]: TEventName;
-  [GetFormBindingEventValue]: (e: TEvent) => TFieldValue;
+  [GetFormBindingEventValue]: (this: TElement, e: TEvent) => TFieldValue;
 };
 
 export type FormFieldBindingEventSetValueFn<
@@ -36,7 +37,12 @@ export interface IFormBindingElement<
    * }
    * ```
    * */
-  [GetFormBindingDetails](): FormBindingEventDetail<TFieldValue, TEvent>[];
+  [GetFormBindingDetails](): FormBindingEventDetail<
+    TFieldValue,
+    TEvent,
+    string,
+    TElement
+  >[];
 
   /**
    * Set the property that will be used to bind to the form

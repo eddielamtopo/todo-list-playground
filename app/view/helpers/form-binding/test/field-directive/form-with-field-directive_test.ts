@@ -87,11 +87,14 @@ suite('field-directive', async () => {
         checkBox.dispatchEvent(new Event('change'));
       }
     });
-    assert.deepEqual(el.form.checkboxesField, [
-      'checked',
-      'unchecked',
-      'checked',
-    ]);
+    assert(() => {
+      return (
+        // unchecking returns null
+        el.form.checkboxesField[0] === null &&
+        el.form.checkboxesField[1] === 'unchecked' &&
+        el.form.checkboxesField[2] === 'checked'
+      );
+    }, 'Wrong checkbox values');
   });
 
   test('works with input[type="radio"]', () => {

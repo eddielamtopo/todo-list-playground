@@ -18,8 +18,18 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
     [GetFormBindingDetails]: () => [
       {
         [FormBindingEventName]: 'change',
-        [GetFormBindingEventValue]: (event) =>
-          (event.target as SupportedStandardFormFieldElements).value,
+        [GetFormBindingEventValue]: function (_event) {
+          // getting the next value of the checkbox
+          // when a checkbox was already checked, it's next value is 'unchecked'
+          if (this.type === 'checkbox') {
+            if (this.hasAttribute('checked')) {
+              return null;
+            } else {
+              return this.value;
+            }
+          }
+          return this.value;
+        },
       },
     ],
     [SetFormBindingEventValue]: function (newValue) {
@@ -35,8 +45,16 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
           );
           return;
         }
+
         if (newValue === checkValue) {
+          // uncheck previously checked checkbox
+          if (elementType === 'checkbox' && this.getAttribute('checked')) {
+            this.removeAttribute('checked');
+            return;
+          }
           this.setAttribute('checked', '');
+        } else {
+          this.removeAttribute('checked');
         }
         return;
       }
