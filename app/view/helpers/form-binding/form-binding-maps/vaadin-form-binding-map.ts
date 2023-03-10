@@ -1,4 +1,11 @@
+// import {RichTextEditor} from '@vaadin/rich-text-editor';
 import {TextField} from '@vaadin/text-field';
+import {Select} from '@vaadin/select';
+import {TextArea} from '@vaadin/text-area';
+import {DatePicker} from '@vaadin/date-picker';
+import {TimePicker} from '@vaadin/time-picker';
+import {DateTimePicker} from '@vaadin/date-time-picker';
+
 import {FieldElementFormBindingEventMap} from '../field-directive-base';
 import {
   GetFormBindingEventValue,
@@ -7,21 +14,42 @@ import {
   GetFormBindingDetails,
 } from '../../interface/form-binding-element';
 
-const vaadinFormBindingMap: FieldElementFormBindingEventMap<TextField> =
+const supportedVaadinDataEntryElements = {
+  'VAADIN-TEXT-FIELD': TextField,
+  // 'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
+  'VAADIN-SELECT': Select,
+  'VAADIN-TEXT-AREA': TextArea,
+  'VAADIN-DATE-PICKER': DatePicker,
+  'VAADIN-TIME-PICKER': TimePicker,
+  'VAADIN-DATE-TIME-PICKER': DateTimePicker,
+};
+
+type SupportedVaadinDataEntryElements =
+  | TextField
+  // | RichTextEditor
+  | Select
+  | TextArea
+  | DatePicker
+  | TimePicker
+  | DateTimePicker;
+
+const vaadinFormBindingMap: FieldElementFormBindingEventMap<SupportedVaadinDataEntryElements> =
   new Map();
 
-vaadinFormBindingMap.set('VAADIN-TEXT-FIELD', {
-  [GetFormBindingDetails]: () => [
-    {
-      [FormBindingEventName]: 'change',
-      [GetFormBindingEventValue]: function (_event) {
-        return this.value;
+Object.keys(supportedVaadinDataEntryElements).forEach((nodeName) => {
+  vaadinFormBindingMap.set(nodeName, {
+    [GetFormBindingDetails]: () => [
+      {
+        [FormBindingEventName]: 'change',
+        [GetFormBindingEventValue]: function () {
+          return this.value;
+        },
       },
+    ],
+    [SetFormBindingEventValue]: function (newValue) {
+      this.value = newValue as string;
     },
-  ],
-  [SetFormBindingEventValue]: function (newValue) {
-    this.value = newValue as string;
-  },
+  });
 });
 
 export {vaadinFormBindingMap};

@@ -1,19 +1,29 @@
-import {html} from 'lit';
+import {css, html} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 import {LitElement} from 'lit';
-// import {field} from '../../helpers/field-directive';
-import '@vaadin/text-field';
-import '@vaadin/text-field/src/vaadin-text-field';
 import {FormModel} from '../../helpers/form-binding/form-model-controller';
 import {formField} from '../../helpers/form-binding/form-field-directive';
+// vaadin components
 
 const VaadinFormName = 'vaadin-form';
 @customElement(VaadinFormName)
 export class VaadinForm extends LitElement {
+  static override styles = css`
+    form > legend {
+      margin-top: 32px;
+    }
+  `;
+
   @property()
-  form = new FormModel<{zipCode: string; lastName: string}>(this, {
+  form = new FormModel(this, {
     zipCode: '',
-    lastName: '',
+    richText: '',
+    select: '',
+    textArea: '',
+    datePicker: '',
+    timePicker: '',
+    dateTimePicker: '',
+    upload: '',
   });
 
   handleSubmit(e: Event) {
@@ -31,6 +41,7 @@ export class VaadinForm extends LitElement {
 
       <form @submit=${this.handleSubmit}>
         <h1>My Vaadin Form</h1>
+
         <vaadin-text-field
           label="Zip code"
           .invalid=${this.form.getErrors().zipCode === true ||
@@ -45,19 +56,49 @@ export class VaadinForm extends LitElement {
         >
         </vaadin-text-field>
 
-        <vaadin-text-field
-          label="Last name"
-          .invalid=${this.form.getErrors().lastName === true ||
-          typeof this.form.getErrors().lastName === 'string'}
-          .errorMessage=${this.form.getErrors().lastName
-            ? 'Last name is required'
-            : ''}
-          ${formField(this.form, 'lastName', {
-            isValidFn: (value) =>
-              (value as string).length > 0 ? true : 'Last name required',
+        <!-- <legend>Multi-select-combo-box:</legend> -->
+        <!-- <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box> -->
+
+        <legend>Rich text:</legend>
+        <!-- <vaadin-rich-text-editor
+          ${formField(this.form, 'richText')}
+        ></vaadin-rich-text-editor> -->
+
+        <legend>Rich text:</legend>
+        <vaadin-select ${formField(this.form, 'select')}></vaadin-select>
+
+        <legend>Sample text field:</legend>
+        <vaadin-text-area
+          ${formField(this.form, 'textArea')}
+        ></vaadin-text-area>
+
+        <legend>Datepicker</legend>
+        <vaadin-date-picker
+          ${formField(this.form, 'datePicker', {
+            isValidFn: (newValue) => {
+              return (
+                new Date(newValue as string).getTime() < new Date().getTime() ||
+                'Must be before today'
+              );
+            },
           })}
-        >
-        </vaadin-text-field>
+        ></vaadin-date-picker>
+
+        <legend>Time picker</legend>
+        <vaadin-time-picker
+          ${formField(this.form, 'timePicker')}
+        ></vaadin-time-picker>
+
+        <legend>Date & Time picker:</legend>
+        <vaadin-date-time-picker
+          ${formField(this.form, 'dateTimePicker')}
+        ></vaadin-date-time-picker>
+
+        <legend>Upload:</legend>
+        <!-- <vaadin-upload ${formField(
+          this.form,
+          'upload'
+        )}></vaadin-upload> -->
 
         <input type="submit" />
       </form>
