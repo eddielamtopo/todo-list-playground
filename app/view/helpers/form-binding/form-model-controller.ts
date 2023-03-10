@@ -12,7 +12,11 @@ type FieldChangeSubject<T extends Indexable> = {
   changedPath: FieldPath<T>;
 };
 
-type ErrorsState<T> = {[key in keyof T]: boolean | string};
+type ErrorsState<T> = {
+  [key in keyof T]: T[key] extends Indexable
+    ? ErrorsState<T[key]>
+    : boolean | string;
+};
 
 export class FormModel<T extends Indexable = Indexable>
   implements ReactiveController

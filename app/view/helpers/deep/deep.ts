@@ -95,13 +95,19 @@ export function deepGetValue<
   }
 }
 
+type DeepSetAllReturnType<T, TValue> = {
+  [key in keyof T]: T[key] extends Indexable
+    ? DeepSetAllReturnType<T[key], TValue>
+    : TValue;
+};
+
 export function deepSetAll<T extends Indexable, TValue>(
   target: Indexable,
   defaultValue: TValue
-): {[key in keyof T]: TValue} {
+): DeepSetAllReturnType<T, TValue> {
   // prevent iterating target of string
   if (typeof target === 'string') {
-    return defaultValue as unknown as {[key in keyof T]: TValue};
+    return defaultValue as unknown as DeepSetAllReturnType<T, TValue>;
   }
 
   const keys = Object.keys(target);

@@ -336,7 +336,7 @@ export class FormWithValidation extends LitElement {
         <div class=${classMap({
           'check-list-invalid-message': true,
           'has-error':
-            this.formModel.getErrors().checkList === true ||
+            this.formModel.getErrors().checkList.every((isValid) => isValid) ||
             typeof this.formModel.getErrors().checkList === 'string',
         })}>
           ⚠️ Not everything on the list is crossed-off!

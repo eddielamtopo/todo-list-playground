@@ -111,11 +111,7 @@ suite('field-directive', async () => {
     mustBeCheckedCheckbox.dispatchEvent(new Event('change'));
     mustBeCheckedCheckbox.click();
     mustBeCheckedCheckbox.dispatchEvent(new Event('change'));
-    assert(
-      // FIXME: getErrors type definition
-      typeof (el.form.getErrors().checkboxesField as unknown as string[])[1] ===
-        'string'
-    );
+    assert(typeof el.form.getErrors().checkboxesField[1] === 'string');
   });
 
   test('works with input[type="radio"]', () => {

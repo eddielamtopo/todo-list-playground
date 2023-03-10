@@ -47,8 +47,7 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
         }
 
         if (newValue === checkValue) {
-          // uncheck previously checked checkbox
-          if (elementType === 'checkbox' && this.getAttribute('checked')) {
+          if (elementType === 'checkbox' && this.hasAttribute('checked')) {
             this.removeAttribute('checked');
             return;
           }
