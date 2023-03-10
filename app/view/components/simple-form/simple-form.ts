@@ -51,7 +51,7 @@ export class SimpleForm extends LitElement {
     lastName: 'Greatest',
     age: '100',
     dob: '',
-    placeOfBirth: '',
+    placeOfBirth: 'Hong Kong',
     profileImg: '',
     annualIncome: 200000,
     maritalStatus: '',
@@ -123,6 +123,37 @@ export class SimpleForm extends LitElement {
           />
         </div>
 
+        <div>
+          <p>Place of birth:</p>
+          <label>
+            Hong Kong:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="Hong Kong"
+            />
+          </label>
+          <label>
+            China:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="China"
+            />
+          </label>
+          <label>
+            Outside of China:
+            <input
+              ${field(this.formModel, 'placeOfBirth')}
+              type="radio"
+              name="place-of-birth"
+              value="Outside of China"
+            />
+          </label>
+        </div>
+
         <!-- DEMO: input:file -->
         <div>
           <label>Profile Image:<sub>*</sub></label>
@@ -170,36 +201,6 @@ export class SimpleForm extends LitElement {
             <option value="divorced">Divorced</option>
             <option value="widowed">Widowed</option>
           </select>
-        </div>
-
-        <div>
-          <label>
-            Huey:
-            <input
-              ${field(this.formModel, 'placeOfBirth')}
-              type="radio"
-              name="place-of-birth"
-              value="Hong Kong"
-            />
-          </label>
-          <label>
-            Dewey:
-            <input
-              ${field(this.formModel, 'placeOfBirth')}
-              type="radio"
-              name="place-of-birth"
-              value="China"
-            />
-          </label>
-          <label>
-            Louie:
-            <input
-              ${field(this.formModel, 'placeOfBirth')}
-              type="radio"
-              name="place-of-birth"
-              value="Outside of China"
-            />
-          </label>
         </div>
 
         <!-- DEMO: checkbox that only allow 1 checked checkbox -->
