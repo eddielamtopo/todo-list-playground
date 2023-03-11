@@ -5,6 +5,7 @@ import {TextArea} from '@vaadin/text-area';
 import {DatePicker} from '@vaadin/date-picker';
 import {TimePicker} from '@vaadin/time-picker';
 import {DateTimePicker} from '@vaadin/date-time-picker';
+import { RichTextEditor } from '@vaadin/rich-text-editor'
 
 import {FieldElementFormBindingEventMap} from '../field-directive-base';
 import {
@@ -16,7 +17,7 @@ import {
 
 const supportedVaadinDataEntryElements = {
   'VAADIN-TEXT-FIELD': TextField,
-  // 'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
+  'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
   'VAADIN-SELECT': Select,
   'VAADIN-TEXT-AREA': TextArea,
   'VAADIN-DATE-PICKER': DatePicker,
@@ -26,7 +27,7 @@ const supportedVaadinDataEntryElements = {
 
 type SupportedVaadinDataEntryElements =
   | TextField
-  // | RichTextEditor
+  | RichTextEditor
   | Select
   | TextArea
   | DatePicker

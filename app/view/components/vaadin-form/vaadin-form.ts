@@ -60,9 +60,9 @@ export class VaadinForm extends LitElement {
         <!-- <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box> -->
 
         <legend>Rich text:</legend>
-        <!-- <vaadin-rich-text-editor
+        <vaadin-rich-text-editor
           ${formField(this.form, 'richText')}
-        ></vaadin-rich-text-editor> -->
+        ></vaadin-rich-text-editor>
 
         <legend>Rich text:</legend>
         <vaadin-select ${formField(this.form, 'select')}></vaadin-select>
