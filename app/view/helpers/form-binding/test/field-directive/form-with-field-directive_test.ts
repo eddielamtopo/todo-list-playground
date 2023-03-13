@@ -112,8 +112,7 @@ suite('field-directive', async () => {
     assert.strictEqual(el.form.selectField, 'option-2');
   });
 
-  // test('works with standard html form elements', async () => {
-  //   // const fileInput = el.shadowRoot!.querySelector(
-  //   //   'input[type="file"]'
-  //   // ) as HTMLInputElement;
+  test('Form updates did not trigger re-render', () => {
+    assert.equal(el.renderCount, 1);
+  });
 });

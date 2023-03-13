@@ -18,6 +18,7 @@ const FormWithFormFieldDirectiveName = 'form-with-form-field-directive';
 export class FormWithFormFieldDirective extends LitElement {
   // Avoiding issues class fields problematic interaction with reactive properties
   declare form: FormModel<TestFormDataType>;
+  declare renderCount: number;
   constructor() {
     super();
     this.form = new FormModel<TestFormDataType>(this, {
@@ -29,6 +30,7 @@ export class FormWithFormFieldDirective extends LitElement {
       radioField: 'dewey',
       selectField: '',
     });
+    this.renderCount = 1;
   }
 
   override render() {

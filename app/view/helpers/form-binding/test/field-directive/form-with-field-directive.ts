@@ -17,8 +17,10 @@ const FormWithFieldDirectiveName = 'form-with-field-directive';
 export class FormWithFieldDirective extends LitElement {
   // Avoiding issues class fields problematic interaction with reactive properties
   declare form: TestFormDataType;
+  declare renderCount: number;
   constructor() {
     super();
+    this.renderCount = 1;
     this.form = {
       textField: '',
       numberField: 123,
