@@ -30,6 +30,8 @@ export class VaadinForm extends LitElement {
     zipCode: '',
     richText: '',
     select: '',
+    checkbox: true,
+    checkboxGroup: ['Check 2'],
     textArea: '',
     datePicker: '',
     timePicker: '',
@@ -75,11 +77,37 @@ export class VaadinForm extends LitElement {
           ${formField(this.form, 'richText')}
         ></vaadin-rich-text-editor>
 
-        <legend>Rich text:</legend>
+        <legend>Select:</legend>
         <vaadin-select
           .items=${this.selectItems}
           ${formField(this.form, 'select')}
         ></vaadin-select>
+
+        <legend>Checkbox:</legend>
+        <vaadin-checkbox
+          .label=${'Check me'}
+          ${formField(this.form, 'checkbox')}
+        ></vaadin-checkbox>
+
+        <legend>Checkbox group:</legend>
+        <vaadin-checkbox-group ${formField(this.form, 'checkboxGroup')}>
+          <vaadin-checkbox
+            value="Check 1"
+            .label=${'Check 1'}
+          ></vaadin-checkbox>
+          <vaadin-checkbox
+            value="Check 2"
+            .label=${'Check 2'}
+          ></vaadin-checkbox>
+          <vaadin-checkbox
+            value="Check 3"
+            .label=${'Check 3'}
+          ></vaadin-checkbox>
+          <vaadin-checkbox
+            value="Check 4"
+            .label=${'Check 4'}
+          ></vaadin-checkbox>
+        </vaadin-checkbox-group>
 
         <legend>Sample text field:</legend>
         <vaadin-text-area
