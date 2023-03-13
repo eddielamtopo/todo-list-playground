@@ -1,11 +1,10 @@
-// import {RichTextEditor} from '@vaadin/rich-text-editor';
 import {TextField} from '@vaadin/text-field';
 import {Select} from '@vaadin/select';
 import {TextArea} from '@vaadin/text-area';
 import {DatePicker} from '@vaadin/date-picker';
 import {TimePicker} from '@vaadin/time-picker';
 import {DateTimePicker} from '@vaadin/date-time-picker';
-import { RichTextEditor } from '@vaadin/rich-text-editor'
+import {RichTextEditor} from '@vaadin/rich-text-editor';
 
 import {FieldElementFormBindingEventMap} from '../field-directive-base';
 import {

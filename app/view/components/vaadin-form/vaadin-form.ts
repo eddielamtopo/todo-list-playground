@@ -15,6 +15,17 @@ export class VaadinForm extends LitElement {
   `;
 
   @property()
+  selectItems = [
+    {label: 'Most recent first', value: 'recent'},
+    {component: 'hr'},
+    {label: 'Rating: low to high', value: 'rating-asc'},
+    {label: 'Rating: high to low', value: 'rating-desc'},
+    {component: 'hr'},
+    {label: 'Price: low to high', value: 'price-asc', disabled: true},
+    {label: 'Price: high to low', value: 'price-desc', disabled: true},
+  ];
+
+  @property()
   form = new FormModel(this, {
     zipCode: '',
     richText: '',
@@ -65,7 +76,10 @@ export class VaadinForm extends LitElement {
         ></vaadin-rich-text-editor>
 
         <legend>Rich text:</legend>
-        <vaadin-select ${formField(this.form, 'select')}></vaadin-select>
+        <vaadin-select
+          .items=${this.selectItems}
+          ${formField(this.form, 'select')}
+        ></vaadin-select>
 
         <legend>Sample text field:</legend>
         <vaadin-text-area
@@ -93,12 +107,6 @@ export class VaadinForm extends LitElement {
         <vaadin-date-time-picker
           ${formField(this.form, 'dateTimePicker')}
         ></vaadin-date-time-picker>
-
-        <legend>Upload:</legend>
-        <!-- <vaadin-upload ${formField(
-          this.form,
-          'upload'
-        )}></vaadin-upload> -->
 
         <input type="submit" />
       </form>
