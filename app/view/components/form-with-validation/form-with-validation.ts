@@ -16,6 +16,7 @@ type TMyForm = {
   annualIncome: number;
   maritalStatus: string;
   numberOfChildren: string;
+  vehicleInPossessions: (string | false)[];
   phoneNumber: {
     personal: string;
     work: string[];
@@ -83,6 +84,7 @@ export class FormWithValidation extends LitElement {
     annualIncome: 200000,
     maritalStatus: '',
     numberOfChildren: '',
+    vehicleInPossessions: [false, false, false],
     phoneNumber: {
       personal: '',
       work: [''],
@@ -98,7 +100,7 @@ export class FormWithValidation extends LitElement {
 
   // conditionals (useful for triggering element(this) update)
   @state()
-  showNumberOfChildrenCheckBox = false;
+  showNumberOfChildrenRadios = false;
   @state()
   checkedNumberOfChildren = this.formModel.getData('numberOfChildren');
   @state()
@@ -108,9 +110,8 @@ export class FormWithValidation extends LitElement {
   formModelDataChangeSubscriptio = this.formModel.watch(
     ({newFormModelData, isDataValid}) => {
       // update conditions
-      this.showNumberOfChildrenCheckBox =
+      this.showNumberOfChildrenRadios =
         newFormModelData.maritalStatus === 'married';
-      this.checkedNumberOfChildren = newFormModelData.numberOfChildren;
       this.submitDisabled = !isDataValid;
     }
   );
@@ -120,6 +121,9 @@ export class FormWithValidation extends LitElement {
 
   @state()
   numberOfChildrenOptions = ['', '0 - 2', '3 - 5 or more'];
+
+  @state()
+  vehicleOptions = ['bike', 'car', 'private jet'];
 
   _handleSubmit(e: Event) {
     console.log(e.target);
@@ -243,16 +247,15 @@ export class FormWithValidation extends LitElement {
 
         <div>
           ${
-            this.showNumberOfChildrenCheckBox
+            this.showNumberOfChildrenRadios
               ? this.numberOfChildrenOptions.map((value) => {
                   return html`
                     <label
                       ><input
-                        type="checkbox"
+                        type="radio"
                         name="numberOfChildren"
                         value=${value}
                         ${formField(this.formModel, 'numberOfChildren')}
-                        .checked=${this.checkedNumberOfChildren === value}
                       />
                       ${value ? `Has ${value} kids` : 'No kids'}
                     </label>
@@ -260,6 +263,22 @@ export class FormWithValidation extends LitElement {
                 })
               : nothing
           }
+        </div>
+          
+        <div>
+          <label>What types of vehicle do you possess?</label>
+          ${this.vehicleOptions.map((option, index) => {
+            return html`
+              <label>
+                <input
+                  type="checkbox"
+                  value=${option}
+                  ${formField(this.formModel, `vehicleInPossessions.${index}`)}
+                />
+                ${option}
+              </label>
+            `;
+          })}
         </div>
 
         <!-- DEMO: input:date -->

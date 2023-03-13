@@ -1,5 +1,5 @@
 import {AsyncDirective} from 'lit/async-directive.js';
-import {fromEvent, Subscription} from 'rxjs';
+import {fromEvent, last, Subscription, takeLast} from 'rxjs';
 import {
   IFormBindingElement,
   GetFormBindingDetails,
@@ -103,7 +103,6 @@ export abstract class FieldDirectiveBase extends AsyncDirective {
           const value = detail[GetFormBindingEventValue].bind(
             this.fieldElement
           )(event);
-          this._formBindingSetValueFn(value);
           this.updateModelData(value);
           this.appendErrorStyleAttributes(value);
         });

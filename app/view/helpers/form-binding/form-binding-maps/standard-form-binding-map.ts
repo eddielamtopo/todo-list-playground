@@ -13,21 +13,19 @@ import {
 const standardFormBindingMap: FieldElementFormBindingEventMap<SupportedStandardFormFieldElements> =
   new Map();
 
+type CheckBoxElement = HTMLInputElement & {checked: boolean};
+
 supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
   standardFormBindingMap.set(nodeName, {
     [GetFormBindingDetails]: () => [
       {
         [FormBindingEventName]: 'change',
         [GetFormBindingEventValue]: function (_event) {
-          // getting the next value of the checkbox
-          // when a checkbox was already checked, it's next value is 'unchecked'
-          if (this.type === 'checkbox') {
-            if (this.hasAttribute('checked')) {
-              return null;
-            } else {
-              return this.value;
-            }
+          const elementType = this.getAttribute('type');
+          if (elementType === 'checkbox' || elementType === 'radio') {
+            return (this as CheckBoxElement).checked ? this.value : false;
           }
+
           return this.value;
         },
       },
@@ -46,15 +44,8 @@ supportedStandardFormFieldElementsNodeNames.forEach((nodeName) => {
           return;
         }
 
-        if (newValue === checkValue) {
-          if (elementType === 'checkbox' && this.hasAttribute('checked')) {
-            this.removeAttribute('checked');
-            return;
-          }
-          this.setAttribute('checked', '');
-        } else {
-          this.removeAttribute('checked');
-        }
+        (this as CheckBoxElement).checked = checkValue === newValue;
+
         return;
       }
 
