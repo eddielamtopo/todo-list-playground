@@ -6,6 +6,7 @@
 
 import {legacyPlugin} from '@web/dev-server-legacy';
 import {esbuildPlugin} from '@web/dev-server-esbuild';
+import {fileURLToPath} from 'url';
 import {playwrightLauncher} from '@web/test-runner-playwright';
 
 const mode = process.env.MODE || 'dev';
@@ -121,6 +122,9 @@ export default {
         ],
       },
     }),
-    esbuildPlugin({ts: true}),
+    esbuildPlugin({
+      ts: true,
+      tsconfig: fileURLToPath(new URL('./tsconfig.json', import.meta.url)),
+    }),
   ],
 };
