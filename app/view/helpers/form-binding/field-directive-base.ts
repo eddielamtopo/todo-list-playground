@@ -1,5 +1,5 @@
 import {AsyncDirective} from 'lit/async-directive.js';
-import {fromEvent, last, Subscription, takeLast} from 'rxjs';
+import {fromEvent, Subscription} from 'rxjs';
 import {
   IFormBindingElement,
   GetFormBindingDetails,
