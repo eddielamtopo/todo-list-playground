@@ -59,11 +59,11 @@ export class FormWithValidation extends LitElement {
     }
 
     .check-list-invalid-message {
-      opacity: 0;
+      display: none;
     }
 
     .check-list-invalid-message.has-error {
-      opacity: 1;
+      display: block;
     }
 
     form *[invalid] {
@@ -336,8 +336,10 @@ export class FormWithValidation extends LitElement {
         <div class=${classMap({
           'check-list-invalid-message': true,
           'has-error':
-            this.formModel.getErrors().checkList.every((isValid) => isValid) ||
-            typeof this.formModel.getErrors().checkList === 'string',
+            // notice down below we register the field 'checkList' as one field
+            // so the validation error will be set 'checkList' to true on .getErrors()
+            (this.formModel.getErrors().checkList as unknown as boolean) ===
+              true || typeof this.formModel.getErrors().checkList === 'string',
         })}>
           ⚠️ Not everything on the list is crossed-off!
         </div>

@@ -1,5 +1,5 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
-import {distinctUntilChanged, Subject} from 'rxjs';
+import {distinctUntilChanged, last, Subject, take, takeLast} from 'rxjs';
 import {FieldValidator} from './field-directive-base';
 import {Indexable, TypeAtPath} from '../deep/deep';
 import {deepGetValue, deepSetAll, deepUpdate} from '../deep/index';
@@ -34,6 +34,10 @@ export class FormModel<T extends Indexable = Indexable>
     return this.errors;
   }
 
+  setError(path: FieldPath<T>, value: boolean) {
+    this.errors = deepUpdate(this.errors, path, value) as ErrorsState<T>;
+  }
+
   private validations = new Map<FieldPath<T>, FieldValidator>();
   setValidations(path: FieldPath<T>, validator: FieldValidator) {
     this.validations.set(path, validator);
@@ -50,7 +54,7 @@ export class FormModel<T extends Indexable = Indexable>
   }
 
   /**
-   * 'valid' check if every binded field is valid without updating the host
+   * 'valid' check if every bound field is valid without updating the host
    * */
   get isDataValid() {
     let allValid = true;
@@ -75,7 +79,7 @@ export class FormModel<T extends Indexable = Indexable>
   }
 
   /**
-   * 'validateAllFields' will trigger validation on all the binded fields
+   * 'validateAllFields' will trigger validation on all the bound fields
    * and update the host to display error message for invalid fields
    * */
   validateAllFields() {

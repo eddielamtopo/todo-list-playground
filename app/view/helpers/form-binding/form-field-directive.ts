@@ -27,7 +27,7 @@ export class FormFieldDirective extends FieldDirectiveBase {
       this.model = model;
 
       this.bind(part.element as FieldElement, path, options);
-
+      this.model.setError(path, false);
       // forwarding validations to be handled by the form model
       this.model.setValidations(this.path, this.validator);
 
