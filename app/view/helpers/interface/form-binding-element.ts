@@ -6,7 +6,7 @@ export const SetFormBindingEventValue = Symbol('setValue');
 export type FormBindingEventDetail<
   TFieldValue,
   TEvent extends Event = Event,
-  TEventName extends string = string,
+  TEventName extends TEvent['type'] = TEvent['type'],
   TElement extends Element = Element
 > = {
   [FormBindingEventName]: TEventName;

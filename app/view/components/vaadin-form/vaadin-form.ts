@@ -32,6 +32,7 @@ export class VaadinForm extends LitElement {
     select: '',
     checkbox: true,
     checkboxGroup: ['Check 2'],
+    comboBoxItems: ['Item 1', 'Item 2'],
     textArea: '',
     datePicker: '',
     timePicker: '',
@@ -82,6 +83,35 @@ export class VaadinForm extends LitElement {
           .items=${this.selectItems}
           ${formField(this.form, 'select')}
         ></vaadin-select>
+
+        <!-- TODO: add following vaadin elements -->
+        <legend>Combo Box:</legend>
+        <vaadin-combo-box
+          allow-custom-value
+          ${formField(this.form, 'comboBoxItems')}
+        ></vaadin-combo-box>
+
+        <legend>Email Field:</legend>
+        <vaadin-email-field></vaadin-email-field>
+
+        <legend>Number Field:</legend>
+        <vaadin-number-field></vaadin-number-field>
+
+        <legend>List Box:</legend>
+        <vaadin-list-box></vaadin-list-box>
+
+        <legend>Multi-Select:</legend>
+        <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box>
+
+        <legend>Password Field:</legend>
+        <vaadin-password-field></vaadin-password-field>
+
+        <legend>Radio Field:</legend>
+        <vaadin-radio-group>
+          <vaadin-radio-button></vaadin-radio-button>
+          <vaadin-radio-button></vaadin-radio-button>
+          <vaadin-radio-button></vaadin-radio-button>
+        </vaadin-radio-group>
 
         <legend>Checkbox:</legend>
         <vaadin-checkbox
