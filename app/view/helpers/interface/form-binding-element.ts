@@ -40,7 +40,7 @@ export interface IFormBindingElement<
   [GetFormBindingDetails](): FormBindingEventDetail<
     TFieldValue,
     TEvent,
-    string,
+    TEvent['type'],
     TElement
   >[];
 

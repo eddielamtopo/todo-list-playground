@@ -37,10 +37,12 @@ import {
   FormBindingEventName,
   SetFormBindingEventValue,
   GetFormBindingDetails,
+  IFormBindingElement,
 } from '../../interface/form-binding-element';
 
 const supportedVaadinDataEntryElements = {
   'VAADIN-TEXT-FIELD': TextField,
+  'VAADIN-EMAIL-FIELD': EmailField,
   'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
   'VAADIN-CHECKBOX': Checkbox,
   'VAADIN-COMBO-BOX': ComboBox,
@@ -54,6 +56,7 @@ const supportedVaadinDataEntryElements = {
 
 type SupportedVaadinDataEntryElements =
   | TextField
+  | EmailField
   | RichTextEditor
   | Select
   | Checkbox
@@ -65,7 +68,10 @@ type SupportedVaadinDataEntryElements =
   | DateTimePicker;
 
 const vaadinFormBindingMap: FieldElementFormBindingEventMap<SupportedVaadinDataEntryElements> =
-  new Map();
+  new Map<
+    SupportedVaadinDataEntryElements['nodeName'],
+    IFormBindingElement<unknown>
+  >();
 
 (
   Object.keys(supportedVaadinDataEntryElements) as Array<

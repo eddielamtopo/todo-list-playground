@@ -28,6 +28,7 @@ export class VaadinForm extends LitElement {
   @property()
   form = new FormModel(this, {
     zipCode: '',
+    email: 'abc@email.com',
     richText: '',
     select: '',
     checkbox: true,
@@ -92,7 +93,9 @@ export class VaadinForm extends LitElement {
         ></vaadin-combo-box>
 
         <legend>Email Field:</legend>
-        <vaadin-email-field></vaadin-email-field>
+        <vaadin-email-field
+          ${formField(this.form, 'email')}
+        ></vaadin-email-field>
 
         <legend>Number Field:</legend>
         <vaadin-number-field></vaadin-number-field>
