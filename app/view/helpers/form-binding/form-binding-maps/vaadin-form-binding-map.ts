@@ -10,13 +10,7 @@ import {DatePicker} from '@vaadin/date-picker';
 import {TimePicker} from '@vaadin/time-picker';
 import {DateTimePicker} from '@vaadin/date-time-picker';
 import {RichTextEditor} from '@vaadin/rich-text-editor';
-import {
-  ComboBox,
-  ComboBoxChangeEvent,
-  ComboBoxCustomValueSetEvent,
-  ComboBoxFilterChangedEvent,
-  ComboBoxValueChangedEvent,
-} from '@vaadin/combo-box';
+import {ComboBox, ComboBoxValueChangedEvent} from '@vaadin/combo-box';
 import '@vaadin/combo-box';
 import {EmailField} from '@vaadin/email-field';
 import '@vaadin/email-field';
@@ -27,7 +21,6 @@ import {
 } from '@vaadin/list-box';
 import '@vaadin/list-box';
 import '@vaadin/item';
-
 import {
   MultiSelectComboBox,
   MultiSelectComboBoxSelectedItemsChangedEvent,
@@ -35,7 +28,7 @@ import {
 import '@vaadin/multi-select-combo-box';
 import {PasswordField} from '@vaadin/password-field';
 import '@vaadin/password-field';
-import {RadioGroup} from '@vaadin/radio-group';
+import {RadioGroup, RadioGroupValueChangedEvent} from '@vaadin/radio-group';
 import '@vaadin/radio-group';
 
 import {FieldElementFormBindingEventMap} from '../field-directive-base';
@@ -49,6 +42,8 @@ import {
 const supportedVaadinDataEntryElementMap = {
   'VAADIN-TEXT-FIELD': TextField,
   'VAADIN-EMAIL-FIELD': EmailField,
+  'VAADIN-PASSWORD-FIELD': PasswordField,
+  'VAADIN-RADIO-GROUP': RadioGroup,
   'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
   'VAADIN-LIST-BOX': ListBox,
   'VAADIN-CHECKBOX': Checkbox,
@@ -130,6 +125,25 @@ const vaadinFormBindingMap: FieldElementFormBindingEventMap<
       [SetFormBindingEventValue]: function (newValue) {
         if (typeof newValue === 'boolean') {
           (this as Checkbox).checked = newValue;
+        }
+      },
+    });
+    return;
+  }
+
+  if (nodeName === 'VAADIN-RADIO-GROUP') {
+    vaadinFormBindingMap.set(nodeName, {
+      [GetFormBindingDetails]: () => [
+        {
+          [FormBindingEventName]: 'value-changed',
+          [GetFormBindingEventValue]: function (e) {
+            return (e as RadioGroupValueChangedEvent).detail.value;
+          },
+        },
+      ],
+      [SetFormBindingEventValue]: function (newValue) {
+        if (typeof newValue === 'string') {
+          (this as RadioGroup).value = newValue;
         }
       },
     });

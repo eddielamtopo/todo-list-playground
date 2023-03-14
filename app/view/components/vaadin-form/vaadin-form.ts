@@ -29,6 +29,8 @@ export class VaadinForm extends LitElement {
   comboBoxItems = ['Item 1', 'Item 2'];
   @property()
   multiSelectItems = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
+  @property()
+  radioItems = ['Item 1', 'Item 2', 'Item 3'];
 
   @property()
   form = new FormModel(this, {
@@ -42,6 +44,8 @@ export class VaadinForm extends LitElement {
     multiComboBox: ['Item 1', 'Item 2'],
     listBoxSelectedValue: [0],
     listBoxSelectedValues: [0, 2],
+    radio: 'Item 1',
+    password: 'password123',
     textArea: '',
     datePicker: '',
     timePicker: '',
@@ -133,13 +137,20 @@ export class VaadinForm extends LitElement {
         ></vaadin-multi-select-combo-box>
 
         <legend>Password Field:</legend>
-        <vaadin-password-field></vaadin-password-field>
+        <vaadin-password-field
+          ${formField(this.form, 'password')}
+        ></vaadin-password-field>
 
         <legend>Radio Field:</legend>
-        <vaadin-radio-group>
-          <vaadin-radio-button></vaadin-radio-button>
-          <vaadin-radio-button></vaadin-radio-button>
-          <vaadin-radio-button></vaadin-radio-button>
+        <vaadin-radio-group ${formField(this.form, 'radio')}>
+          ${this.radioItems.map((item) => {
+            return html`
+              <vaadin-radio-button
+                value=${item}
+                label=${item}
+              ></vaadin-radio-button>
+            `;
+          })}
         </vaadin-radio-group>
 
         <legend>Checkbox:</legend>
