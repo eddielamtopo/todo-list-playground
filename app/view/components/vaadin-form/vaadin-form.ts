@@ -26,6 +26,11 @@ export class VaadinForm extends LitElement {
   ];
 
   @property()
+  comboBoxItems = ['Item 1', 'Item 2'];
+  @property()
+  multiSelectItems = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
+
+  @property()
   form = new FormModel(this, {
     zipCode: '',
     email: 'abc@email.com',
@@ -33,7 +38,8 @@ export class VaadinForm extends LitElement {
     select: '',
     checkbox: true,
     checkboxGroup: ['Check 2'],
-    comboBoxItems: ['Item 1', 'Item 2'],
+    comboBoxItems: 'Item 1',
+    multiComboBox: ['Item 1', 'Item 2'],
     listBoxSelectedValue: [0],
     listBoxSelectedValues: [0, 2],
     textArea: '',
@@ -91,6 +97,7 @@ export class VaadinForm extends LitElement {
         <legend>Combo Box:</legend>
         <vaadin-combo-box
           allow-custom-value
+          .items=${this.comboBoxItems}
           ${formField(this.form, 'comboBoxItems')}
         ></vaadin-combo-box>
 
@@ -120,7 +127,10 @@ export class VaadinForm extends LitElement {
         </vaadin-list-box>
 
         <legend>Multi-Select:</legend>
-        <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box>
+        <vaadin-multi-select-combo-box
+          .items=${this.multiSelectItems}
+          ${formField(this.form, 'multiComboBox')}
+        ></vaadin-multi-select-combo-box>
 
         <legend>Password Field:</legend>
         <vaadin-password-field></vaadin-password-field>

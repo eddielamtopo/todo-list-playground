@@ -10,7 +10,6 @@ import {DatePicker} from '@vaadin/date-picker';
 import {TimePicker} from '@vaadin/time-picker';
 import {DateTimePicker} from '@vaadin/date-time-picker';
 import {RichTextEditor} from '@vaadin/rich-text-editor';
-
 import {
   ComboBox,
   ComboBoxChangeEvent,
@@ -19,10 +18,8 @@ import {
   ComboBoxValueChangedEvent,
 } from '@vaadin/combo-box';
 import '@vaadin/combo-box';
-
 import {EmailField} from '@vaadin/email-field';
 import '@vaadin/email-field';
-
 import {
   ListBox,
   ListBoxSelectedValuesChangedEvent,
@@ -31,7 +28,10 @@ import {
 import '@vaadin/list-box';
 import '@vaadin/item';
 
-import {MultiSelectComboBox} from '@vaadin/multi-select-combo-box';
+import {
+  MultiSelectComboBox,
+  MultiSelectComboBoxSelectedItemsChangedEvent,
+} from '@vaadin/multi-select-combo-box';
 import '@vaadin/multi-select-combo-box';
 import {PasswordField} from '@vaadin/password-field';
 import '@vaadin/password-field';
@@ -53,6 +53,7 @@ const supportedVaadinDataEntryElementMap = {
   'VAADIN-LIST-BOX': ListBox,
   'VAADIN-CHECKBOX': Checkbox,
   'VAADIN-COMBO-BOX': ComboBox,
+  'VAADIN-MULTI-SELECT-COMBO-BOX': MultiSelectComboBox,
   'VAADIN-CHECKBOX-GROUP': CheckboxGroup,
   'VAADIN-SELECT': Select,
   'VAADIN-TEXT-AREA': TextArea,
@@ -158,24 +159,6 @@ const vaadinFormBindingMap: FieldElementFormBindingEventMap<
     vaadinFormBindingMap.set(nodeName, {
       [GetFormBindingDetails]: () => [
         {
-          [FormBindingEventName]: 'change',
-          [GetFormBindingEventValue]: function (e) {
-            return (e as ComboBoxChangeEvent<unknown>).target.value;
-          },
-        },
-        {
-          [FormBindingEventName]: 'custom-value-set',
-          [GetFormBindingEventValue]: function (e) {
-            return (e as ComboBoxCustomValueSetEvent).detail;
-          },
-        },
-        {
-          [FormBindingEventName]: 'filter-changed',
-          [GetFormBindingEventValue]: function (e) {
-            return (e as ComboBoxFilterChangedEvent).detail.value;
-          },
-        },
-        {
           [FormBindingEventName]: 'value-changed',
           [GetFormBindingEventValue]: function (e) {
             return (e as ComboBoxValueChangedEvent).detail.value;
@@ -183,12 +166,29 @@ const vaadinFormBindingMap: FieldElementFormBindingEventMap<
         },
       ],
       [SetFormBindingEventValue]: function (newValue) {
-        // setting default values
-        if (Array.isArray(newValue)) {
-          (this as ComboBox).items = newValue;
-        }
         if (typeof newValue === 'string') {
           (this as ComboBox).value = newValue;
+        }
+      },
+    });
+    return;
+  }
+
+  if (nodeName === 'VAADIN-MULTI-SELECT-COMBO-BOX') {
+    vaadinFormBindingMap.set(nodeName, {
+      [GetFormBindingDetails]: () => [
+        {
+          [FormBindingEventName]: 'selected-items-changed',
+          [GetFormBindingEventValue]: function (e) {
+            return (
+              e as MultiSelectComboBoxSelectedItemsChangedEvent<unknown[]>
+            ).detail.value;
+          },
+        },
+      ],
+      [SetFormBindingEventValue]: function (newValue) {
+        if (Array.isArray(newValue)) {
+          (this as MultiSelectComboBox).selectedItems = newValue;
         }
       },
     });
