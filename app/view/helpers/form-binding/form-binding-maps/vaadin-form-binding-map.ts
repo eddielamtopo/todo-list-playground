@@ -22,8 +22,15 @@ import '@vaadin/combo-box';
 
 import {EmailField} from '@vaadin/email-field';
 import '@vaadin/email-field';
-import {ListBox} from '@vaadin/list-box';
+
+import {
+  ListBox,
+  ListBoxSelectedValuesChangedEvent,
+  ListBoxSelectedChangedEvent,
+} from '@vaadin/list-box';
 import '@vaadin/list-box';
+import '@vaadin/item';
+
 import {MultiSelectComboBox} from '@vaadin/multi-select-combo-box';
 import '@vaadin/multi-select-combo-box';
 import {PasswordField} from '@vaadin/password-field';
@@ -37,13 +44,13 @@ import {
   FormBindingEventName,
   SetFormBindingEventValue,
   GetFormBindingDetails,
-  IFormBindingElement,
 } from '../../interface/form-binding-element';
 
-const supportedVaadinDataEntryElements = {
+const supportedVaadinDataEntryElementMap = {
   'VAADIN-TEXT-FIELD': TextField,
   'VAADIN-EMAIL-FIELD': EmailField,
   'VAADIN-RICH-TEXT-EDITOR': RichTextEditor,
+  'VAADIN-LIST-BOX': ListBox,
   'VAADIN-CHECKBOX': Checkbox,
   'VAADIN-COMBO-BOX': ComboBox,
   'VAADIN-CHECKBOX-GROUP': CheckboxGroup,
@@ -54,30 +61,61 @@ const supportedVaadinDataEntryElements = {
   'VAADIN-DATE-TIME-PICKER': DateTimePicker,
 } as const;
 
-type SupportedVaadinDataEntryElements =
-  | TextField
-  | EmailField
-  | RichTextEditor
-  | Select
-  | Checkbox
-  | ComboBox
-  | CheckboxGroup
-  | TextArea
-  | DatePicker
-  | TimePicker
-  | DateTimePicker;
+type ExtractComponent<K extends string> =
+  K extends keyof typeof supportedVaadinDataEntryElementMap
+    ? InstanceType<typeof supportedVaadinDataEntryElementMap[K]>
+    : unknown;
 
-const vaadinFormBindingMap: FieldElementFormBindingEventMap<SupportedVaadinDataEntryElements> =
-  new Map<
-    SupportedVaadinDataEntryElements['nodeName'],
-    IFormBindingElement<unknown>
-  >();
+const vaadinFormBindingMap: FieldElementFormBindingEventMap<
+  ExtractComponent<keyof typeof supportedVaadinDataEntryElementMap>
+> = new Map();
 
 (
-  Object.keys(supportedVaadinDataEntryElements) as Array<
-    keyof typeof supportedVaadinDataEntryElements
+  Object.keys(supportedVaadinDataEntryElementMap) as Array<
+    keyof typeof supportedVaadinDataEntryElementMap
   >
 ).forEach((nodeName) => {
+  if (nodeName === 'VAADIN-LIST-BOX') {
+    vaadinFormBindingMap.set(nodeName, {
+      [GetFormBindingDetails]: () => [
+        {
+          [FormBindingEventName]: 'selected-values-changed',
+          [GetFormBindingEventValue]: function (e) {
+            return (e as ListBoxSelectedValuesChangedEvent).detail.value;
+          },
+        },
+        {
+          [FormBindingEventName]: 'selected-changed',
+          [GetFormBindingEventValue]: function (e) {
+            return (e as ListBoxSelectedChangedEvent).detail.value;
+          },
+        },
+      ],
+      [SetFormBindingEventValue]: function (newValue) {
+        // new value will be number[]
+        if (Array.isArray(newValue)) {
+          // handling set value of 'selected-values-changed'
+          if (this.hasAttribute('multiple')) {
+            if (
+              Array.isArray(newValue) ||
+              newValue === null ||
+              newValue === undefined
+            ) {
+              (this as ListBox).selectedValues = newValue;
+            }
+          } else {
+            // handling set value of 'selected-changed'
+            if (typeof newValue[0] === 'number') {
+              (this as ListBox).selected = newValue[0];
+              this.setAttribute('selected', String(newValue));
+            }
+          }
+        }
+      },
+    });
+    return;
+  }
+
   if (nodeName === 'VAADIN-CHECKBOX') {
     vaadinFormBindingMap.set(nodeName, {
       [GetFormBindingDetails]: () => [
@@ -145,6 +183,7 @@ const vaadinFormBindingMap: FieldElementFormBindingEventMap<SupportedVaadinDataE
         },
       ],
       [SetFormBindingEventValue]: function (newValue) {
+        // setting default values
         if (Array.isArray(newValue)) {
           (this as ComboBox).items = newValue;
         }
@@ -161,12 +200,13 @@ const vaadinFormBindingMap: FieldElementFormBindingEventMap<SupportedVaadinDataE
       {
         [FormBindingEventName]: 'change',
         [GetFormBindingEventValue]: function () {
-          return this.value;
+          return (this as unknown as ExtractComponent<typeof nodeName>).value;
         },
       },
     ],
     [SetFormBindingEventValue]: function (newValue) {
-      this.value = newValue as string;
+      (this as unknown as ExtractComponent<typeof nodeName>).value =
+        newValue as string;
     },
   });
 });

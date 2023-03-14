@@ -34,6 +34,8 @@ export class VaadinForm extends LitElement {
     checkbox: true,
     checkboxGroup: ['Check 2'],
     comboBoxItems: ['Item 1', 'Item 2'],
+    listBoxSelectedValue: [0],
+    listBoxSelectedValues: [0, 2],
     textArea: '',
     datePicker: '',
     timePicker: '',
@@ -100,8 +102,22 @@ export class VaadinForm extends LitElement {
         <legend>Number Field:</legend>
         <vaadin-number-field></vaadin-number-field>
 
-        <legend>List Box:</legend>
-        <vaadin-list-box></vaadin-list-box>
+        <legend>List Box (Single):</legend>
+        <vaadin-list-box ${formField(this.form, 'listBoxSelectedValue')}>
+          <vaadin-item>Show assignee</vaadin-item>
+          <vaadin-item>Show due date</vaadin-item>
+          <vaadin-item>Show status</vaadin-item>
+        </vaadin-list-box>
+
+        <legend>List Box (Multiple):</legend>
+        <vaadin-list-box
+          multiple
+          ${formField(this.form, 'listBoxSelectedValues')}
+        >
+          <vaadin-item>Show assignee</vaadin-item>
+          <vaadin-item>Show due date</vaadin-item>
+          <vaadin-item>Show status</vaadin-item>
+        </vaadin-list-box>
 
         <legend>Multi-Select:</legend>
         <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box>
