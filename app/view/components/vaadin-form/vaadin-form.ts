@@ -32,7 +32,6 @@ export class VaadinForm extends LitElement {
   @property()
   radioItems = ['Item 1', 'Item 2', 'Item 3'];
 
-  @property()
   form = new FormModel(this, {
     zipCode: '',
     email: 'abc@email.com',
@@ -40,7 +39,7 @@ export class VaadinForm extends LitElement {
     select: '',
     checkbox: true,
     checkboxGroup: ['Check 2'],
-    comboBoxItems: 'Item 1',
+    comboBoxItems: this.comboBoxItems[0],
     multiComboBox: ['Item 1', 'Item 2'],
     listBoxSelectedValue: [0],
     listBoxSelectedValues: [0, 2],
@@ -83,9 +82,6 @@ export class VaadinForm extends LitElement {
         >
         </vaadin-text-field>
 
-        <!-- <legend>Multi-select-combo-box:</legend> -->
-        <!-- <vaadin-multi-select-combo-box></vaadin-multi-select-combo-box> -->
-
         <legend>Rich text:</legend>
         <vaadin-rich-text-editor
           ${formField(this.form, 'richText')}
@@ -97,7 +93,6 @@ export class VaadinForm extends LitElement {
           ${formField(this.form, 'select')}
         ></vaadin-select>
 
-        <!-- TODO: add following vaadin elements -->
         <legend>Combo Box:</legend>
         <vaadin-combo-box
           allow-custom-value

@@ -1,5 +1,5 @@
 import {ReactiveController, ReactiveControllerHost} from 'lit';
-import {distinctUntilChanged, Subject} from 'rxjs';
+import {distinctUntilChanged, last, Subject} from 'rxjs';
 import {FieldValidator} from './field-directive-base';
 import {Indexable, TypeAtPath} from '../deep/deep';
 import {deepGetValue, deepSetAll, deepUpdate} from '../deep/index';
@@ -143,13 +143,14 @@ export class FormModel<T extends Indexable = Indexable>
   private _errorSubscription = this._errorSubject
     .asObservable()
     .pipe(
+      last(),
       distinctUntilChanged(
         (a, b) =>
           JSON.stringify(a).split('').sort().join('') ===
           JSON.stringify(b).split('').sort().join('')
       )
     )
-    .subscribe(() => {
+    .subscribe(async () => {
       this.host.requestUpdate();
     });
   private _updateErrorSubject(newErrors: ErrorsState<T>) {
