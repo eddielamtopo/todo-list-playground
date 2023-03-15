@@ -1,7 +1,7 @@
 import './form-with-field-directive'; // import this to have the element built
 import {FormWithFieldDirective} from './form-with-field-directive'; // import the type definition of the element
 import '../../../../../main.js';
-import {assert, litFixture} from '@open-wc/testing';
+import {assert, fixture} from '@open-wc/testing';
 import {html} from 'lit/static-html.js';
 
 suite('field-directive', async () => {
@@ -17,9 +17,11 @@ suite('field-directive', async () => {
    * define el's type here so you can access properties on it safely
    * el.form <-- ts let this pass
    * */
-  const el: FormWithFieldDirective = await litFixture(
+  const el: FormWithFieldDirective = await fixture(
     html`<form-with-field-directive></form-with-field-directive>`
   );
+
+  // document.body.append(el);
 
   const textInput = el.shadowRoot!.querySelector(
     'input[type="text"]'

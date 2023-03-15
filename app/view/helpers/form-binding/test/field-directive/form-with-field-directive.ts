@@ -1,5 +1,5 @@
 import {html, LitElement} from 'lit';
-import {customElement} from 'lit/decorators.js';
+import {customElement, property} from 'lit/decorators.js';
 import {field} from '../../field-directive';
 
 export type TestFormDataType = {
@@ -15,22 +15,19 @@ export type TestFormDataType = {
 const FormWithFieldDirectiveName = 'form-with-field-directive';
 @customElement(FormWithFieldDirectiveName)
 export class FormWithFieldDirective extends LitElement {
-  // Avoiding issues class fields problematic interaction with reactive properties
-  declare form: TestFormDataType;
-  declare renderCount: number;
-  constructor() {
-    super();
-    this.renderCount = 1;
-    this.form = {
-      textField: '',
-      numberField: 123,
-      fileField: '',
-      dateField: '',
-      checkboxesField: ['checked', 'unchecked', 'unchecked'],
-      radioField: 'dewey',
-      selectField: '',
-    };
-  }
+  @property()
+  form: TestFormDataType = {
+    textField: '',
+    numberField: 123,
+    fileField: '',
+    dateField: '',
+    checkboxesField: ['checked', 'unchecked', 'unchecked'],
+    radioField: 'dewey',
+    selectField: '',
+  };
+
+  @property()
+  renderCount = 1;
 
   override render() {
     return html`

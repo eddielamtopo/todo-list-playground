@@ -32,5 +32,5 @@
     "types": ["reflect-metadata", "mocha"]
   },
   "include": ["app/**/*"],
-  "exclude": ["node_modules/**/*", "build/**/*"]
+  "exclude": ["node_modules"]
 }
