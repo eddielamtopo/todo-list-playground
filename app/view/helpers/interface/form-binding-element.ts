@@ -26,7 +26,7 @@ export interface IFormBindingElement<
   /**
    * Return an array of object, with custom form binding event name and a function that returns its payload to bind to form field
    * @example
-   * ```
+   * ```ts
    * [GetFormBindingDetails]() {
    *   return [
    *     {
@@ -48,7 +48,7 @@ export interface IFormBindingElement<
    * Set the property that will be used to bind to the form
    * (Used by the form model to update the value in this form binding element)
    * @example
-   * ```
+   * ```ts
    * @property()
    * items: TItems = [];
    *

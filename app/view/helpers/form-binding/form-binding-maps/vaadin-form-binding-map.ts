@@ -1,4 +1,5 @@
 import {TextField} from '@vaadin/text-field';
+import {NumberField} from '@vaadin/number-field';
 import {Select} from '@vaadin/select';
 import {Checkbox, CheckboxCheckedChangedEvent} from '@vaadin/checkbox';
 import {
@@ -30,7 +31,7 @@ import {PasswordField} from '@vaadin/password-field';
 import '@vaadin/password-field';
 import {RadioGroup, RadioGroupValueChangedEvent} from '@vaadin/radio-group';
 import '@vaadin/radio-group';
-
+/* types */
 import {FieldElementFormBindingEventMap} from '../field-directive-base';
 import {
   GetFormBindingEventValue,
@@ -41,6 +42,7 @@ import {
 
 const supportedVaadinDataEntryElementMap = {
   'VAADIN-TEXT-FIELD': TextField,
+  'VAADIN-NUMBER-FIELD': NumberField,
   'VAADIN-EMAIL-FIELD': EmailField,
   'VAADIN-PASSWORD-FIELD': PasswordField,
   'VAADIN-RADIO-GROUP': RadioGroup,
@@ -59,7 +61,7 @@ const supportedVaadinDataEntryElementMap = {
 
 type ExtractComponent<K extends string> =
   K extends keyof typeof supportedVaadinDataEntryElementMap
-    ? InstanceType<typeof supportedVaadinDataEntryElementMap[K]>
+    ? InstanceType<(typeof supportedVaadinDataEntryElementMap)[K]>
     : unknown;
 
 const vaadinFormBindingMap: FieldElementFormBindingEventMap<
