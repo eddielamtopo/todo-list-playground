@@ -7,6 +7,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
+    "rootDir": ".",
     "outDir": "./build",
     "baseUrl": "app",
     "strict": true,
