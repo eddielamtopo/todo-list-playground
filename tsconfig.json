@@ -8,7 +8,7 @@
     "sourceMap": true,
     "inlineSources": true,
     "outDir": "./build",
-    "rootDir": "./app",
+    "baseUrl": "app",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -23,6 +23,9 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
+    "paths": {
+      "@view/*": ["./view/*"]
+    },
     "plugins": [
       {
         "name": "ts-lit-plugin",

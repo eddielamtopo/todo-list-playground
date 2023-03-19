@@ -7,8 +7,8 @@
   "module": "my-element.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build": "tsc && tsc-alias",
+    "build:watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "lint": "npm run lint:lit-analyzer && npm run lint:eslint",
     "lint:eslint": "eslint 'app/**/*.ts'",
     "lint:lit-analyzer": "lit-analyzer",
@@ -73,6 +73,7 @@
     "@web/test-runner": "^0.13.27",
     "@web/test-runner-playwright": "^0.8.8",
     "@webcomponents/webcomponentsjs": "^2.6.0",
+    "concurrently": "^7.6.0",
     "eslint": "^8.15.0",
     "lit-analyzer": "^1.2.1",
     "prettier": "^2.6.2",
@@ -80,6 +81,7 @@
     "rollup": "^2.73.0",
     "rollup-plugin-summary": "^1.4.3",
     "rollup-plugin-terser": "^7.0.2",
+    "tsc-alias": "^1.8.3",
     "typescript": "~4.7.4"
   },
   "customElements": "custom-elements.json"

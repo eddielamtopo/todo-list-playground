@@ -1,10 +1,10 @@
 import {directive, DirectiveClass} from 'lit/async-directive.js';
-import {FormModel} from './form-model-controller';
+import {FormModel} from '@view/helpers/form-binding/form-model-controller';
 import {
   FieldDirectiveBase,
   FieldElement,
   FieldOptions,
-} from './field-directive-base';
+} from '@view/helpers/form-binding/field-directive-base';
 import {ElementPart, nothing} from 'lit';
 import {deepGetValue} from '../deep';
 import {FieldPath, FieldValues} from '../form-binding/types';
